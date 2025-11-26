@@ -51,5 +51,7 @@ export const RefVar = parser_ts.RefVar;
 
 export const operator = parser_ts.operator;
 
+export type  Vec2 = plane_ts.Vec2;
+export const Vec2 = plane_ts.Vec2;
 
 }

@@ -18,6 +18,12 @@ function makeUIFromObj(obj : any) : UI {
     case Label.name  : return new Label(obj as TextUIAttr);
     case Button.name : return new Button(obj as TextUIAttr);
     case ImageUI.name: return new ImageUI(obj as UIAttr);
+    case Star.name   : return new Star(obj as UIAttr);
+    case Firework.name: return new Firework(obj as (UIAttr & { numStars: number}));
+    case Grid.name    : {
+        obj.children = (obj.children as any[]).map(x => makeUIFromObj(x));
+        return new Grid(obj as (UIAttr & { columns?: string, rows? : string, children : UI[] }));
+    }
     }
 
     throw new MyError();
@@ -47,6 +53,12 @@ async function asyncBodyOnLoad(){
 
         const ui = makeUIFromObj(obj);
         Canvas.one.addUI(ui);
+    }
+
+    const grids = Canvas.one.uis.filter(x => x instanceof Grid);
+    for(const grid of grids){
+        grid.setMinSize();
+        grid.layout(grid.position, grid.minSize);
     }
 
     Canvas.one.requestUpdateCanvas();

@@ -165,7 +165,7 @@ export class Canvas {
 
     repaint(){
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);        
-        this.uis.forEach(ui => ui.draw(this.ctx));
+        this.uis.forEach(ui => ui.draw(this.ctx, Vec2.zero()));
     }
 
     drawLine(start : Vec2, end : Vec2, color : string, lineWidth : number = 2){

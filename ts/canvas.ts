@@ -66,7 +66,25 @@ export class Canvas {
     }
 
     getUIFromPosition(pos : Vec2) : UI | undefined {
+        for(const ui of this.uis){
+            const near_ui = ui.getNearUI(pos);
+            if(near_ui != undefined){
+                if(near_ui instanceof ImageUI){
+                    if(isTransparent(this.ctx, pos)){
+                        return near_ui.parent;
+                    }
+                }
+                return near_ui;
+            }
+        }
+
         return undefined;
+    }
+
+    dragTarget(target : UI) : void {
+        const diff = this.movePos.sub(this.downPos);
+        const ui_new_pos = this.uiOrgPos.add(diff);
+        target.setPosition(ui_new_pos);
     }
 
     pointerdown(ev:PointerEvent){
@@ -100,6 +118,8 @@ export class Canvas {
         const s = (target == undefined ? "" : `target:[${target.str()}]`);
 
         this.movePos = pos;
+
+        this.dragTarget(this.targetUI);
 
         this.requestUpdateCanvas();
     }

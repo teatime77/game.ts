@@ -20,6 +20,7 @@ function makeUIFromObj(obj : any) : UI {
     case ImageUI.name: return new ImageUI(obj as UIAttr);
     case Star.name   : return new Star(obj as UIAttr);
     case Firework.name: return new Firework(obj as (UIAttr & { numStars: number}));
+    case Slider.name  : return new Slider(obj as UIAttr);
     case Grid.name    : {
         obj.children = (obj.children as any[]).map(x => makeUIFromObj(x));
         return new Grid(obj as (UIAttr & { columns?: string, rows? : string, children : UI[] }));

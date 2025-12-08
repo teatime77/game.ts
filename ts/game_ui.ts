@@ -1,7 +1,6 @@
 namespace game_ts {
 //
 const textColor = "black";
-const imageMap = new Map<string, HTMLImageElement>();
 
 export interface UIAttr {
     className : string;
@@ -69,12 +68,46 @@ export abstract class UI {
         this.backgroundColor = data.backgroundColor;
     }
 
+    absPosition() : Vec2 {
+        let ui : UI = this;
+        let pos = this.position;
+        while(ui.parent != undefined){
+            ui = ui.parent;
+            pos = pos.add(ui.position);
+        }
+
+        return pos;
+    }
+
+    setPosition(position : Vec2) {
+        this.position.copyFrom(position);
+    }
+
     setMinSize() : void {
     }
 
     layout(position : Vec2, size : Vec2) : void {
         this.position.copyFrom(position);
         this.size.copyFrom(size);
+    }
+
+    isNear(position : Vec2) : boolean {
+        if(this.position.x <= position.x && position.x < this.position.x + this.size.x){
+            if(this.position.y <= position.y && position.y < this.position.y + this.size.y){
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    getNearUI(position : Vec2) : UI | undefined {
+        if(this.isNear(position)){
+            return this;
+        }
+        else{
+            return undefined;
+        }
     }
 
     async click(){
@@ -236,21 +269,19 @@ export class Label extends TextUI {
 export class Button extends TextUI {
 }
 
-export class ImageUI extends UI {
-    imageFile : string;
+export function isTransparent(ctx : CanvasRenderingContext2D, position : Vec2) {
+    try {
+        // 1x1ピクセルの領域のImageDataを取得
+        const imageData = ctx.getImageData(position.x, position.y, 1, 1);
+        
+        // data配列のインデックス3（4番目）がAlpha値 (0-255)
+        // Alpha値が0であれば完全に透明
+        return imageData.data[3] === 0;
 
-    constructor(data : UIAttr){
-        super(data);
-        this.imageFile = data.imageFile!;
-        addImage(this.imageFile);
-    }
-
-    draw(ctx : CanvasRenderingContext2D, offset : Vec2) : void {
-        super.draw(ctx, offset);
-        const image = imageMap.get(this.imageFile);
-        if(image != undefined){
-            ctx.drawImage(image, offset.x + this.position.x, offset.y + this.position.y, this.size.x, this.size.y);
-        }
+    } catch (e) {
+        // セキュリティ制限 (Tainted Canvas) などでエラーが発生した場合の処理
+        console.error("getImageData エラー:", e);
+        return false; // またはエラー処理に応じた値を返す
     }
 }
 
@@ -261,6 +292,23 @@ export class Block extends UI {
         super(data);
         this.children = data.children.slice();
         this.children.forEach(x => x.parent = this);
+    }
+
+    getNearUI(position : Vec2) : UI | undefined {
+        const position2 = position.sub(this.position);
+
+        for(const child of this.children){
+            const ui = child.getNearUI(position2);
+            if(ui != undefined){
+                return ui;
+            }
+        }
+
+        if(this.isNear(position)){
+            return this;
+        }
+
+        return undefined;
     }
 
     draw(ctx : CanvasRenderingContext2D, offset : Vec2) : void {
@@ -377,6 +425,8 @@ export class Grid extends Block {
 
         this.minSize.x = grid_pix_width  + max_grid_ratio_width;
         this.minSize.y = grid_pix_height + max_grid_ratio_height;
+
+        this.size.copyFrom(this.minSize);
     }
 
     layout(position : Vec2, size : Vec2) : void {
@@ -468,21 +518,6 @@ export class Firework extends UI {
         }
 
         Canvas.one.requestUpdateCanvas();
-    }
-}
-
-function addImage(image_file : string){
-    if(imageMap.has(image_file)){
-        return;
-    }
-
-    const image = new Image();
-    // Set the path to your image file
-    image.src = `img/${image_file}`;    
-    image.onload = ()=>{
-        imageMap.set(image_file, image);
-        Canvas.one.requestUpdateCanvas();
-        msg(`image loaded:${image_file}`);
     }
 }
 }

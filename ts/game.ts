@@ -46,7 +46,7 @@ async function asyncBodyOnLoad(){
     Canvas.one = new Canvas(canvas);
 
 
-    const data = await fetchJson("data/a.json");
+    const data = await fetchJson(`data/a.json?id=${Math.random()}`);
     for(const obj of data["uis"]){
         for (const [key, value] of Object.entries(obj)) {
             msg(`Key: ${key}, Value: ${value}`);

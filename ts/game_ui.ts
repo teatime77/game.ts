@@ -10,6 +10,9 @@ export interface UIAttr {
     borderStyle? : string;
     backgroundColor? : string;
     imageFile? : string;
+
+    colSpan? : number;
+    rowSpan? : number;
 }
 
 export interface TextUIAttr extends UIAttr {
@@ -27,20 +30,21 @@ export abstract class UI {
     size     : Vec2 = Vec2.zero();
     minSize  : Vec2;
     backgroundColor? : string;
+    color?           : string;
     borderWidth : number = 5;
 
     colIdx! : number;
     rowIdx! : number;
 
-    colSpan_! : number;
-    rowSpan_! : number;
+    colSpan? : number;
+    rowSpan? : number;
 
-    colSpan() : number {
-        return this.colSpan_ == undefined ? 1 : this.colSpan_;
+    getColSpan() : number {
+        return this.colSpan == undefined ? 1 : this.colSpan;
     }
 
-    rowSpan() : number {
-        return this.rowSpan_ == undefined ? 1 : this.rowSpan_;
+    getRowSpan() : number {
+        return this.rowSpan == undefined ? 1 : this.rowSpan;
     }
 
     clickHandler? : ()=>Promise<void>;
@@ -64,6 +68,14 @@ export abstract class UI {
             this.size     = new Vec2(data.size[0], data.size[1]);
         }
         this.minSize = this.size.copy();
+
+        if(data.colSpan != undefined){
+            this.colSpan = data.colSpan;
+        }
+
+        if(data.rowSpan != undefined){
+            this.rowSpan = data.rowSpan;
+        }
 
         this.backgroundColor = data.backgroundColor;
     }
@@ -345,7 +357,7 @@ export class Grid extends Block {
             this.numRows = this.rows.length;
         }
         else{
-            this.numRows = Math.max(... this.children.map(x => x.rowIdx + x.rowSpan()));
+            this.numRows = Math.max(... this.children.map(x => x.rowIdx + x.getRowSpan()));
             this.rows    = new Array(this.numRows).fill("100%");
         }
     }
@@ -396,7 +408,7 @@ export class Grid extends Block {
             child.colIdx = col_idx;
             child.rowIdx = row_idx;
 
-            col_idx += child.colSpan();
+            col_idx += child.getColSpan();
             if(this.numCols <= col_idx){
                 col_idx = 0;
                 row_idx++;
@@ -413,10 +425,10 @@ export class Grid extends Block {
         let max_grid_ratio_height = 0;
 
         for(const child of this.children){
-            const columns = this.columns.slice(child.colIdx, child.colIdx + child.colSpan());
+            const columns = this.columns.slice(child.colIdx, child.colIdx + child.getColSpan());
             max_grid_ratio_width = Math.max(max_grid_ratio_width, Grid.minTotalSize(columns, child.minSize.x));
 
-            const rows = this.rows.slice(child.rowIdx, child.rowIdx + child.rowSpan());
+            const rows = this.rows.slice(child.rowIdx, child.rowIdx + child.getRowSpan());
             max_grid_ratio_height = Math.max(max_grid_ratio_height, Grid.minTotalSize(rows, child.minSize.y));
         }
 
@@ -430,6 +442,8 @@ export class Grid extends Block {
     }
 
     layout(position : Vec2, size : Vec2) : void {
+        super.layout(position, size);
+
         const column_pix = this.columns.map(x => (x.endsWith("px") ? Grid.pix(x) : Grid.ratio(x) * this.size.x )  );
         const row_pix    = this.rows.map(x => (x.endsWith("px") ? Grid.pix(x) : Grid.ratio(x) * this.size.y )  );
 
@@ -444,8 +458,8 @@ export class Grid extends Block {
             const x = column_pos[child.colIdx];
             const y = row_pos[child.rowIdx];
 
-            const width  = sum(column_pix.slice(child.colIdx, child.colIdx + child.colSpan()));
-            const height = sum(row_pix.slice(child.rowIdx, child.rowIdx + child.rowSpan()));
+            const width  = sum(column_pix.slice(child.colIdx, child.colIdx + child.getColSpan()));
+            const height = sum(row_pix.slice(child.rowIdx, child.rowIdx + child.getRowSpan()));
 
             child.layout(new Vec2(x, y), new Vec2(width, height));
         }

@@ -300,9 +300,9 @@ export function isTransparent(ctx : CanvasRenderingContext2D, position : Vec2) {
 export class Block extends UI {
     children : UI[] = [];
 
-    constructor(data : UIAttr & { children : UI[] }){
+    constructor(data : UIAttr & { children : any[] }){
         super(data);
-        this.children = data.children.slice();
+        this.children = (data.children as any[]).map(x => makeUIFromObj(x));
         this.children.forEach(x => x.parent = this);
     }
 
@@ -336,7 +336,7 @@ export class Grid extends Block {
     numCols : number;
     numRows : number;
 
-    constructor(data : UIAttr & { children : UI[], columns?: string, rows? : string }) {
+    constructor(data : UIAttr & { children : any[], columns?: string, rows? : string }) {
         super(data);
         if(data.columns != undefined){
 

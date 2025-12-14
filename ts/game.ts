@@ -1,9 +1,24 @@
 namespace game_ts {
 //
 let urlOrigin : string;
+const objMap : Map<string, UI> = new Map<string, UI>();
 
+export function addObject(id : string, obj : UI){
+    if(objMap.has(id)){
+        throw new MyError();        
+    }
 
+    objMap.set(id, obj);
+}
 
+export function getObjectById(id : string) : UI {
+    const obj = objMap.get(id);
+    if(obj == undefined){
+        throw new MyError();
+    }
+
+    return obj;
+}
 
 
 
@@ -58,25 +73,13 @@ async function asyncBodyOnLoad(){
         Canvas.one.addUI(ui);
     }
 
-    Sequencer.one = new Sequencer();
-    for(const obj of data["actions"]){
-        for (const [key, value] of Object.entries(obj)) {
-            msg(`Key: ${key}, Value: ${value}`);
-        }    
-
-        const action = makeActionFromObj(obj);
-        Sequencer.one.addAction(action);
-    }
-
-    testGen();
-
     const grids = Canvas.one.uis.filter(x => x instanceof Grid);
     for(const grid of grids){
         grid.setMinSize();
         grid.layout(grid.position, grid.minSize);
     }
 
-    Canvas.one.requestUpdateCanvas();
+    Sequencer.start(data["actions"]);
 }
 
 

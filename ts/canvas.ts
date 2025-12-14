@@ -130,6 +130,8 @@ export class Canvas {
             animationFrameId = requestAnimationFrame(()=>{
                 animationFrameId = null;
                 this.repaint();
+
+                Sequencer.nextAction();
             });
 
         }        

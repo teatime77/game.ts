@@ -2,8 +2,14 @@ namespace game_ts {
 //
 const textColor = "black";
 
+export interface Movable {
+    getPosition() : Vec2;
+    setPosition(position : Vec2) : void;
+}
+
 export interface UIAttr {
     className : string;
+    id?   : string;
     name? : string;
     position? : [number, number];
     size?     : [number, number];
@@ -21,10 +27,11 @@ export interface TextUIAttr extends UIAttr {
     textAlign? : string;
 }
 
-export abstract class UI {
+export abstract class UI implements Movable {
     static count : number = 0;
 
     idx      : number;
+    id?      : string;
     parent?  : Block;
     position : Vec2 = Vec2.zero();
     size     : Vec2 = Vec2.zero();
@@ -60,6 +67,11 @@ export abstract class UI {
     constructor(data : UIAttr){
         this.idx      = UI.count++;
 
+        if(data.id != undefined){
+            this.id = data.id;
+            addObject(this.id, this);
+        }
+
         if(data.position != undefined){
             this.position = new Vec2(data.position[0], data.position[1]);
         }
@@ -91,7 +103,11 @@ export abstract class UI {
         return pos;
     }
 
-    setPosition(position : Vec2) {
+    getPosition() : Vec2 {
+        return this.position;
+    }
+
+    setPosition(position : Vec2) : void {
         this.position.copyFrom(position);
     }
 

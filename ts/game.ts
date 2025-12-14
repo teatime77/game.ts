@@ -23,6 +23,8 @@ export function makeUIFromObj(obj : any) : UI {
     case Slider.name  : return new Slider(obj as UIAttr);
     case Stage.name   : return new Stage(obj as (UIAttr & { children : any[] }))
     case Grid.name    : return new Grid(obj  as (UIAttr & { children : any[], columns?: string, rows? : string }));
+
+
     }
 
     throw new MyError();
@@ -40,6 +42,8 @@ async function asyncBodyOnLoad(){
         msg(`Key: ${key}, Value: ${value}`);
     }
 
+    initSpeech();
+
     const canvas = $("world") as HTMLCanvasElement;
     Canvas.one = new Canvas(canvas);
 
@@ -53,6 +57,18 @@ async function asyncBodyOnLoad(){
         const ui = makeUIFromObj(obj);
         Canvas.one.addUI(ui);
     }
+
+    Sequencer.one = new Sequencer();
+    for(const obj of data["actions"]){
+        for (const [key, value] of Object.entries(obj)) {
+            msg(`Key: ${key}, Value: ${value}`);
+        }    
+
+        const action = makeActionFromObj(obj);
+        Sequencer.one.addAction(action);
+    }
+
+    testGen();
 
     const grids = Canvas.one.uis.filter(x => x instanceof Grid);
     for(const grid of grids){

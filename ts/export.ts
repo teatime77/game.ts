@@ -24,10 +24,6 @@ export const circularPermutation  = i18n_ts.circularPermutation;
 export const areSetsEqual  = i18n_ts.areSetsEqual;
 export const isSubSet  = i18n_ts.isSubSet;
 export const check = i18n_ts.check;
-export type  Speech = i18n_ts.Speech;
-
-export type AbstractSpeech = i18n_ts.AbstractSpeech;
-export const Speech = i18n_ts.Speech;
 
 export const parseMath = parser_ts.parseMath;
 export const renderKatexSub = parser_ts.renderKatexSub;

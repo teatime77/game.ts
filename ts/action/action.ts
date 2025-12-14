@@ -10,9 +10,7 @@ export abstract class Action {
     constructor(data : ActionAttr){  
     }
 
-    *exec() : Generator<any> {
-        throw new Error();
-    }
+    abstract exec() : Generator<any>;
 }
 
 export class NumAction extends Action {
@@ -54,6 +52,7 @@ export class MoveAction extends Action {
         this.finished = false;
 
         const start_time = Date.now();
+        let   prev_time  = start_time;
         const start_position = this.target.getPosition();
 
         while(true){
@@ -68,7 +67,14 @@ export class MoveAction extends Action {
 
             this.target.setPosition(next_position);
 
-            yield `move to ${next_position}`;
+            if(Date.now() - prev_time < 500){
+                yield undefined;
+            }
+            else{
+
+                prev_time = Date.now();
+                yield `move to ${next_position} ${this.duration} ${elapsed_time_sec} ${ratio}`;
+            }
         }
 
         this.finished = true;
@@ -84,6 +90,7 @@ export function makeActionFromObj(obj : any) : Action {
     case SequentialAction.name : return new SequentialAction(obj as (ActionAttr & {actions : any[]}));
     case ParallelAction.name   : return new ParallelAction(obj   as (ActionAttr & {actions : any[]}));
     case MoveAction.name       : return new MoveAction(obj as (ActionAttr & { target : string, destination : [number, number], duration : number }));
+    case Speech.name           : return new Speech(obj as (ActionAttr & { text : string }));
     }
 
     throw new MyError();

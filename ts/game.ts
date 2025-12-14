@@ -79,7 +79,9 @@ async function asyncBodyOnLoad(){
         grid.layout(grid.position, grid.minSize);
     }
 
-    Sequencer.start(data["actions"]);
+    Sequencer.init(data["actions"]);
+
+    Canvas.one.requestUpdateCanvas();
 }
 
 

@@ -1,9 +1,10 @@
 namespace game_ts {
 //
-let voiceLanguageCode : string = "eng";
+let voiceLanguageCode : string = "jpn";// "eng";
 let languageRegion : string;
 let cancelSpeechFlag : boolean = false;
 let onSpeak : ((text : string) => void) | undefined;
+let currentVoice : SpeechSynthesisVoice;
 
 const langCodeList : [string, string][] = [
     ["ara", "ar-EG"],
@@ -71,6 +72,13 @@ function setVoiceList(){
 
         voiceMap.get(voice_lang)!.push(voice);
     }
+
+    const voice = getVoiceByLangCode(voiceLanguageCode);
+    if(voice == undefined){
+        throw new MyError();
+    }
+
+    currentVoice = voice;
 }
 
 
@@ -125,19 +133,32 @@ export function initSpeech(){
 
 }
 
-
-export abstract class AbstractSpeech extends Action {
+export abstract class AbstractSpeech extends Action  {
     static one : AbstractSpeech;
 
     text!   : string;
     prevCharIndex = 0;
     speaking : boolean = false;
 
-    callback : ((idx:number)=>void) | undefined;
-    abstract speak(text : string) : Promise<void>;
-    abstract waitEnd() : Promise<void>;
-    abstract speak_waitEnd(text : string) : Promise<void>;
+    abstract speak(text : string) : void;
 
+    constructor(data : ActionAttr & { text : string }){
+        super(data);
+        this.text = data.text;
+    }
+
+    *exec() : Generator<any> {
+        this.finished = false;
+
+        this.speak(this.text);
+
+        while(this.speaking){
+            yield "speaking";
+        }
+
+        this.finished = true;
+        return `speech end ${this.text}`;
+    }
 
     onBoundary(ev: SpeechSynthesisEvent) : void {
         const text = this.text.substring(this.prevCharIndex, ev.charIndex).trim();
@@ -147,10 +168,7 @@ export abstract class AbstractSpeech extends Action {
         }
         else{
     
-            // msg(`Speech bdr: idx:${ev.charIndex} name:${ev.name} type:${ev.type} text:[${text}]`);
-        }
-        if(this.callback != undefined){
-            this.callback(ev.charIndex);
+            msg(`Speech bdr: idx:${ev.charIndex} name:${ev.name} type:${ev.type} text:[${text}]`);
         }
 
         this.prevCharIndex = ev.charIndex;
@@ -159,46 +177,21 @@ export abstract class AbstractSpeech extends Action {
 
     onEnd(ev: SpeechSynthesisEvent) : void {
         // msg(`Speech end: id:${this.id} idx:${ev.charIndex} name:${ev.name} type:${ev.type} text:[${this.text.substring(this.prevCharIndex)}]`);
-        if(this.callback != undefined){
-            this.callback(this.text.length);
-        }
         this.speaking = false;
     }
 }
 
 export class Speech extends AbstractSpeech {
-    static maxId = 0;
-
-    id     : number;
-    voice? : SpeechSynthesisVoice;
-
-    constructor(){ 
-        super({ className : "Speech" } as ActionAttr);
-        
-        i18n_ts.AbstractSpeech.one = this;
-        this.id = Speech.maxId++;
-
-        this.initVoice();
-    }
-
-    initVoice(){
-        if(voiceMap.size == 0){
-            setVoiceList();
-        }
-
-        if(this.voice == undefined){
-
-            this.voice = getVoiceByLangCode(voiceLanguageCode);
-            if(this.voice != undefined){
-                // msg(`use voice:${this.voice.name}`);
-            }
-        }
+    constructor(data : ActionAttr & { text : string }){ 
+        super(data);
     }
 
     emulate(speech_id : number | undefined){
     }
 
-    async speak(text : string) : Promise<void> {
+    speak(text : string) : void {
+        assert(currentVoice != undefined);
+
         cancelSpeechFlag = false;
 
         this.text = text.trim();
@@ -223,8 +216,7 @@ export class Speech extends AbstractSpeech {
         }
 */
 
-        this.initVoice();
-        msg(`Speak ${this.id}[${this.text}] ${this.voice != undefined ? this.voice.name : "no voice"}`);
+        msg(`Speak [${this.text}] ${currentVoice.name}`);
 
         this.prevCharIndex = 0;
     
@@ -233,51 +225,19 @@ export class Speech extends AbstractSpeech {
         uttr.addEventListener("end", this.onEnd.bind(this));
         uttr.addEventListener("boundary", this.onBoundary.bind(this));
         uttr.addEventListener("mark", this.onMark.bind(this));
+        uttr.voice = currentVoice;
     
         //uttr.rate = 5.0;// parseFloat(speechRate.value);
-
-        if(this.voice != undefined){
-
-            uttr.voice = this.voice;
-        }
 
         speechSynthesis.speak(uttr);
     }
     
     onMark(ev: SpeechSynthesisEvent) : void {
     }
-
-    async waitEndNEW(){
-        for(const i of range(100)){
-            if(cancelSpeechFlag || ! this.speaking){
-                break;
-            }
-            await sleep(10);
-        }
-
-        // msg(`wait end:${this.id}`);
-    }
-
-    waitEnd() : Promise<void> {
-        return new Promise((resolve) => {
-            const id = setInterval(()=>{
-                if(cancelSpeechFlag || ! this.speaking){
-                    clearInterval(id);
-                    // msg(`wait end:${this.id}`);
-                    resolve();
-                }
-            }, 10);
-        });
-    }
-
-    async speak_waitEnd(text : string){
-        await this.speak(text);
-        await this.waitEnd();
-    }
 }
 
 export class EmulationSpeech extends AbstractSpeech {
-    async speak(text : string) : Promise<void>{
+    speak(text : string) : void{
         let charIndex = 0;
 
         const id = setInterval(()=>{
@@ -306,15 +266,6 @@ export class EmulationSpeech extends AbstractSpeech {
                 clearInterval(id);
             }
         }, 1);
-
-    }
-
-    async waitEnd() : Promise<void> {
-
-    }
-
-    async speak_waitEnd(text : string) : Promise<void> {
-
     }
 }
 

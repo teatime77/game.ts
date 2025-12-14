@@ -51,10 +51,13 @@ export class Sequencer  {
     static one : Sequencer;
 
     static rootParallelAction : ParallelAction;
-    static generator : Generator<any>
+    static generator : Generator<any> | undefined;
 
-    static start(actions : any[]){
+    static init(actions : any[]){
         Sequencer.rootParallelAction = new ParallelAction({ className:"ParallelAction", actions });
+    }
+
+    static start(){
         Sequencer.generator = Sequencer.rootParallelAction.exec();
 
         const ret = Sequencer.generator.next();
@@ -63,12 +66,14 @@ export class Sequencer  {
     }
 
     static nextAction(){
-        if(Sequencer.rootParallelAction.finished){
+        if(Sequencer.generator == undefined || Sequencer.rootParallelAction.finished){
             return;
         }
 
         const ret = Sequencer.generator.next();
-        msg(`next ${ret.value}`);
+        if(ret.value != undefined){
+            msg(`next ${ret.value}`);
+        }
 
         Canvas.one.requestUpdateCanvas();
     }

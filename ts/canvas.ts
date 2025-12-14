@@ -149,7 +149,8 @@ export class Canvas {
             msg("dragged");
         }
         else{
-            msg(`click:${this.targetUI.constructor.name}`);
+            const name = this.targetUI.name;
+            msg(`click:${this.targetUI.constructor.name} ${name == undefined ? "" : name}`);
 
             await this.targetUI.click();
         }

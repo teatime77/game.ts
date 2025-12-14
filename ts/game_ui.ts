@@ -32,6 +32,7 @@ export abstract class UI implements Movable {
 
     idx      : number;
     id?      : string;
+    name? : string;
     parent?  : Block;
     position : Vec2 = Vec2.zero();
     size     : Vec2 = Vec2.zero();
@@ -72,6 +73,10 @@ export abstract class UI implements Movable {
             addObject(this.id, this);
         }
 
+        if(data.name != undefined){
+            this.name = data.name;
+        }
+
         if(data.position != undefined){
             this.position = new Vec2(data.position[0], data.position[1]);
         }
@@ -104,7 +109,7 @@ export abstract class UI implements Movable {
     }
 
     getPosition() : Vec2 {
-        return this.position;
+        return this.position.copy();
     }
 
     setPosition(position : Vec2) : void {
@@ -141,6 +146,10 @@ export abstract class UI implements Movable {
     async click(){
         if(this.clickHandler != undefined){
             await this.clickHandler();
+        }
+
+        if(this.name == "play"){
+            Sequencer.start();
         }
     }
 

@@ -1,4 +1,4 @@
-///<reference path="widget/container.ts" />
+///<reference path="container.ts" />
 
 namespace game_ts {
 //

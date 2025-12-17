@@ -7,6 +7,10 @@ export class Canvas {
 
     canvas : HTMLCanvasElement;
     ctx : CanvasRenderingContext2D;
+    borderWidth : number = 5;
+    padding : Padding = new Padding(5, 5, 5, 5);
+    fontFamily : string = "Arial";
+    fontSize   : string = "30px";
 
     uis: UI[] = [];
 
@@ -178,7 +182,7 @@ export class Canvas {
             // Example drawing
             this.ctx.fillStyle = 'blue';
             this.ctx.fillRect(50, 50, 100, 100);
-            this.ctx.font = '30px Arial';
+            this.ctx.font = `${this.fontSize} ${this.fontFamily}`;
             this.ctx.fillStyle = 'white';
             this.ctx.fillText('Hello Canvas!', this.canvas.width / 2 - 100, this.canvas.height / 2);
         }

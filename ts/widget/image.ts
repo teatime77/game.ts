@@ -25,7 +25,14 @@ export class ImageUI extends UI {
         super.draw(ctx, offset);
         const image = imageMap.get(this.imageFile);
         if(image != undefined){
-            ctx.drawImage(image, offset.x + this.position.x, offset.y + this.position.y, this.size.x, this.size.y);
+            const content_position    = this.getContentPosition();
+            const padding_border_size = this.getPaddingBorderSize();
+
+            const x = offset.x + this.position.x + content_position.x;
+            const y = offset.y + this.position.y + content_position.y;
+            const width = this.size.x - padding_border_size.x;
+            const height = this.size.y - padding_border_size.y;
+            ctx.drawImage(image, x, y, width, height);
         }
     }
 }

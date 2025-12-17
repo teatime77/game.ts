@@ -7,14 +7,30 @@ export interface Movable {
     setPosition(position : Vec2) : void;
 }
 
+export class Padding {
+    left   : number;
+    right  : number;
+    top    : number;
+    bottom : number;
+
+    constructor(left : number, right : number, top : number, bottom : number){
+        this.left  = left;
+        this.right  = right;
+        this.top    = top;
+        this.bottom = bottom;
+    }
+}
+
 export interface UIAttr {
-    className : string;
+    className? : string;
     id?   : string;
     name? : string;
     position? : [number, number];
     size?     : [number, number];
     borderStyle? : string;
+    borderWidth? : number;
     backgroundColor? : string;
+    padding? : number | [number, number] | [number, number, number, number];
     imageFile? : string;
 
     colSpan? : number;
@@ -23,6 +39,7 @@ export interface UIAttr {
 
 export interface TextUIAttr extends UIAttr {
     text? : string;
+    fontFamily? : string;
     fontSize? : string;
     textAlign? : string;
 }
@@ -30,22 +47,49 @@ export interface TextUIAttr extends UIAttr {
 export abstract class UI implements Movable {
     static count : number = 0;
 
+    className : string;
     idx      : number;
     id?      : string;
     name? : string;
     parent?  : Block;
     position : Vec2 = Vec2.zero();
+    fixedSize? : Vec2;
     size     : Vec2 = Vec2.zero();
-    minSize  : Vec2;
+    minSize  : Vec2 = Vec2.zero();
     backgroundColor? : string;
     color?           : string;
-    borderWidth : number = 5;
+    borderWidth? : number;
+    padding? : Padding;
 
     colIdx! : number;
     rowIdx! : number;
 
     colSpan? : number;
     rowSpan? : number;
+
+    getPadding() : Padding {
+        return (this.padding !== undefined ? this.padding : Canvas.one.padding);
+    }
+
+    getBorderWidth() : number {
+        return this.borderWidth !== undefined ? this.borderWidth : Canvas.one.borderWidth;
+    }
+
+    getPaddingBorderSize() : Vec2 {
+        const padding = this.getPadding();
+        const borderWidth = this.getBorderWidth();
+
+        const width  = padding.left + padding.right  + 2 * borderWidth;
+        const height = padding.top  + padding.bottom + 2 * borderWidth;
+        return Vec2.fromXY(width, height);
+    }
+
+    getContentPosition(){
+        const borderWidth = this.getBorderWidth();
+        const padding = this.getPadding();
+
+        return Vec2.fromXY(borderWidth + padding.left, borderWidth + padding.top);
+    }
 
     getColSpan() : number {
         return this.colSpan == undefined ? 1 : this.colSpan;
@@ -66,31 +110,44 @@ export abstract class UI implements Movable {
     }
 
     constructor(data : UIAttr){
+        this.className = this.constructor.name;
         this.idx      = UI.count++;
 
-        if(data.id != undefined){
+        if(data.id !== undefined){
             this.id = data.id;
             addObject(this.id, this);
         }
 
-        if(data.name != undefined){
+        if(data.name !== undefined){
             this.name = data.name;
         }
 
-        if(data.position != undefined){
+        if(data.padding !== undefined){
+            if(typeof data.padding == "number"){
+                this.padding = new Padding(data.padding, data.padding, data.padding, data.padding);
+            }
+            else if(data.padding.length == 2){
+                this.padding = new Padding(data.padding[0], data.padding[0], data.padding[1], data.padding[1]);
+            }
+            else{
+                this.padding = new Padding(... data.padding);
+            }
+        }
+
+        if(data.position !== undefined){
             this.position = new Vec2(data.position[0], data.position[1]);
         }
 
-        if(data.size != undefined){
-            this.size     = new Vec2(data.size[0], data.size[1]);
+        if(data.size !== undefined){
+            this.fixedSize     = new Vec2(data.size[0], data.size[1]);
         }
-        this.minSize = this.size.copy();
+        // this.minSize = this.size.copy();
 
-        if(data.colSpan != undefined){
+        if(data.colSpan !== undefined){
             this.colSpan = data.colSpan;
         }
 
-        if(data.rowSpan != undefined){
+        if(data.rowSpan !== undefined){
             this.rowSpan = data.rowSpan;
         }
 
@@ -100,7 +157,7 @@ export abstract class UI implements Movable {
     absPosition() : Vec2 {
         let ui : UI = this;
         let pos = this.position;
-        while(ui.parent != undefined){
+        while(ui.parent !== undefined){
             ui = ui.parent;
             pos = pos.add(ui.position);
         }
@@ -117,6 +174,16 @@ export abstract class UI implements Movable {
     }
 
     setMinSize() : void {
+        if(this.fixedSize !== undefined){
+
+            this.minSize.copyFrom(this.fixedSize);
+        }
+        else{
+
+            this.minSize.copyFrom(this.getPaddingBorderSize());
+        }
+
+        this.size.copyFrom(this.minSize);
     }
 
     layout(position : Vec2, size : Vec2) : void {
@@ -144,7 +211,7 @@ export abstract class UI implements Movable {
     }
 
     async click(){
-        if(this.clickHandler != undefined){
+        if(this.clickHandler !== undefined){
             await this.clickHandler();
         }
 
@@ -158,7 +225,7 @@ export abstract class UI implements Movable {
         const y1 = offset.y + this.position.y;
         const width  = this.size.x;
         const height = this.size.y;
-        const ridgeWidth = this.borderWidth;
+        const ridgeWidth = this.getBorderWidth();
 
         const x2 = x1 + ridgeWidth / 2;
         const y2 = y1 + ridgeWidth / 2;
@@ -271,7 +338,44 @@ export abstract class UI implements Movable {
     }
 }
 
+interface TextDimensions {
+    width: number;
+    height: number;
+    // Optional: for precise positioning
+    actualLeft: number;
+    actualTop: number;
+}
+
+function getTextBoxSize(ctx: CanvasRenderingContext2D, text: string, font: string): TextDimensions {
+    // 1. Set the font so measureText() can calculate based on it
+    ctx.font = font;
+
+    // 2. Get the TextMetrics object
+    const metrics = ctx.measureText(text);
+
+    // 3. Calculate Width
+    // metrics.width is the advance width (how far the cursor moves after drawing)
+    const textWidth = metrics.width;
+    
+    // OR, for the absolute visible width (handling overhanging italic characters):
+    // const actualWidth = Math.abs(metrics.actualBoundingBoxLeft) + Math.abs(metrics.actualBoundingBoxRight);
+
+    // 4. Calculate Height (The recommended way for the tight bounding box)
+    // actualBoundingBoxAscent is the distance from the baseline to the top of the text.
+    // actualBoundingBoxDescent is the distance from the baseline to the bottom of the text.
+    const textHeight = metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent;
+
+    return {
+        width: textWidth, 
+        height: textHeight,
+        // The distance from the (x, y) point to the top-left of the text's bounding box.
+        actualLeft: metrics.actualBoundingBoxLeft,
+        actualTop: metrics.actualBoundingBoxAscent 
+    };
+}
+
 export class TextUI extends UI {
+    fontFamily? : string;
     fontSize? : string;
     textAlign? : string;
     text : string;
@@ -280,9 +384,40 @@ export class TextUI extends UI {
 
     constructor(data : TextUIAttr){
         super(data);
-        // this.fontSize  = data.fontSize;
+        if(data.fontFamily !== undefined){
+            this.fontFamily = data.fontFamily;
+        }
+        if(data.fontSize !== undefined){
+            this.fontSize = data.fontSize;
+        }
         // this.textAlign = data.textAlign;
         this.text = (data.text != undefined ? data.text : "");
+    }
+
+    getFont() : string {
+        const fontFamily = (this.fontFamily != undefined ? this.fontFamily : Canvas.one.fontFamily);
+        const fontSize   = (this.fontSize   != undefined ? this.fontSize   : Canvas.one.fontSize);
+        
+        return `${fontSize} ${fontFamily}`;
+    }
+
+    setMinSize() : void {
+        if(this.fixedSize !== undefined){
+
+            this.minSize.copyFrom(this.fixedSize);
+        }
+        else{
+
+            const padding_border_size = this.getPaddingBorderSize();
+
+            const size = getTextBoxSize(Canvas.one.ctx, this.text, this.getFont());
+
+            this.minSize.x = size.width  + padding_border_size.x;
+            this.minSize.y = size.height + padding_border_size.y;
+        }
+
+        this.size.copyFrom(this.minSize);
+        msg(`text size:${this.size.x.toFixed()} ${this.size.y.toFixed()} ${this.text}`);
     }
 
     draw(ctx : CanvasRenderingContext2D, offset : Vec2) : void {
@@ -290,8 +425,9 @@ export class TextUI extends UI {
 
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.font = `${(this.size.y * 0.8).toFixed()}px "Hiragino Kaku Gothic Pro", "Meiryo", sans-serif`;
-
+        // ctx.font = `${(this.size.y * 0.8).toFixed()}px "Hiragino Kaku Gothic Pro", "Meiryo", sans-serif`;
+        ctx.font = this.getFont();
+        
         const x = offset.x + this.position.x + this.size.x / 2;
         const y = offset.y + this.position.y + this.size.y / 2;
 
@@ -331,12 +467,16 @@ export class Block extends UI {
         this.children.forEach(x => x.parent = this);
     }
 
+    setMinSize() : void {
+        this.children.forEach(x => x.setMinSize());
+    }
+
     getNearUI(position : Vec2) : UI | undefined {
         const position2 = position.sub(this.position);
 
         for(const child of this.children){
             const ui = child.getNearUI(position2);
-            if(ui != undefined){
+            if(ui !== undefined){
                 return ui;
             }
         }
@@ -363,7 +503,7 @@ export class Grid extends Block {
 
     constructor(data : UIAttr & { children : any[], columns?: string, rows? : string }) {
         super(data);
-        if(data.columns != undefined){
+        if(data.columns !== undefined){
 
             this.columns = data.columns.split(" ");
 
@@ -376,7 +516,7 @@ export class Grid extends Block {
 
         this.setRowColIdxOfChildren();
 
-        if(data.rows != undefined){
+        if(data.rows !== undefined){
 
             this.rows = data.rows.split(" ");
             this.numRows = this.rows.length;
@@ -444,24 +584,34 @@ export class Grid extends Block {
     setMinSize() : void {
         assert(!isNaN(this.numCols) && !isNaN(this.numRows));
 
+
         this.children.forEach(x => x.setMinSize());
 
-        let max_grid_ratio_width  = 0;
-        let max_grid_ratio_height = 0;
+        if(this.fixedSize !== undefined){
 
-        for(const child of this.children){
-            const columns = this.columns.slice(child.colIdx, child.colIdx + child.getColSpan());
-            max_grid_ratio_width = Math.max(max_grid_ratio_width, Grid.minTotalSize(columns, child.minSize.x));
-
-            const rows = this.rows.slice(child.rowIdx, child.rowIdx + child.getRowSpan());
-            max_grid_ratio_height = Math.max(max_grid_ratio_height, Grid.minTotalSize(rows, child.minSize.y));
+            this.minSize.copyFrom(this.fixedSize);
         }
+        else{
 
-        const grid_pix_width  = Grid.pixSum( this.columns.filter(x => x.endsWith("px")) );
-        const grid_pix_height = Grid.pixSum( this.rows.filter(x => x.endsWith("px")) );
+            const padding_border_size = this.getPaddingBorderSize();
 
-        this.minSize.x = grid_pix_width  + max_grid_ratio_width;
-        this.minSize.y = grid_pix_height + max_grid_ratio_height;
+            let max_grid_ratio_width  = 0;
+            let max_grid_ratio_height = 0;
+
+            for(const child of this.children){
+                const columns = this.columns.slice(child.colIdx, child.colIdx + child.getColSpan());
+                max_grid_ratio_width = Math.max(max_grid_ratio_width, Grid.minTotalSize(columns, child.minSize.x));
+
+                const rows = this.rows.slice(child.rowIdx, child.rowIdx + child.getRowSpan());
+                max_grid_ratio_height = Math.max(max_grid_ratio_height, Grid.minTotalSize(rows, child.minSize.y));
+            }
+
+            const grid_pix_width  = Grid.pixSum( this.columns.filter(x => x.endsWith("px")) );
+            const grid_pix_height = Grid.pixSum( this.rows.filter(x => x.endsWith("px")) );
+
+            this.minSize.x = grid_pix_width  + max_grid_ratio_width  + padding_border_size.x;
+            this.minSize.y = grid_pix_height + max_grid_ratio_height + padding_border_size.y;
+        }
 
         this.size.copyFrom(this.minSize);
     }

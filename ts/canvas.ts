@@ -2,6 +2,22 @@ namespace game_ts {
 //
 let animationFrameId : number | null = null;
 
+function isTransparent(ctx : CanvasRenderingContext2D, position : Vec2) {
+    try {
+        // 1x1ピクセルの領域のImageDataを取得
+        const imageData = ctx.getImageData(position.x, position.y, 1, 1);
+        
+        // data配列のインデックス3（4番目）がAlpha値 (0-255)
+        // Alpha値が0であれば完全に透明
+        return imageData.data[3] === 0;
+
+    } catch (e) {
+        // セキュリティ制限 (Tainted Canvas) などでエラーが発生した場合の処理
+        console.error("getImageData エラー:", e);
+        return false; // またはエラー処理に応じた値を返す
+    }
+}
+
 export class Canvas {
     static one : Canvas;
 

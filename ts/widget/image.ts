@@ -1,3 +1,5 @@
+///<reference path="core.ts" />
+
 namespace game_ts {
 //
 const imageMap = new Map<string, HTMLImageElement>();

@@ -26,25 +26,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     await asyncBodyOnLoad();
 });  
 
-export function makeUIFromObj(obj : any) : UI {
-    const attr = obj as UIAttr;
-
-    switch(attr.className){
-    case Label.name  : return new Label(obj as TextUIAttr);
-    case Button.name : return new Button(obj as TextUIAttr);
-    case ImageUI.name: return new ImageUI(obj as UIAttr);
-    case Star.name   : return new Star(obj as UIAttr);
-    case Firework.name: return new Firework(obj as (UIAttr & { numStars: number}));
-    case Slider.name  : return new Slider(obj as UIAttr);
-    case Stage.name   : return new Stage(obj as (UIAttr & { children : any[] }))
-    case Grid.name    : return new Grid(obj  as (UIAttr & { children : any[], columns?: string, rows? : string }));
-
-
-    }
-
-    throw new MyError();
-}
-
 async function asyncBodyOnLoad(){
     msg("loaded");
     let pathname  : string;

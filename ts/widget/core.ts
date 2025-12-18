@@ -50,7 +50,7 @@ export abstract class UI implements Movable {
     idx      : number;
     id?      : string;
     name? : string;
-    parent?  : ContainerUI;
+    parent?  : ContainerUI | TreeNode;
     position : Vec2 = Vec2.zero();
     fixedSize? : Vec2;
     size     : Vec2 = Vec2.zero();
@@ -65,6 +65,13 @@ export abstract class UI implements Movable {
 
     colSpan? : number;
     rowSpan? : number;
+
+    clickHandler? : ()=>Promise<void>;
+
+    setParent(parent : ContainerUI | TreeNode){
+        this.parent = parent;
+        msg(`set parent:${this.constructor.name} ${this.parent.constructor.name}`)
+    }
 
     getPadding() : Padding {
         return (this.padding !== undefined ? this.padding : Canvas.one.padding);
@@ -97,8 +104,6 @@ export abstract class UI implements Movable {
     getRowSpan() : number {
         return this.rowSpan == undefined ? 1 : this.rowSpan;
     }
-
-    clickHandler? : ()=>Promise<void>;
 
     draw(ctx : CanvasRenderingContext2D, offset : Vec2) : void {
         this.drawBorder(ctx, offset);
@@ -188,6 +193,14 @@ export abstract class UI implements Movable {
     layout(position : Vec2, size : Vec2) : void {
         this.position.copyFrom(position);
         this.size.copyFrom(size);
+    }
+
+    layoutXY(x : number, y : number) : void {
+        this.layout(Vec2.fromXY(x, y), this.size);
+    }
+
+    updateLayout(){
+        this.layout(this.position, this.size);
     }
 
     isNear(position : Vec2) : boolean {
@@ -337,5 +350,28 @@ export abstract class UI implements Movable {
     }
 }
 
+
+export function makeUIFromObj(obj : any) : UI {
+    if(obj instanceof UI){
+        return obj;
+    }
+    
+    const attr = obj as UIAttr;
+
+    switch(attr.className){
+    case Label.name  : return new Label(obj as TextUIAttr);
+    case Button.name : return new Button(obj as TextUIAttr);
+    case ImageUI.name: return new ImageUI(obj as UIAttr);
+    case Star.name   : return new Star(obj as UIAttr);
+    case Firework.name: return new Firework(obj as (UIAttr & { numStars: number}));
+    case Slider.name  : return new Slider(obj as UIAttr);
+    case Stage.name   : return new Stage(obj as (UIAttr & { children : any[] }))
+    case Grid.name    : return new Grid(obj  as (UIAttr & { children : any[], columns?: string, rows? : string }));
+    case TreeNode.name: return new TreeNode(obj as (UIAttr & { icon?: string, label: string, childNodes : any[] }));
+
+    }
+
+    throw new MyError();
+}
 
 }

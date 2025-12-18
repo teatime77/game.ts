@@ -26,7 +26,10 @@ export class ImageUI extends UI {
     draw(ctx : CanvasRenderingContext2D, offset : Vec2) : void {
         super.draw(ctx, offset);
         const image = imageMap.get(this.imageFile);
-        if(image != undefined){
+        if(image == undefined){
+            // msg(`no img:${this.imageFile}`);
+        } 
+        else{
             const content_position    = this.getContentPosition();
             const padding_border_size = this.getPaddingBorderSize();
 

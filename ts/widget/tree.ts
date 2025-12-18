@@ -1,0 +1,102 @@
+///<reference path="core.ts" />
+
+namespace game_ts {
+//
+
+
+export class TreeNode extends ContainerUI {
+    static indent = 20;
+    static nodeGap = 10;
+    static padding = 10;
+    static openedFile = "tree-opened.png";
+    static closedFile = "tree-closed.png";
+    static noneFile   = "none.png";
+    openClose : ImageUI;
+    icon  : ImageUI;
+    label : Label;
+    childNodes : TreeNode[];
+    isOpen: boolean = true;
+
+    constructor(data : UIAttr & { icon?: string, label: string, childNodes : any[] }) {
+        (data as any).children = [];
+        super(data as any as (UIAttr & { children : any[] }));
+
+        if(data.icon == undefined){
+            data.icon = "tree-3.png";
+        }
+        this.openClose = new ImageUI({imageFile: TreeNode.closedFile, size:[20,20], padding:0});
+        this.icon  = new ImageUI({imageFile: data.icon, size:[20,20], padding:0 });
+        this.label = new Label({text:data.label, fontSize:"10px"});
+        this.childNodes = data.childNodes.map(x => makeUIFromObj(x)) as TreeNode[];
+
+        this.children = [this.openClose, this.icon, this.label, ...this.childNodes];
+        this.children.forEach(x => x.setParent(this));
+
+        this.openClose.clickHandler = this.onOpenClose;
+    }
+
+    async onOpenClose(){
+        this.isOpen = !this.isOpen;
+        this.setMinSize();
+        this.updateLayout();
+        Canvas.one.requestUpdateCanvas();
+    }
+
+    setMinSize() : void {
+        this.children.forEach(x => x.setMinSize());
+
+        const padding_border_size = this.getPaddingBorderSize();
+
+        let size : Vec2;
+
+        const header_width  = sum( [this.openClose, this.icon, this.label].map(x => x.minSize.x) ) + 2 * TreeNode.padding;
+        const header_height = Math.max(... [this.openClose, this.icon, this.label].map(x => x.minSize.y));
+
+        let nodes_width  = 0;
+        let nodes_height = 0;
+
+        if(this.childNodes.length != 0 && this.isOpen){
+
+            nodes_width = TreeNode.indent + Math.max(... this.childNodes.map(x => x.minSize.x));
+
+            const sum_nodes_height = sum(this.childNodes.map(x => x.minSize.y));
+            const nodes_gap    = TreeNode.nodeGap * this.childNodes.length;
+            nodes_height       = sum_nodes_height + nodes_gap;
+        }
+
+        this.minSize.x = Math.max(header_width, nodes_width)  + padding_border_size.x;
+        this.minSize.y = header_height + nodes_height         + padding_border_size.y;
+        this.size.copyFrom(this.minSize);
+    }
+
+    layout(position : Vec2, size : Vec2) : void {
+        super.layout(position, size);
+
+        let x = 0;
+        let y = 0;
+
+        this.openClose.layoutXY(x, y);
+        msg(`open-close x:${x.toFixed()} size:${this.openClose.size}`);
+        x += this.openClose.size.x + TreeNode.padding;
+
+        this.icon.layoutXY(x, y);
+        msg(`icon x:${x.toFixed()} size:${this.openClose.size}`);
+        x += this.icon.size.x + TreeNode.padding;
+
+        this.label.layoutXY(x, y);
+        msg(`label x:${x.toFixed()} size:${this.openClose.size}`);
+
+        const header_height = Math.max(... [this.openClose, this.icon, this.label].map(x => x.minSize.y));
+
+        x = position.x + TreeNode.indent;
+        y += header_height + TreeNode.nodeGap;
+
+        for(const node of this.childNodes){
+            node.layoutXY(TreeNode.indent, y);
+
+            y += node.size.y;
+        }
+    }
+}
+
+}

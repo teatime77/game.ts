@@ -10,7 +10,7 @@ interface TextDimensions {
     actualTop: number;
 }
 
-function getTextBoxSize(ctx: CanvasRenderingContext2D, text: string, font: string): TextDimensions {
+export function getTextBoxSize(ctx: CanvasRenderingContext2D, text: string, font: string): TextDimensions {
     // 1. Set the font so measureText() can calculate based on it
     ctx.font = font;
 

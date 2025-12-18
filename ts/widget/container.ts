@@ -2,7 +2,7 @@
 
 namespace game_ts {
 //
-export class ContainerUI extends UI {
+export abstract class ContainerUI extends UI {
     children : UI[] = [];
 
     constructor(data : UIAttr & { children : any[] }){

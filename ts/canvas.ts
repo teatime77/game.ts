@@ -170,7 +170,7 @@ export class Canvas {
         }
         else{
             const name = this.targetUI.name;
-            msg(`click:${this.targetUI.constructor.name} ${name == undefined ? "" : name}`);
+            msg(`click:${this.targetUI.constructor.name} ${name == undefined ? "" : name} ${this.targetUI.parent}  `);
 
             await this.targetUI.click();
         }

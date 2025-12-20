@@ -40,21 +40,26 @@ async function asyncBodyOnLoad(){
 
     initSpeech();
 
-    const canvas = $("world") as HTMLCanvasElement;
-    Canvas.one = new Canvas(canvas);
-
+    const canvas = new Canvas($("world") as HTMLCanvasElement);
 
     const data = await fetchJson(`data/a.json?id=${Math.random()}`);
     for(const obj of data["uis"]){
         for (const [key, value] of Object.entries(obj)) {
-            msg(`Key: ${key}, Value: ${value}`);
+            // msg(`Key: ${key}, Value: ${value}`);
         }    
 
         const ui = makeUIFromObj(obj);
-        Canvas.one.addUI(ui);
+        canvas.addUI(ui);
     }
 
-    const grids = Canvas.one.uis.filter(x => x instanceof Grid);
+    const grids = canvas.getUIs().filter(x => x instanceof Grid);
+
+    const root = new TreeNode({label:"root"});
+    makeTreeNodeFromObject(root, "canvas", canvas, new Set<any>());
+
+    const inspector = getUIFromId("inspector") as TreeNode;
+    inspector.addChild(root);
+
     for(const grid of grids){
         grid.setMinSize();
         grid.layout(grid.position, grid.minSize);
@@ -62,7 +67,9 @@ async function asyncBodyOnLoad(){
 
     Sequencer.init(data["actions"]);
 
-    Canvas.one.requestUpdateCanvas();
+    Canvas.requestUpdateCanvas();
+
+    // dumpObj(canvas, 0, new Set<any>());
 }
 
 

@@ -70,15 +70,21 @@ export abstract class UI implements Movable {
 
     setParent(parent : ContainerUI | TreeNode){
         this.parent = parent;
-        msg(`set parent:${this.constructor.name} ${this.parent.constructor.name}`)
+        // msg(`set parent:${this.constructor.name} ${this.parent.constructor.name}`)
+    }
+
+    getRootUI() : UI {
+        let ui : UI = this;
+        for(; ui.parent != undefined; ui = ui.parent);
+        return ui;
     }
 
     getPadding() : Padding {
-        return (this.padding !== undefined ? this.padding : Canvas.one.padding);
+        return (this.padding !== undefined ? this.padding : Canvas.padding);
     }
 
     getBorderWidth() : number {
-        return this.borderWidth !== undefined ? this.borderWidth : Canvas.one.borderWidth;
+        return this.borderWidth !== undefined ? this.borderWidth : Canvas.borderWidth;
     }
 
     getPaddingBorderSize() : Vec2 {
@@ -106,7 +112,9 @@ export abstract class UI implements Movable {
     }
 
     draw(ctx : CanvasRenderingContext2D, offset : Vec2) : void {
-        this.drawBorder(ctx, offset);
+        if(this.getBorderWidth() != 0){
+            this.drawBorder(ctx, offset);
+        }
     }
 
     str() : string {
@@ -156,6 +164,10 @@ export abstract class UI implements Movable {
         }
 
         this.backgroundColor = data.backgroundColor;
+
+        if(data.borderWidth !== undefined){
+            this.borderWidth = data.borderWidth;
+        }
     }
 
     absPosition() : Vec2 {
@@ -348,6 +360,7 @@ export abstract class UI implements Movable {
         ctx.lineTo(x2, y1 + height - ridgeWidth / 2); // Bottom-left corner
         ctx.stroke();
     }
+
 }
 
 

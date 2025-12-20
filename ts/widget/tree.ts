@@ -17,17 +17,25 @@ export class TreeNode extends ContainerUI {
     childNodes : TreeNode[];
     isOpen: boolean = true;
 
-    constructor(data : UIAttr & { icon?: string, label: string, childNodes : any[] }) {
+    constructor(data : UIAttr & { icon?: string, label: string, childNodes? : any[] }) {
         (data as any).children = [];
         super(data as any as (UIAttr & { children : any[] }));
 
         if(data.icon == undefined){
             data.icon = "tree-3.png";
         }
-        this.openClose = new ImageUI({imageFile: TreeNode.closedFile, size:[20,20], padding:0});
-        this.icon  = new ImageUI({imageFile: data.icon, size:[20,20], padding:0 });
-        this.label = new Label({text:data.label, fontSize:"10px"});
-        this.childNodes = data.childNodes.map(x => makeUIFromObj(x)) as TreeNode[];
+        this.openClose = new ImageUI({imageFile: TreeNode.closedFile, size:[20,20], borderWidth:0, padding:0});
+        this.icon  = new ImageUI({imageFile: data.icon, size:[20,20], borderWidth:0, padding:0 });
+        this.label = new Label({text:data.label, fontSize:"10px", borderWidth:0});
+
+        if(data.childNodes == undefined){
+
+            this.childNodes = []
+        }
+        else{
+
+            this.childNodes = data.childNodes.map(x => makeUIFromObj(x)) as TreeNode[];
+        }
 
         this.children = [this.openClose, this.icon, this.label, ...this.childNodes];
         this.children.forEach(x => x.setParent(this));
@@ -35,11 +43,17 @@ export class TreeNode extends ContainerUI {
         this.openClose.clickHandler = this.onOpenClose;
     }
 
+    addChild(child: TreeNode){
+        this.childNodes.push(child);
+        this.children = [this.openClose, this.icon, this.label, ...this.childNodes];
+        child.parent = this;
+    }
+
     async onOpenClose(){
         this.isOpen = !this.isOpen;
         this.setMinSize();
         this.updateLayout();
-        Canvas.one.requestUpdateCanvas();
+        Canvas.requestUpdateCanvas();
     }
 
     setMinSize() : void {
@@ -76,15 +90,15 @@ export class TreeNode extends ContainerUI {
         let y = 0;
 
         this.openClose.layoutXY(x, y);
-        msg(`open-close x:${x.toFixed()} size:${this.openClose.size}`);
+        // msg(`open-close x:${x.toFixed()} size:${this.openClose.size}`);
         x += this.openClose.size.x + TreeNode.padding;
 
         this.icon.layoutXY(x, y);
-        msg(`icon x:${x.toFixed()} size:${this.openClose.size}`);
+        // msg(`icon x:${x.toFixed()} size:${this.openClose.size}`);
         x += this.icon.size.x + TreeNode.padding;
 
         this.label.layoutXY(x, y);
-        msg(`label x:${x.toFixed()} size:${this.openClose.size}`);
+        // msg(`label x:${x.toFixed()} size:${this.openClose.size}`);
 
         const header_height = Math.max(... [this.openClose, this.icon, this.label].map(x => x.minSize.y));
 

@@ -62,7 +62,7 @@ export class Sequencer  {
 
         const ret = Sequencer.generator.next();
         msg(`start ${ret.value}`);
-        Canvas.one.requestUpdateCanvas();
+        Canvas.requestUpdateCanvas();
     }
 
     static nextAction(){
@@ -75,7 +75,7 @@ export class Sequencer  {
             msg(`next ${ret.value}`);
         }
 
-        Canvas.one.requestUpdateCanvas();
+        Canvas.requestUpdateCanvas();
     }
 }
 

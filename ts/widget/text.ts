@@ -59,8 +59,8 @@ export class TextUI extends UI {
     }
 
     getFont() : string {
-        const fontFamily = (this.fontFamily != undefined ? this.fontFamily : Canvas.one.fontFamily);
-        const fontSize   = (this.fontSize   != undefined ? this.fontSize   : Canvas.one.fontSize);
+        const fontFamily = (this.fontFamily != undefined ? this.fontFamily : Canvas.fontFamily);
+        const fontSize   = (this.fontSize   != undefined ? this.fontSize   : Canvas.fontSize);
         
         return `${fontSize} ${fontFamily}`;
     }
@@ -74,14 +74,15 @@ export class TextUI extends UI {
 
             const padding_border_size = this.getPaddingBorderSize();
 
-            const size = getTextBoxSize(Canvas.one.ctx, this.text, this.getFont());
+            const canvas = getCanvasFromUI(this);
+            const size = getTextBoxSize(canvas.ctx, this.text, this.getFont());
 
             this.minSize.x = size.width  + padding_border_size.x;
             this.minSize.y = size.height + padding_border_size.y;
         }
 
         this.size.copyFrom(this.minSize);
-        msg(`text size:${this.size.x.toFixed()} ${this.size.y.toFixed()} ${this.text}`);
+        // msg(`text size:${this.size.x.toFixed()} ${this.size.y.toFixed()} ${this.text}`);
     }
 
     draw(ctx : CanvasRenderingContext2D, offset : Vec2) : void {

@@ -53,7 +53,7 @@ function addImage(image_file : string){
     image.src = `img/${image_file}`;    
     image.onload = ()=>{
         imageMap.set(image_file, image);
-        Canvas.one.requestUpdateCanvas();
+        Canvas.requestUpdateCanvas();
         msg(`image loaded:${image_file}`);
     }
 }

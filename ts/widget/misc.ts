@@ -35,6 +35,7 @@ export class Star extends UI {
 
 export class Firework extends UI {
     stars: Star[];
+    startTime = Date.now();
 
     constructor(data : UIAttr & { numStars: number}) {
         super(data);
@@ -65,7 +66,13 @@ export class Firework extends UI {
             star.position = star.position.add(star.velocity);
         }
 
-        Canvas.one.requestUpdateCanvas();
+        if(Date.now() - this.startTime < 1000){
+
+            Canvas.requestUpdateCanvas();
+        }
+        else{
+            msg("stop firework");
+        }
     }
 }
 }

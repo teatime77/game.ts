@@ -1,7 +1,60 @@
+///<reference path="widget/core.ts" />
+
 namespace game_ts {
 //
 let animationFrameId : number | null = null;
+const uiToCanvas = new Map<UI,Canvas>();
 
+
+function getUIFromIdSub(id : string, ui : UI) : UI | undefined {
+    if(ui.id == id){
+        return ui;
+    }
+
+    if(ui instanceof ContainerUI){
+
+        for(const child of ui.children){
+
+            const ui2 = getUIFromIdSub(id, child);
+            if(ui2 != undefined){
+                return ui2;
+            }
+        }
+    }
+
+    return undefined;
+}
+
+export function getUIFromId(id : string) : UI {
+    for(const canvas of Canvas.canvases){
+        for(const ui of canvas.getUIs()){
+            const ui2 = getUIFromIdSub(id, ui);
+            if(ui2 != undefined){
+                return ui2;
+            }
+        }
+
+    }
+
+    throw new MyError();
+}
+
+export function getCanvasFromUI(ui : UI) : Canvas {
+    let canvas = uiToCanvas.get(ui);
+    if(canvas != undefined){
+        return canvas;
+    }
+
+    const root = ui.getRootUI();
+    for(const canvas of Canvas.canvases){
+        if(canvas.getUIs().some(x => x == root)){
+            uiToCanvas.set(ui, canvas);
+            return canvas;
+        }
+    }
+
+    throw new MyError();
+}
 function isTransparent(ctx : CanvasRenderingContext2D, position : Vec2) {
     try {
         // 1x1ピクセルの領域のImageDataを取得
@@ -19,16 +72,16 @@ function isTransparent(ctx : CanvasRenderingContext2D, position : Vec2) {
 }
 
 export class Canvas {
-    static one : Canvas;
-
     canvas : HTMLCanvasElement;
     ctx : CanvasRenderingContext2D;
-    borderWidth : number = 5;
-    padding : Padding = new Padding(5, 5, 5, 5);
-    fontFamily : string = "Arial";
-    fontSize   : string = "30px";
 
-    uis: UI[] = [];
+    static canvases: Canvas[] = [];
+    static borderWidth : number = 5;
+    static padding : Padding = new Padding(5, 5, 5, 5);
+    static fontFamily : string = "Arial";
+    static fontSize   : string = "30px";
+
+    private uis: UI[] = [];
 
     targetUI? : UI;
 
@@ -41,7 +94,7 @@ export class Canvas {
     moved : boolean = false;
 
     constructor(canvas_html : HTMLCanvasElement){
-        Canvas.one = this;
+        Canvas.canvases.push(this);
         this.canvas = canvas_html;
 
         const rect = this.canvas.getBoundingClientRect();
@@ -58,10 +111,14 @@ export class Canvas {
         this.canvas.addEventListener("pointermove",  this.pointermove.bind(this));
         
         this.canvas.addEventListener("pointerup"  , async (ev:PointerEvent)=>{
-            await Canvas.one.pointerup(ev);
+            await this.pointerup(ev);
         });
 
         msg(`canvas w:${canvas_html.width} h:${canvas_html.height}`);
+    }
+
+    getUIs() : UI[]{
+        return this.uis;
     }
 
     addUI(ui : UI){
@@ -141,15 +198,15 @@ export class Canvas {
 
         this.dragTarget(this.targetUI);
 
-        this.requestUpdateCanvas();
+        Canvas.requestUpdateCanvas();
     }
 
-    requestUpdateCanvas(){
+    static requestUpdateCanvas(){
         if (animationFrameId == null) {
 
             animationFrameId = requestAnimationFrame(()=>{
                 animationFrameId = null;
-                this.repaint();
+                Canvas.canvases.forEach(x => x.repaint());
 
                 Sequencer.nextAction();
             });
@@ -181,7 +238,7 @@ export class Canvas {
         this.targetUI = undefined;
         this.pointerId = NaN;
 
-        this.requestUpdateCanvas();
+        Canvas.requestUpdateCanvas();
 
         this.moved = false;
     }
@@ -198,12 +255,12 @@ export class Canvas {
             // Example drawing
             this.ctx.fillStyle = 'blue';
             this.ctx.fillRect(50, 50, 100, 100);
-            this.ctx.font = `${this.fontSize} ${this.fontFamily}`;
+            this.ctx.font = `${Canvas.fontSize} ${Canvas.fontFamily}`;
             this.ctx.fillStyle = 'white';
             this.ctx.fillText('Hello Canvas!', this.canvas.width / 2 - 100, this.canvas.height / 2);
         }
 
-        this.requestUpdateCanvas();
+        Canvas.requestUpdateCanvas();
     }
 
     repaint(){

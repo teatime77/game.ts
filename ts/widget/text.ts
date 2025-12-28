@@ -1,6 +1,6 @@
 namespace game_ts {
 //
-const textColor = "black";
+const textColor = "white";
 
 interface TextDimensions {
     width: number;

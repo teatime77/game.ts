@@ -6,8 +6,8 @@ namespace game_ts {
 
 export class TreeNode extends ContainerUI {
     static indent = 20;
-    static nodeGap = 10;
-    static padding = 10;
+    static nodeGap = 5;
+    static padding = 5;
     static openedFile = "tree-opened.png";
     static closedFile = "tree-closed.png";
     static noneFile   = "none.png";

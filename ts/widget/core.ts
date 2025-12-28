@@ -112,9 +112,7 @@ export abstract class UI implements Movable {
     }
 
     draw(ctx : CanvasRenderingContext2D, offset : Vec2) : void {
-        if(this.getBorderWidth() != 0){
-            this.drawBorder(ctx, offset);
-        }
+        this.drawBorder(ctx, offset);
     }
 
     str() : string {
@@ -245,23 +243,33 @@ export abstract class UI implements Movable {
     }
 
     drawBorder(ctx : CanvasRenderingContext2D, offset : Vec2) {
+        const borderWidth = this.getBorderWidth();
+        if(borderWidth == 0){
+            return;
+        }
+
         const x1 = offset.x + this.position.x;
         const y1 = offset.y + this.position.y;
         const width  = this.size.x;
         const height = this.size.y;
-        const ridgeWidth = this.getBorderWidth();
 
-        const x2 = x1 + ridgeWidth / 2;
-        const y2 = y1 + ridgeWidth / 2;
+        if(borderWidth == 1){
+            ctx.strokeStyle = "white";
+            ctx.strokeRect(x1, y1, width, height);
+            return;
+        }
 
-        const x3 = x1 + ridgeWidth;
-        const y3 = y1 + ridgeWidth;
+        const x2 = x1 + borderWidth / 2;
+        const y2 = y1 + borderWidth / 2;
 
-        const x4 = x1 + width  - ridgeWidth;
-        const y4 = y1 + height - ridgeWidth;
+        const x3 = x1 + borderWidth;
+        const y3 = y1 + borderWidth;
 
-        const x5 = x1 + width  - ridgeWidth / 2;
-        const y5 = y1 + height - ridgeWidth / 2;
+        const x4 = x1 + width  - borderWidth;
+        const y4 = y1 + height - borderWidth;
+
+        const x5 = x1 + width  - borderWidth / 2;
+        const y5 = y1 + height - borderWidth / 2;
 
         const x6 = x1 + width;
         const y6 = y1 + height;
@@ -340,24 +348,24 @@ export abstract class UI implements Movable {
 
         // Optionally, draw the inner rectangle (fill or another stroke)
         ctx.fillStyle = backgroundColor; // Example inner color
-        ctx.fillRect(x3, y3, width - 2 * ridgeWidth, height - 2 * ridgeWidth);
+        ctx.fillRect(x3, y3, width - 2 * borderWidth, height - 2 * borderWidth);
 
         // Draw the "light" sides (top and left)
         ctx.strokeStyle = lightColor;
-        ctx.lineWidth = ridgeWidth;
+        ctx.lineWidth = borderWidth;
         ctx.beginPath();
-        ctx.moveTo(x2, y1 + height - ridgeWidth / 2); // Bottom-left corner
+        ctx.moveTo(x2, y1 + height - borderWidth / 2); // Bottom-left corner
         ctx.lineTo(x2, y2);     // Top-left corner
-        ctx.lineTo(x1 + width - ridgeWidth / 2, y2); // Top-right corner
+        ctx.lineTo(x1 + width - borderWidth / 2, y2); // Top-right corner
         ctx.stroke();
 
         // Draw the "dark" sides (bottom and right)
         ctx.strokeStyle = darkColor;
-        ctx.lineWidth = ridgeWidth;
+        ctx.lineWidth = borderWidth;
         ctx.beginPath();
-        ctx.moveTo(x1 + width - ridgeWidth / 2, y2);     // Top-right corner
-        ctx.lineTo(x1 + width - ridgeWidth / 2, y1 + height - ridgeWidth / 2); // Bottom-right corner
-        ctx.lineTo(x2, y1 + height - ridgeWidth / 2); // Bottom-left corner
+        ctx.moveTo(x1 + width - borderWidth / 2, y2);     // Top-right corner
+        ctx.lineTo(x1 + width - borderWidth / 2, y1 + height - borderWidth / 2); // Bottom-right corner
+        ctx.lineTo(x2, y1 + height - borderWidth / 2); // Bottom-left corner
         ctx.stroke();
     }
 

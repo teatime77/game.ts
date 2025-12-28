@@ -54,7 +54,7 @@ async function asyncBodyOnLoad(){
 
     const grids = canvas.getUIs().filter(x => x instanceof Grid);
 
-    const root = new TreeNode({label:"root"});
+    const root = new TreeNode({label:"root", borderWidth:1});
     makeTreeNodeFromObject(root, "canvas", canvas, new Set<any>());
 
     const inspector = getUIFromId("inspector") as TreeNode;

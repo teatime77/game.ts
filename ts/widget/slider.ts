@@ -20,7 +20,6 @@ class Thumb extends UI implements Draggable {
 
         super(data);
         this.slider = slider;
-        this.setPositionByValue();
     }
 
     isNear(position : Vec2) : boolean {
@@ -28,7 +27,7 @@ class Thumb extends UI implements Draggable {
     }
 
     setPositionByValue() {
-        const ratio   = (this.slider.max - this.value) / (this.slider.max - this.slider.min);
+        const ratio   = (this.value - this.slider.min) / (this.slider.max - this.slider.min);
 
         const thumbStart = this.slider.thumbStart();
         const thumbEnd   = this.slider.thumbEnd();
@@ -42,6 +41,8 @@ class Thumb extends UI implements Draggable {
         const thumbEnd   = this.slider.thumbEnd();
 
         this.position.x = Math.max(thumbStart.x, Math.min(thumbEnd.x, position.x));
+        this.position.y = thumbStart.y;
+
         const ratio   = (this.position.x - thumbStart.x) / (thumbEnd.x - thumbStart.x);
         this.value    = this.slider.min * (1 - ratio) + this.slider.max * ratio;
     }
@@ -144,6 +145,7 @@ export class Slider extends UI {
     layout(position : Vec2, size : Vec2) : void {
         super.layout(position, size);
         this.initTrack();
+        this.thumb.setPositionByValue();
     }
 
     draw(ctx : CanvasRenderingContext2D, offset : Vec2) : void {

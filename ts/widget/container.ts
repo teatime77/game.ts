@@ -16,16 +16,16 @@ export abstract class ContainerUI extends UI {
     }
 
     getNearUI(position : Vec2) : UI | undefined {
-        const position2 = position.sub(this.position);
-
-        for(const child of this.children){
-            const ui = child.getNearUI(position2);
-            if(ui !== undefined){
-                return ui;
-            }
-        }
-
         if(this.isNear(position)){
+            const position2 = position.sub(this.position);
+
+            for(const child of this.children){
+                const ui = child.getNearUI(position2);
+                if(ui !== undefined){
+                    return ui;
+                }
+            }
+
             return this;
         }
 

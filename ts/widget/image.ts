@@ -13,6 +13,10 @@ export class ImageUI extends UI {
         addImage(this.imageFile);
     }
 
+    setImageFile(imageFile : string){
+        this.imageFile = imageFile;
+    }
+
     isNear(position : Vec2) : boolean {
         if(this.position.x <= position.x && position.x < this.position.x + this.size.x){
             if(this.position.y <= position.y && position.y < this.position.y + this.size.y){
@@ -42,11 +46,14 @@ export class ImageUI extends UI {
     }
 }
 
+const pendingImageFiles = new Set<string>();
 
 function addImage(image_file : string){
-    if(imageMap.has(image_file)){
+    if(pendingImageFiles.has(image_file)){
         return;
     }
+
+    pendingImageFiles.add(image_file);
 
     const image = new Image();
     // Set the path to your image file

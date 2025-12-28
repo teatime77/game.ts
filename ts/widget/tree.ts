@@ -15,7 +15,7 @@ export class TreeNode extends ContainerUI {
     icon  : ImageUI;
     label : Label;
     childNodes : TreeNode[];
-    isOpen: boolean = true;
+    isOpen: boolean = false;
 
     constructor(data : UIAttr & { icon?: string, label: string, childNodes? : any[] }) {
         (data as any).children = [];
@@ -40,7 +40,7 @@ export class TreeNode extends ContainerUI {
         this.children = [this.openClose, this.icon, this.label, ...this.childNodes];
         this.children.forEach(x => x.setParent(this));
 
-        this.openClose.clickHandler = this.onOpenClose;
+        this.openClose.clickHandler = this.onOpenClose.bind(this);
     }
 
     addChild(child: TreeNode){
@@ -51,8 +51,11 @@ export class TreeNode extends ContainerUI {
 
     async onOpenClose(){
         this.isOpen = !this.isOpen;
-        this.setMinSize();
-        this.updateLayout();
+        this.openClose.setImageFile(this.isOpen ? TreeNode.openedFile : TreeNode.closedFile)
+
+        const root = this.getRootUI();
+        root.setMinSize();
+        root.updateLayout();
         Canvas.requestUpdateCanvas();
     }
 
@@ -111,6 +114,29 @@ export class TreeNode extends ContainerUI {
             y += node.size.y;
         }
     }
+
+    draw(ctx : CanvasRenderingContext2D, offset : Vec2) : void {
+        this.drawBorder(ctx, offset);
+
+        const offset2 = offset.add(this.position);
+
+        const visible_children : (ImageUI | Label | TreeNode)[] = [this.openClose, this.icon, this.label];
+        if(this.isOpen){
+            visible_children.push(...this.childNodes);
+        }
+
+
+        if(all_children.has(this) || 10000 < all_children.size){
+            msg(`too many:${all_children.size} ${UI.count}`);
+            throw new MyError();
+        }
+
+        all_children.add(this);
+        visible_children.forEach(x => x.draw(ctx, offset2));
+        all_children.delete(this);
+    }
 }
+
+const all_children = new Set<UI>();
 
 }

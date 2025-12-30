@@ -4,7 +4,11 @@ namespace game_ts {
 export class Star extends UI {
     velocity : Vec2 = Vec2.zero();
 
-    draw(ctx : CanvasRenderingContext2D, offset : Vec2) : void {
+    draw(ctx : CanvasRenderingContext2D, offset : Vec2, visibleArea : VisibleArea | undefined) : void {
+        if(! this.isVisible(offset, visibleArea)){
+            return;
+        }
+        
         ctx.fillStyle = (this.backgroundColor != undefined ? this.backgroundColor : "yellow");
 
         ctx.beginPath();
@@ -60,9 +64,13 @@ export class Firework extends UI {
         }
     }
 
-    draw(ctx : CanvasRenderingContext2D, offset : Vec2) : void {
+    draw(ctx : CanvasRenderingContext2D, offset : Vec2, visibleArea : VisibleArea | undefined) : void {
+        if(! this.isVisible(offset, visibleArea)){
+            return;
+        }
+        
         for(const star of this.stars){
-            star.draw(ctx, offset);
+            star.draw(ctx, offset, visibleArea);
             star.position = star.position.add(star.velocity);
         }
 

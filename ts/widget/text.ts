@@ -38,7 +38,7 @@ export function getTextBoxSize(ctx: CanvasRenderingContext2D, text: string, font
     };
 }
 
-export class TextUI extends UI {
+export abstract class TextUI extends UI {
     fontFamily? : string;
     fontSize? : string;
     textAlign? : string;
@@ -85,8 +85,12 @@ export class TextUI extends UI {
         // msg(`text size:${this.size.x.toFixed()} ${this.size.y.toFixed()} ${this.text}`);
     }
 
-    draw(ctx : CanvasRenderingContext2D, offset : Vec2) : void {
-        super.draw(ctx, offset);
+    draw(ctx : CanvasRenderingContext2D, offset : Vec2, visibleArea : VisibleArea | undefined) : void {
+        if(! this.isVisible(offset, visibleArea)){
+            return;
+        }
+
+        super.draw(ctx, offset, visibleArea);
 
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';

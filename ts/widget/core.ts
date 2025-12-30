@@ -111,7 +111,25 @@ export abstract class UI implements Movable {
         return this.rowSpan == undefined ? 1 : this.rowSpan;
     }
 
-    draw(ctx : CanvasRenderingContext2D, offset : Vec2) : void {
+    isVisible(offset : Vec2, visibleArea : VisibleArea | undefined) : boolean {
+        if(visibleArea == undefined){
+            return true;
+        }
+
+        const x1 = offset.x + this.position.x;
+        const y1 = offset.y + this.position.y;
+
+        const x2 = x1 + this.size.x;
+        const y2 = y1 + this.size.y;
+
+        if(x2 < visibleArea.x1 || visibleArea.x2 < x1 || y2 < visibleArea.y1 || visibleArea.y2 < y1){
+            return false;
+        }
+
+        return true;
+    }
+
+    draw(ctx : CanvasRenderingContext2D, offset : Vec2, visibleArea : VisibleArea | undefined) : void {
         this.drawBorder(ctx, offset);
     }
 
@@ -385,14 +403,27 @@ export function makeUIFromObj(obj : any) : UI {
     case ImageUI.name: return new ImageUI(obj as UIAttr);
     case Star.name   : return new Star(obj as UIAttr);
     case Firework.name: return new Firework(obj as (UIAttr & { numStars: number}));
-    case Slider.name  : return new Slider(obj as UIAttr);
+    case HorizontalSlider.name: return new HorizontalSlider(obj as UIAttr);
+    case VerticalSlider.name  : return new VerticalSlider(obj as UIAttr);
     case Stage.name   : return new Stage(obj as (UIAttr & { children : any[] }))
     case Grid.name    : return new Grid(obj  as (UIAttr & { children : any[], columns?: string, rows? : string }));
     case TreeNode.name: return new TreeNode(obj as (UIAttr & { icon?: string, label: string, childNodes : any[] }));
+    case ScrollView.name: return new ScrollView(obj as (UIAttr & { viewChildren : any[], viewSize:[number, number] }));
 
     }
 
     throw new MyError();
+}
+
+export function getNearUIinArray(children : UI[], position : Vec2){
+    for(const child of children){
+        const ui = child.getNearUI(position);
+        if(ui !== undefined){
+            return ui;
+        }
+    }
+
+    return undefined;
 }
 
 }

@@ -15,7 +15,7 @@ class Thumb extends UI implements Draggable {
     constructor(slider : Slider){
         const data = {
             "className" : "Thumb",
-            "size"      : [ 20, 40 ]
+            "size"      : [ 2 * Thumb.radius, 2 * Thumb.radius ]
         } as UIAttr;
 
         super(data);
@@ -32,22 +32,39 @@ class Thumb extends UI implements Draggable {
         const thumbStart = this.slider.thumbStart();
         const thumbEnd   = this.slider.thumbEnd();
 
-        this.position.x = thumbStart.x * (1 - ratio) + thumbEnd.x * ratio;
-        this.position.y = thumbStart.y;
+        const new_position = thumbStart.mul(1 - ratio).add(thumbEnd.mul(ratio))
+        this.position.copyFrom(new_position);
     }
+
 
     setPosition(position : Vec2) {
         const thumbStart = this.slider.thumbStart();
         const thumbEnd   = this.slider.thumbEnd();
 
-        this.position.x = Math.max(thumbStart.x, Math.min(thumbEnd.x, position.x));
-        this.position.y = thumbStart.y;
+        let ratio : number;
+        if(this.slider instanceof HorizontalSlider){
 
-        const ratio   = (this.position.x - thumbStart.x) / (thumbEnd.x - thumbStart.x);
+            this.position.x = Math.max(thumbStart.x, Math.min(thumbEnd.x, position.x));
+            this.position.y = thumbStart.y;
+
+            ratio   = (this.position.x - thumbStart.x) / (thumbEnd.x - thumbStart.x);
+        }
+        else{
+
+            this.position.x = thumbStart.x;
+            this.position.y = Math.max(thumbStart.y, Math.min(thumbEnd.y, position.y));
+
+            ratio   = (this.position.y - thumbStart.y) / (thumbEnd.y - thumbStart.y);
+        }
+
         this.value    = this.slider.min * (1 - ratio) + this.slider.max * ratio;
     }
 
-    draw(ctx : CanvasRenderingContext2D, offset : Vec2) : void{
+    draw(ctx : CanvasRenderingContext2D, offset : Vec2, visibleArea : VisibleArea | undefined) : void{
+        if(! this.isVisible(offset, visibleArea)){
+            return;
+        }
+        
         const center = offset.add(this.position);
 
         ctx.beginPath();
@@ -73,8 +90,8 @@ class Thumb extends UI implements Draggable {
     }
 }
 
-class Track extends UI {
-    static height = 10;
+export class Track extends UI {
+    static breadth = 10;
 
     slider : Slider;
 
@@ -89,7 +106,7 @@ class Track extends UI {
 }
 
 
-export class Slider extends UI {
+export abstract class Slider extends ContainerUI {
     static padding = 30;
     track : Track;
     thumb : Thumb;
@@ -98,12 +115,56 @@ export class Slider extends UI {
 
     constructor(data : UIAttr){
         super(data);
+
         this.track = new Track(this);
         this.thumb = new Thumb(this);
+        this.addChildren(this.track, this.thumb);
 
-        this.initTrack();
+        this.layoutTrack();
     }
 
+    abstract thumbStart() : Vec2;
+    abstract thumbEnd()   : Vec2;
+
+    value() : number {
+        return this.thumb.value;
+    }
+
+    layoutTrack(){
+        const thumbStart = this.thumbStart();
+        const thumbEnd   = this.thumbEnd();
+
+        let position = Vec2.zero();
+        let size     = Vec2.zero();
+
+        if(this instanceof HorizontalSlider){
+
+            position.x = thumbStart.x;
+            position.y = thumbStart.y - Track.breadth / 2;
+
+            size.x = thumbEnd.x - thumbStart.x;
+            size.y = Track.breadth;
+        }
+        else{
+
+            position.x = thumbStart.x - Track.breadth / 2;
+            position.y = thumbStart.y;
+
+            size.x = Track.breadth;
+            size.y = thumbEnd.y - thumbStart.y;
+        }
+
+        this.track.layout(position, size);
+    }
+
+    layout(position : Vec2, size : Vec2) : void {
+        super.layout(position, size);
+        this.layoutTrack();
+        this.thumb.setPositionByValue();
+    }
+}
+
+export class HorizontalSlider extends Slider {
     thumbStart() : Vec2 {
         const start_x = Slider.padding;
         const start_y = this.size.y / 2;
@@ -117,42 +178,21 @@ export class Slider extends UI {
 
         return new Vec2(end_x, end_y);
     }
+}
 
-    initTrack(){
-        const thumbStart = this.thumbStart();
-        const thumbEnd   = this.thumbEnd();
+export class VerticalSlider extends Slider {
+    thumbStart() : Vec2 {
+        const start_x = this.size.x / 2;
+        const start_y = Slider.padding;
 
-        const track_x = thumbStart.x;
-        const track_y = thumbStart.y - Track.height / 2;
-
-        const size_x = thumbEnd.x - thumbStart.x;
-        this.track.layout(new Vec2(track_x, track_y), new Vec2(size_x, Track.height));
+        return new Vec2(start_x, start_y);
     }
 
-    getNearUI(position : Vec2) : UI | undefined {
-        const position2 = position.sub(this.position);
-        if(this.thumb.isNear(position2)){
-            return this.thumb;
-        }
+    thumbEnd() : Vec2 {
+        const end_x = this.size.x / 2;
+        const end_y = this.size.y - Slider.padding;
 
-        if(this.isNear(position)){
-            return this;
-        }
-
-        return undefined;
-    }
-
-    layout(position : Vec2, size : Vec2) : void {
-        super.layout(position, size);
-        this.initTrack();
-        this.thumb.setPositionByValue();
-    }
-
-    draw(ctx : CanvasRenderingContext2D, offset : Vec2) : void {
-        super.draw(ctx, offset);
-        const offset2 = offset.add(this.position);
-        this.track.draw(ctx, offset2);
-        this.thumb.draw(ctx, offset2);
+        return new Vec2(end_x, end_y);
     }
 }
 }

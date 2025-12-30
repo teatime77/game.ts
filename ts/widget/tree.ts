@@ -115,7 +115,11 @@ export class TreeNode extends ContainerUI {
         }
     }
 
-    draw(ctx : CanvasRenderingContext2D, offset : Vec2) : void {
+    draw(ctx : CanvasRenderingContext2D, offset : Vec2, visibleArea : VisibleArea | undefined) : void {
+        if(! this.isVisible(offset, visibleArea)){
+            return;
+        }
+        
         this.drawBorder(ctx, offset);
 
         const offset2 = offset.add(this.position);
@@ -132,7 +136,7 @@ export class TreeNode extends ContainerUI {
         }
 
         all_children.add(this);
-        visible_children.forEach(x => x.draw(ctx, offset2));
+        visible_children.forEach(x => x.draw(ctx, offset2, visibleArea));
         all_children.delete(this);
     }
 }

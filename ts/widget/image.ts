@@ -27,8 +27,12 @@ export class ImageUI extends UI {
         return false;
     }
 
-    draw(ctx : CanvasRenderingContext2D, offset : Vec2) : void {
-        super.draw(ctx, offset);
+    draw(ctx : CanvasRenderingContext2D, offset : Vec2, visibleArea : VisibleArea | undefined) : void {
+        if(! this.isVisible(offset, visibleArea)){
+            return;
+        }
+
+        super.draw(ctx, offset, visibleArea);
         const image = imageMap.get(this.imageFile);
         if(image == undefined){
             // msg(`no img:${this.imageFile}`);

@@ -5,10 +5,18 @@ namespace game_ts {
 export abstract class ContainerUI extends UI {
     children : UI[] = [];
 
-    constructor(data : UIAttr & { children : any[] }){
+    constructor(data : UIAttr & { children? : any[] }){
         super(data);
-        this.children = (data.children as any[]).map(x => makeUIFromObj(x));
-        this.children.forEach(x => x.parent = this);
+
+        if(data.children != undefined){
+            this.children = (data.children as any[]).map(x => makeUIFromObj(x));
+            this.children.forEach(x => x.parent = this);
+        }
+    }
+
+    addChildren(...children : UI[]){
+        this.children.push(...children);
+        children.forEach(x => x.parent = this);
     }
 
     setMinSize() : void {
@@ -19,11 +27,9 @@ export abstract class ContainerUI extends UI {
         if(this.isNear(position)){
             const position2 = position.sub(this.position);
 
-            for(const child of this.children){
-                const ui = child.getNearUI(position2);
-                if(ui !== undefined){
-                    return ui;
-                }
+            const ui = getNearUIinArray(this.children.slice().reverse(), position2);
+            if(ui !== undefined){
+                return ui;
             }
 
             return this;
@@ -32,10 +38,16 @@ export abstract class ContainerUI extends UI {
         return undefined;
     }
 
-    draw(ctx : CanvasRenderingContext2D, offset : Vec2) : void {
-        super.draw(ctx, offset);
+    draw(ctx : CanvasRenderingContext2D, offset : Vec2, visibleArea : VisibleArea | undefined) : void {
+        super.draw(ctx, offset, visibleArea);
         const offset2 = offset.add(this.position);
-        this.children.forEach(x => x.draw(ctx, offset2));
+
+        if(this instanceof ScrollView){
+            this.drawScrollView(ctx, offset2, visibleArea);
+        }
+        else{
+            this.children.forEach(x => x.draw(ctx, offset2, visibleArea));
+        }
     }
 }
 

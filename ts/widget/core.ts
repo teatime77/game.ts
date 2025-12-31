@@ -409,6 +409,7 @@ export function makeUIFromObj(obj : any) : UI {
     case Grid.name    : return new Grid(obj  as (UIAttr & { children : any[], columns?: string, rows? : string }));
     case TreeNode.name: return new TreeNode(obj as (UIAttr & { icon?: string, label: string, childNodes : any[] }));
     case ScrollView.name: return new ScrollView(obj as (UIAttr & { viewChildren : any[], viewSize:[number, number] }));
+    case Graph.name   : return new Graph(obj  as (UIAttr & { children : any[] }));
 
     }
 

@@ -1,0 +1,35 @@
+///<reference path="core.ts" />
+
+namespace game_ts {
+//
+let popupMenus : PopupMenu[];
+
+export function initPopupMenus(popup_menus : PopupMenu[]){
+    popupMenus = popup_menus.slice();
+}
+
+export function showPopupMenu(canvas : Canvas, x : number, y : number){
+    const menu = popupMenus[0];
+
+    menu.canvas = canvas;
+    menu.setMinSize();
+    menu.layout(Vec2.fromXY(x, y), menu.minSize);
+
+    PopupMenu.one = menu;
+}
+
+export class PopupMenu extends Grid {
+    static one : PopupMenu | undefined;
+
+    canvas : Canvas | undefined;
+
+    constructor(data : UIAttr & { children : any[] }){
+        super(data);
+    }
+
+    static close(){
+        PopupMenu.one = undefined;
+    }
+}
+
+}

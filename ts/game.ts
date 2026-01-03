@@ -42,8 +42,13 @@ async function asyncBodyOnLoad(){
 
     const canvas = new Canvas($("world") as HTMLCanvasElement);
 
-    const data = await fetchJson(`data/a.json?id=${Math.random()}`);
-    for(const obj of data["uis"]){
+    const data : {
+        uis: any[],
+        menus : any[],
+        actions : any[]
+    } = await fetchJson(`data/a.json?id=${Math.random()}`);
+
+    for(const obj of data.uis){
         for (const [key, value] of Object.entries(obj)) {
             // msg(`Key: ${key}, Value: ${value}`);
         }    
@@ -52,10 +57,11 @@ async function asyncBodyOnLoad(){
         canvas.addUI(ui);
     }
 
-    const grids = canvas.getUIs().filter(x => x instanceof Grid);
+    const grids = canvas.getUIMenus().filter(x => x instanceof Grid);
 
     const root = new TreeNode({label:"root", borderWidth:1});
-    makeTreeNodeFromObject(root, "canvas", canvas, new Set<any>());
+    // makeTreeNodeFromObject(root, "canvas", canvas, new Set<any>());
+    makeTreeNodeFromObject(root, "json", data, new Set<any>());
 
     const inspector = getUIFromId("inspector") as TreeNode;
     inspector.addChild(root);
@@ -65,7 +71,10 @@ async function asyncBodyOnLoad(){
         grid.layout(grid.position, grid.minSize);
     }
 
-    Sequencer.init(data["actions"]);
+    const popup_menus = data.menus.map(x => makeUIFromObj(x)) as PopupMenu[];
+    initPopupMenus(popup_menus);
+
+    Sequencer.init(data.actions);
 
     Canvas.requestUpdateCanvas();
 

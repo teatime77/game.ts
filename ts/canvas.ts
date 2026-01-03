@@ -27,7 +27,7 @@ function getUIFromIdSub(id : string, ui : UI) : UI | undefined {
 
 export function getUIFromId(id : string) : UI {
     for(const canvas of Canvas.canvases){
-        for(const ui of canvas.getUIs()){
+        for(const ui of canvas.getUIMenus()){
             const ui2 = getUIFromIdSub(id, ui);
             if(ui2 != undefined){
                 return ui2;
@@ -45,9 +45,21 @@ export function getCanvasFromUI(ui : UI) : Canvas {
         return canvas;
     }
 
-    const root = ui.getRootUI();
+    let root : UI;
+    for(let ui2 : UI | undefined = ui; ui2 != undefined; ui2 = ui2.parent){
+        if(ui2 instanceof PopupMenu){
+            if(ui2.canvas == undefined){
+                throw new MyError();
+            }
+
+            return ui2.canvas;
+        }
+
+        root = ui2;
+    }
+
     for(const canvas of Canvas.canvases){
-        if(canvas.getUIs().some(x => x == root)){
+        if(canvas.getUIMenus().some(x => x == root)){
             uiToCanvas.set(ui, canvas);
             return canvas;
         }
@@ -114,11 +126,22 @@ export class Canvas {
             await this.pointerup(ev);
         });
 
+        this.canvas.addEventListener("contextmenu", this.contextmenu.bind(this));
+
+        this.canvas.addEventListener('keydown', this.keydown.bind(this));
+
+
+
         msg(`canvas w:${canvas_html.width} h:${canvas_html.height}`);
     }
 
-    getUIs() : UI[]{
-        return this.uis;
+    getUIMenus() : UI[]{
+        const ui_menus = this.uis.slice();
+        if(PopupMenu.one != undefined && PopupMenu.one.canvas == this){
+            ui_menus.push(PopupMenu.one);
+        }
+
+        return ui_menus;
     }
 
     addUI(ui : UI){
@@ -143,7 +166,7 @@ export class Canvas {
     }
 
     getUIFromPosition(pos : Vec2) : UI | undefined {
-        for(const ui of this.uis){
+        for(const ui of this.getUIMenus().reverse()){
             const near_ui = ui.getNearUI(pos);
             if(near_ui != undefined){
                 if(near_ui instanceof ImageUI){
@@ -218,6 +241,7 @@ export class Canvas {
         if(this.targetUI == undefined){
             return;
         }
+        PopupMenu.close();
 
         const pos = this.getPositionInCanvas(ev);
         const target = this.getUIFromPosition(pos);
@@ -243,6 +267,46 @@ export class Canvas {
         this.moved = false;
     }
 
+    contextmenu(event : MouseEvent){
+        msg("context menu");
+        // 1. デフォルトの右クリックメニューを禁止
+        event.preventDefault();
+
+        // 2. Canvas内での相対座標を計算
+        const rect = this.canvas.getBoundingClientRect();
+        const x = event.clientX - rect.left;
+        const y = event.clientY - rect.top;
+
+        showPopupMenu(this, x, y);
+    }
+
+    keydown(ev: KeyboardEvent){
+        // 特定のキーを判定
+        switch (ev.key) {
+        case 'Escape':
+            msg('Escキーが押されました');
+            PopupMenu.close();
+            Canvas.requestUpdateCanvas();
+            break;
+
+        case 'Enter':
+            msg('Enterキーが押されました');
+            // 確定処理など
+            break;
+
+        case 'ArrowUp':
+        case 'ArrowDown':
+        case 'ArrowLeft':
+        case 'ArrowRight':
+            msg(`${ev.key} が押されました`);
+            // 矩形の移動処理など
+            ev.preventDefault(); // 矢印キーによる画面スクロールを防止
+            break;
+        }
+    }
+
+
+
     resizeCanvas() {
         // Set the canvas's internal drawing dimensions to match its display size
         // window.innerWidth/Height give the viewport dimensions.
@@ -265,7 +329,7 @@ export class Canvas {
 
     repaint(){
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);        
-        this.uis.forEach(ui => ui.draw(this.ctx, Vec2.zero(), undefined));
+        this.getUIMenus().forEach(ui => ui.drawTop(this.ctx));
     }
 
     drawLine(start : Vec2, end : Vec2, color : string, lineWidth : number = 2){

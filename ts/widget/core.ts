@@ -133,6 +133,10 @@ export abstract class UI implements Movable {
         this.drawBorder(ctx, offset);
     }
 
+    drawTop(ctx : CanvasRenderingContext2D){
+        this.draw(ctx, Vec2.zero(), undefined)
+    }
+
     str() : string {
         return `${this.idx} ${this.constructor.name}`;
     }
@@ -410,7 +414,7 @@ export function makeUIFromObj(obj : any) : UI {
     case TreeNode.name: return new TreeNode(obj as (UIAttr & { icon?: string, label: string, childNodes : any[] }));
     case ScrollView.name: return new ScrollView(obj as (UIAttr & { viewChildren : any[], viewSize:[number, number] }));
     case Graph.name   : return new Graph(obj  as (UIAttr & { children : any[] }));
-
+    case PopupMenu.name: return new PopupMenu(obj  as (UIAttr & { children : any[] }));
     }
 
     throw new MyError();

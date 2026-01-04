@@ -16,8 +16,8 @@ export class VisibleArea {
 }
 
 export class ScrollView extends ContainerUI {
-    horizontalSlider = new HorizontalSlider({});
-    verticalSlider   = new VerticalSlider({});
+    horizontalSlider = new HorizontalSlider({ padding:0, borderWidth:0 });
+    verticalSlider   = new VerticalSlider({ padding:0, borderWidth:0 });
     viewChildren : UI[];
     viewSize : Vec2;
     clientSize : Vec2 = Vec2.nan();
@@ -50,13 +50,9 @@ export class ScrollView extends ContainerUI {
         this.children.forEach(x => x.setMinSize());
     }
 
-    getClientSize() : Vec2 {
-        return Vec2.fromXY(this.size.x - Track.breadth, this.size.y - Track.breadth);
-    }
-
     layoutHorizontalSlider(){
         const position_x = 0;
-        const position_y = this.size.y - Track.breadth;
+        const position_y = this.clientSize.y;
 
         const size_x = this.clientSize.x;
         const size_y = Track.breadth;
@@ -65,7 +61,7 @@ export class ScrollView extends ContainerUI {
     }
 
     layoutVerticalSlider(){
-        const position_x = this.size.x - Track.breadth;
+        const position_x = this.clientSize.x;
         const position_y = 0;
 
         const size_x = Track.breadth;
@@ -76,7 +72,9 @@ export class ScrollView extends ContainerUI {
 
     layout(position : Vec2, size : Vec2) : void {
         super.layout(position, size);
-        this.clientSize.setXY(this.size.x - Track.breadth, this.size.y - Track.breadth);
+        const padding_border_size = this.getPaddingBorderSize();
+        this.clientSize.x = this.size.x - padding_border_size.x - Track.breadth;
+        this.clientSize.y = this.size.y - padding_border_size.y - Track.breadth;
 
         this.layoutHorizontalSlider();
         this.layoutVerticalSlider();
@@ -88,8 +86,8 @@ export class ScrollView extends ContainerUI {
     }    
 
     getScrollOffset() : Vec2 {
-        const x_value = this.horizontalSlider.value();
-        const y_value = this.verticalSlider.value();
+        const x_value = - this.horizontalSlider.value();
+        const y_value = - this.verticalSlider.value();
 
         return Vec2.fromXY(x_value, y_value);
     }
@@ -118,7 +116,8 @@ export class ScrollView extends ContainerUI {
 
     getNearUI(position : Vec2) : UI | undefined {
         if(this.isNear(position)){
-            const position2 = position.sub(this.position);
+            const content_position = this.getContentPosition();
+            const position2 = position.sub(this.position).sub(content_position);
 
             let ui = getNearUIinArray([ this.horizontalSlider, this.verticalSlider ], position2);
             if(ui !== undefined){

@@ -4,14 +4,14 @@ namespace game_ts {
 //
 
 export function makeTreeNodeFromObject(parent : TreeNode, name : string, data : any, done : Set<any>) {
-    const node = new TreeNode({ label:name, childNodes:[], borderWidth:1 });
+    const node = new TreeNode({ label:name, childNodes:[] });
     parent.addChild(node);
 
     for (const [key, value] of Object.entries(data)) {
         let child : TreeNode;
         
         if(Array.isArray(value)){
-            child = new TreeNode({ label:`${key}:array`, borderWidth:1 });
+            child = new TreeNode({ label:`${key}:array` });
             for(const [i, element] of value.entries()){
                 makeTreeNodeFromObject(child, key,  element, done);
             }
@@ -23,22 +23,22 @@ export function makeTreeNodeFromObject(parent : TreeNode, name : string, data : 
         }
         else if(value == null){
 
-            child = new TreeNode({ label:`${key}:null`, borderWidth:1 });
+            child = new TreeNode({ label:`${key}:null` });
         }
         else if (typeof value == "object"){
             if(done.has(value)){
 
-                child = new TreeNode({ label:`${key} : ${value.constructor.name} *`, borderWidth:1 });
+                child = new TreeNode({ label:`${key} : ${value.constructor.name} *` });
             }
             else{
                 done.add(value);
 
-                child = new TreeNode({ label:`${key} : ${value.constructor.name}`, borderWidth:1 });
+                child = new TreeNode({ label:`${key} : ${value.constructor.name}` });
                 makeTreeNodeFromObject(child, key,  value, done);
             }
         }
         else{
-            child = new TreeNode({ label:`${key} : ${typeof value} = ${value}`, borderWidth:1 });
+            child = new TreeNode({ label:`${key} : ${typeof value} = ${value}` });
         }
 
         node.addChild(child);

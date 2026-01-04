@@ -105,7 +105,6 @@ export class TreeNode extends ContainerUI {
 
         const header_height = Math.max(... [this.openClose, this.icon, this.label].map(x => x.minSize.y));
 
-        x = position.x + TreeNode.indent;
         y += header_height + TreeNode.nodeGap;
 
         for(const node of this.childNodes){
@@ -122,7 +121,8 @@ export class TreeNode extends ContainerUI {
         
         this.drawBorder(ctx, offset);
 
-        const offset2 = offset.add(this.position);
+        const content_position = this.getContentPosition();
+        const offset2 = offset.add(this.position).add(content_position);
 
         const visible_children : (ImageUI | Label | TreeNode)[] = [this.openClose, this.icon, this.label];
         if(this.isOpen){

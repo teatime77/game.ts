@@ -25,7 +25,8 @@ export abstract class ContainerUI extends UI {
 
     getNearUI(position : Vec2) : UI | undefined {
         if(this.isNear(position)){
-            const position2 = position.sub(this.position);
+            const content_position = this.getContentPosition();
+            const position2 = position.sub(this.position).sub(content_position);
 
             const ui = getNearUIinArray(this.children.slice().reverse(), position2);
             if(ui !== undefined){
@@ -40,7 +41,9 @@ export abstract class ContainerUI extends UI {
 
     draw(ctx : CanvasRenderingContext2D, offset : Vec2, visibleArea : VisibleArea | undefined) : void {
         super.draw(ctx, offset, visibleArea);
-        const offset2 = offset.add(this.position);
+
+        const content_position = this.getContentPosition();
+        const offset2 = offset.add(this.position).add(content_position);
 
         if(this instanceof ScrollView){
             this.drawScrollView(ctx, offset2, visibleArea);

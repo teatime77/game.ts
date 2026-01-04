@@ -79,7 +79,7 @@ export class Firework extends UI {
             Canvas.requestUpdateCanvas();
         }
         else{
-            msg("stop firework");
+            // msg("stop firework");
         }
     }
 }

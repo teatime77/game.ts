@@ -193,7 +193,7 @@ export class Canvas {
         const pos = this.getPositionInCanvas(ev);
         const target = this.getUIFromPosition(pos);
         if(target != undefined){
-            msg(`down:${target.constructor.name}`);
+            // msg(`down:${target.constructor.name}`);
             this.downPos   = pos;
             this.movePos   = pos;
             this.targetUI = target;
@@ -251,7 +251,7 @@ export class Canvas {
         }
         else{
             const name = this.targetUI.name;
-            msg(`click:${this.targetUI.constructor.name} ${name == undefined ? "" : name} ${this.targetUI.parent}  `);
+            msg(`click:${this.targetUI.constructor.name} ${name == undefined ? "" : name} ${this.targetUI.parent} pos:${this.targetUI.position} size:${this.targetUI.size}`);
 
             await this.targetUI.click();
         }

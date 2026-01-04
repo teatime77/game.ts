@@ -59,7 +59,7 @@ async function asyncBodyOnLoad(){
 
     const grids = canvas.getUIMenus().filter(x => x instanceof Grid);
 
-    const root = new TreeNode({label:"root", borderWidth:1});
+    const root = new TreeNode({label:"root"});
     // makeTreeNodeFromObject(root, "canvas", canvas, new Set<any>());
     makeTreeNodeFromObject(root, "json", data, new Set<any>());
 

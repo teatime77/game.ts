@@ -55,7 +55,8 @@ export class TreeNode extends ContainerUI {
 
         const root = this.getRootUI();
         root.setMinSize();
-        root.updateLayout();
+        root.layout(root.position, getDocumentSize());
+
         Canvas.requestUpdateCanvas();
     }
 

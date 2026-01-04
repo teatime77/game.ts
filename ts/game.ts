@@ -66,9 +66,11 @@ async function asyncBodyOnLoad(){
     const inspector = getUIFromId("inspector") as TreeNode;
     inspector.addChild(root);
 
+    const document_size = getDocumentSize();
+
     for(const grid of grids){
         grid.setMinSize();
-        grid.layout(grid.position, grid.minSize);
+        grid.layout(grid.position, document_size);
     }
 
     const popup_menus = data.menus.map(x => makeUIFromObj(x)) as PopupMenu[];

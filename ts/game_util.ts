@@ -7,4 +7,11 @@ export async function fetchJson(url : string) {
 
     return obj;
 }
+
+export function getDocumentSize() : Vec2 {
+    const document_width  = document.documentElement.clientWidth;
+    const document_height = document.documentElement.clientHeight;
+    
+    return Vec2.fromXY(document_width, document_height);
+}
 }

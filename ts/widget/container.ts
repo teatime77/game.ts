@@ -116,8 +116,11 @@ export class Grid extends ContainerUI {
 
         const ratio_sum = Grid.ratioSum(ratio_columns);
 
+        if(min_size < pix_sum){
+            return 0;
+        }
+
         const ratio_pix = min_size - pix_sum;
-        assert(0 < ratio_pix);
 
         // grid-width * ratio_sum = ratio_pix
         return ratio_pix / ratio_sum;
@@ -156,7 +159,7 @@ export class Grid extends ContainerUI {
     }
 
     getRowsPix(){
-        const pix_rows = new Array(this.numRows).fill(NaN) as number[];
+        const pix_rows = new Array(this.numRows).fill(0) as number[];
 
         for(const [row_idx, row] of this.rows.entries()){
             if(row.endsWith("px")){
@@ -218,8 +221,12 @@ export class Grid extends ContainerUI {
     layout(position : Vec2, size : Vec2) : void {
         super.layout(position, size);
 
-        const columns_pix = Array.from(this.columns.entries()).map(x => x[1].endsWith("%") ? Grid.ratio(x[1]) * this.size.x : this.columnsPix[x[0]]);
-        const rows_pix    = Array.from(this.rows.entries()).map(x => x[1].endsWith("%") ? Grid.ratio(x[1]) * this.size.y : this.rowsPix[x[0]]);
+        const content_size = this.getContentSize();
+        const columns_ratio_all = content_size.x - sum(this.columnsPix);
+        const rows_ratio_all    = content_size.y - sum(this.rowsPix);
+        assert(0 <= columns_ratio_all && 0 <= rows_ratio_all);
+        const columns_pix = Array.from(this.columns.entries()).map(x => x[1].endsWith("%") ? Grid.ratio(x[1]) * columns_ratio_all : this.columnsPix[x[0]]);
+        const rows_pix    = Array.from(this.rows.entries()).map(x => x[1].endsWith("%") ? Grid.ratio(x[1]) * rows_ratio_all : this.rowsPix[x[0]]);
 
         const column_pos : number[] = [0];
         columns_pix.forEach(x => column_pos.push( last(column_pos) + x ));

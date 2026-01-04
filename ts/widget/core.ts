@@ -96,6 +96,11 @@ export abstract class UI implements Movable {
         return Vec2.fromXY(width, height);
     }
 
+    getContentSize() : Vec2 {
+        const padding_border_size = this.getPaddingBorderSize();
+        return this.size.sub(padding_border_size);
+    }
+
     getContentPosition(){
         const borderWidth = this.getBorderWidth();
         const padding = this.getPadding();

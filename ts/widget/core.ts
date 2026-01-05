@@ -420,6 +420,7 @@ export function makeUIFromObj(obj : any) : UI {
     case ScrollView.name: return new ScrollView(obj as (UIAttr & { viewChildren : any[], viewSize:[number, number] }));
     case Graph.name   : return new Graph(obj  as (UIAttr & { children : any[] }));
     case PopupMenu.name: return new PopupMenu(obj  as (UIAttr & { children : any[] }));
+    case SymbolRef.name: return SymbolRef.lookupRegistry(obj as { className : string, path : string });
     }
 
     throw new MyError();

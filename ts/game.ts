@@ -42,11 +42,13 @@ async function asyncBodyOnLoad(){
 
     const canvas = new Canvas($("world") as HTMLCanvasElement);
 
-    const data : {
-        uis: any[],
-        menus : any[],
-        actions : any[]
-    } = await fetchJson(`data/a.json?id=${Math.random()}`);
+    const data : JsonData = await fetchJson(`data/a.json?id=${Math.random()}`);
+
+    if(data.imports != undefined){
+        for(const path of data.imports){
+            await SymbolRef.importLibrary(path);
+        }
+    }
 
     for(const obj of data.uis){
         for (const [key, value] of Object.entries(obj)) {

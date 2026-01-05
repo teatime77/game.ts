@@ -149,8 +149,7 @@ export class Grid extends ContainerUI {
                 pix_columns[col_idx] = Grid.pix(col);
             }
             else if(col == "*"){
-                assert(!this.children.some(x => x.colSpan != undefined && 1 < x.colSpan && x.colIdx <= col_idx && col_idx < x.colIdx + x.colSpan));
-                const col_children = this.children.filter(x => x.colIdx == col_idx);
+                const col_children = this.children.filter(x => x.colIdx == col_idx && x.getColSpan() == 1);
                 pix_columns[col_idx] = Math.max(...col_children.map(x => x.minSize.x));
             }
         }
@@ -166,8 +165,7 @@ export class Grid extends ContainerUI {
                 pix_rows[row_idx] = Grid.pix(row);
             }
             else if(row == "*"){
-                assert(!this.children.some(x => x.rowSpan != undefined && 1 < x.rowSpan && x.rowIdx <= row_idx && row_idx < x.rowIdx + x.rowSpan));
-                const row_children = this.children.filter(x => x.rowIdx == row_idx);
+                const row_children = this.children.filter(x => x.rowIdx == row_idx && x.getRowSpan() == 1);
                 pix_rows[row_idx] = Math.max(...row_children.map(x => x.minSize.x));
             }
         }

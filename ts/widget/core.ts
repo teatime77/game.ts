@@ -41,6 +41,7 @@ export interface TextUIAttr extends UIAttr {
     fontFamily? : string;
     fontSize? : string;
     textAlign? : string;
+    path? : string;
 }
 
 export abstract class UI implements Movable {
@@ -267,6 +268,10 @@ export abstract class UI implements Movable {
         if(this.name == "play"){
             Sequencer.start();
         }
+        else if(this instanceof Link && this.path != undefined){
+            
+            await loadWorld(this.path);
+        }
     }
 
     drawBorder(ctx : CanvasRenderingContext2D, offset : Vec2) {
@@ -409,6 +414,7 @@ export function makeUIFromObj(obj : any) : UI {
     switch(attr.className){
     case Label.name  : return new Label(obj as TextUIAttr);
     case Button.name : return new Button(obj as TextUIAttr);
+    case Link.name   : return new Link(obj as TextUIAttr);
     case ImageUI.name: return new ImageUI(obj as UIAttr);
     case Star.name   : return new Star(obj as UIAttr);
     case Firework.name: return new Firework(obj as (UIAttr & { numStars: number}));
@@ -420,7 +426,7 @@ export function makeUIFromObj(obj : any) : UI {
     case ScrollView.name: return new ScrollView(obj as (UIAttr & { viewChildren : any[], viewSize:[number, number] }));
     case Graph.name   : return new Graph(obj  as (UIAttr & { children : any[] }));
     case PopupMenu.name: return new PopupMenu(obj  as (UIAttr & { children : any[] }));
-    case SymbolRef.name: return SymbolRef.lookupRegistry(obj as { className : string, path : string });
+    case SymbolRef.name: return SymbolRef.lookupRegistry(obj as (UIAttr & { className : string, path : string }));
     }
 
     throw new MyError();

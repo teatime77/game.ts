@@ -5,6 +5,12 @@ namespace game_ts {
 let animationFrameId : number | null = null;
 const uiToCanvas = new Map<UI,Canvas>();
 
+export function getAllUISub(all_uis : UI[], ui : UI){
+    all_uis.push(ui);
+    if(ui instanceof ContainerUI){
+        ui.children.forEach(x => getAllUISub(all_uis, x));
+    }
+}
 
 function getUIFromIdSub(id : string, ui : UI) : UI | undefined {
     if(ui.id == id){
@@ -83,10 +89,19 @@ function isTransparent(ctx : CanvasRenderingContext2D, position : Vec2) {
     }
 }
 
+export function updateRoot(ui : UI){
+    const root = ui.getRootUI();
+    root.setMinSize();
+    root.layout(root.position, getDocumentSize());
+
+    Canvas.requestUpdateCanvas();
+}
+
 export class Canvas {
     canvas : HTMLCanvasElement;
     ctx : CanvasRenderingContext2D;
 
+    static isReady : boolean = false;
     static canvases: Canvas[] = [];
     static borderWidth : number = 5;
     static padding : Padding = new Padding(5, 5, 5, 5);
@@ -133,6 +148,14 @@ export class Canvas {
 
 
         msg(`canvas w:${canvas_html.width} h:${canvas_html.height}`);
+    }
+
+    clearUIs(){
+        this.uis = [];
+    }
+
+    getUIs() : UI[] {
+        return this.uis.slice();
     }
 
     getUIMenus() : UI[]{
@@ -224,8 +247,17 @@ export class Canvas {
         Canvas.requestUpdateCanvas();
     }
 
+    layoutCanvas(){
+        for(const root of this.uis){
+            root.setMinSize();
+            root.layout(root.position, getDocumentSize());
+        }
+
+        Canvas.requestUpdateCanvas();
+    }
+
     static requestUpdateCanvas(){
-        if (animationFrameId == null) {
+        if (Canvas.isReady && animationFrameId == null) {
 
             animationFrameId = requestAnimationFrame(()=>{
                 animationFrameId = null;

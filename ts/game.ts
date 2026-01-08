@@ -2,10 +2,13 @@ namespace game_ts {
 //
 let urlOrigin : string;
 const objMap : Map<string, UI> = new Map<string, UI>();
+let worldCanvas : Canvas;
+let worldData : JsonData;
 
 export function addObject(id : string, obj : UI){
     if(objMap.has(id)){
-        throw new MyError();        
+        // throw new MyError();        
+        msg(`dup obj:${id}`);
     }
 
     objMap.set(id, obj);
@@ -40,9 +43,27 @@ async function asyncBodyOnLoad(){
 
     initSpeech();
 
-    const canvas = new Canvas($("world") as HTMLCanvasElement);
+    worldCanvas = new Canvas($("world") as HTMLCanvasElement);
 
-    const data : JsonData = await fetchJson(`data/a.json?id=${Math.random()}`);
+    worldData   = await fetchJson(`data/a.json?id=${Math.random()}`);
+
+    if(worldData.target == undefined){
+        throw new MyError();
+    }
+    await loadWorld(worldData.target);
+    // dumpObj(canvas, 0, new Set<any>());
+}
+
+export async function loadWorld(target : string){
+    const canvas : Canvas   = worldCanvas;
+    const data   : JsonData = worldData;
+
+    Canvas.isReady = false;
+
+    SymbolRef.clearSymbolMap();
+    canvas.clearUIs();
+
+    await SymbolRef.importLibrary(target);
 
     if(data.imports != undefined){
         for(const path of data.imports){
@@ -51,15 +72,9 @@ async function asyncBodyOnLoad(){
     }
 
     for(const obj of data.uis){
-        for (const [key, value] of Object.entries(obj)) {
-            // msg(`Key: ${key}, Value: ${value}`);
-        }    
-
         const ui = makeUIFromObj(obj);
         canvas.addUI(ui);
     }
-
-    const grids = canvas.getUIMenus().filter(x => x instanceof Grid);
 
     const root = new TreeNode({label:"root"});
     // makeTreeNodeFromObject(root, "canvas", canvas, new Set<any>());
@@ -68,22 +83,16 @@ async function asyncBodyOnLoad(){
     const inspector = getUIFromId("inspector") as TreeNode;
     inspector.addChild(root);
 
-    const document_size = getDocumentSize();
-
-    for(const grid of grids){
-        grid.setMinSize();
-        grid.layout(grid.position, document_size);
-    }
+    canvas.layoutCanvas();
 
     const popup_menus = data.menus.map(x => makeUIFromObj(x)) as PopupMenu[];
     initPopupMenus(popup_menus);
 
     Sequencer.init(data.actions);
 
-    Canvas.requestUpdateCanvas();
-
-    // dumpObj(canvas, 0, new Set<any>());
+    Canvas.isReady = true;
 }
+
 
 
 }

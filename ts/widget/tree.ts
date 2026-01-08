@@ -53,11 +53,7 @@ export class TreeNode extends ContainerUI {
         this.isOpen = !this.isOpen;
         this.openClose.setImageFile(this.isOpen ? TreeNode.openedFile : TreeNode.closedFile)
 
-        const root = this.getRootUI();
-        root.setMinSize();
-        root.layout(root.position, getDocumentSize());
-
-        Canvas.requestUpdateCanvas();
+        updateRoot(this);
     }
 
     setMinSize() : void {

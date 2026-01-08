@@ -44,6 +44,9 @@ export abstract class ContainerUI extends UI {
 
         const content_position = this.getContentPosition();
         const offset2 = offset.add(this.position).add(content_position);
+        if(isNaN(offset2.x)){
+            throw new MyError();
+        }
 
         if(this instanceof ScrollView){
             this.drawScrollView(ctx, offset2, visibleArea);
@@ -166,7 +169,7 @@ export class Grid extends ContainerUI {
             }
             else if(row == "*"){
                 const row_children = this.children.filter(x => x.rowIdx == row_idx && x.getRowSpan() == 1);
-                pix_rows[row_idx] = Math.max(...row_children.map(x => x.minSize.x));
+                pix_rows[row_idx] = Math.max(...row_children.map(x => x.minSize.y));
             }
         }
 

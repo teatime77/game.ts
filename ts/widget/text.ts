@@ -45,6 +45,7 @@ export abstract class TextUI extends UI {
     text : string;
     metrics!: TextMetrics;
     actualHeight!: number;
+    path? : string;
 
     constructor(data : TextUIAttr){
         super(data);
@@ -53,6 +54,9 @@ export abstract class TextUI extends UI {
         }
         if(data.fontSize !== undefined){
             this.fontSize = data.fontSize;
+        }
+        if(data.path !== undefined){
+            this.path = data.path;
         }
         // this.textAlign = data.textAlign;
         this.text = (data.text != undefined ? data.text : "");
@@ -109,5 +113,11 @@ export class Label extends TextUI {
 }
 
 export class Button extends TextUI {
+}
+
+export class Link extends TextUI {
+    constructor(data : TextUIAttr){
+        super(data);
+    }
 }
 }

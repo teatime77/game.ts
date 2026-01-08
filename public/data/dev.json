@@ -1,0 +1,231 @@
+{
+    "target" : "stage.stage-1"
+    ,
+    "uis" : [
+        {
+            "className" : "Grid",
+            "position"  : [ 0, 0 ],
+            "columns"   : "200px 100% 200px",
+            "rows"      : "80px 100% 80px",
+            "children"  : [
+                {
+                    "className" : "Button",
+                    "name"      : "play",
+                    "size"      : [ 200, 50 ],
+                    "text"      : "Play"
+                }
+                ,
+                {
+                    "className" : "Grid",
+                    "columns"   : "* *",
+                    "rows"      : "*",
+                    "children"  : [
+                        {
+                            "className" : "Link",
+                            "text"      : "stage-1",
+                            "path"      : "stage.stage-1"
+                        }
+                        ,
+                        {
+                            "className" : "Link",
+                            "text"      : "stage-2",
+                            "path"      : "stage.stage-2"
+                        }
+                    ]
+                }
+                ,
+                {
+                    "className" : "Label",
+                    "name"      : "toolbox",
+                    "size"      : [ 200, 50 ],
+                    "text"      : "ラベル3"
+                }
+                ,
+                {
+                    "className" : "ScrollView",
+                    "size"      : [ 400, 500 ],
+                    "viewSize": [ 1000, 1000 ],
+                    "viewChildren"  : [
+                        {
+                            "className" : "TreeNode",
+                            "id"        : "inspector",
+                            "label"     : "ツリー",
+                            "childNodes": [
+                                {
+                                    "className" : "TreeNode",
+                                    "label"     : "サブツリー",
+                                    "childNodes": []
+                                }
+
+                            ],
+                            "position"  : [ 50, 50 ]
+                        }
+
+                    ]
+                }
+                ,
+                {
+                    "className" : "SymbolRef",
+                    "path"  : "main-stage"
+                }
+                ,
+
+                {
+                    "className" : "Grid",
+                    "columns"   : "60px 60px",
+                    "rows"      : "60px 60px 60px 60px 60px",
+                    "children"  : [
+                        {
+                            "className" : "ImageUI",
+                            "imageFile" : "banana.png",
+                            "size"      : [ 60, 60 ]
+                        }
+                        ,
+                        {
+                            "className" : "Label",
+                            "size"      : [ 60, 60 ],
+                            "text"      : "1"
+                        }
+                        ,
+
+                        {
+                            "className" : "ImageUI",
+                            "imageFile" : "tree-opened.png",
+                            "size"      : [ 60, 60 ]
+                        }
+                        ,
+                        {
+                            "className" : "Label",
+                            "size"      : [ 60, 60 ],
+                            "text"      : "2"
+                        }
+                        ,
+                        {
+                            "className" : "ImageUI",
+                            "imageFile" : "tree-closed.png",
+                            "size"      : [ 60, 60 ]
+                        }
+                        ,
+                        {
+                            "className" : "Label",
+                            "size"      : [ 60, 60 ],
+                            "text"      : "3"
+                        }
+                        ,
+                        {
+                            "className" : "ImageUI",
+                            "imageFile" : "tree-3.png",
+                            "size"      : [ 60, 60 ]
+                        }
+                        ,
+                        {
+                            "className" : "Label",
+                            "size"      : [ 60, 60 ],
+                            "text"      : "4"
+                        }
+                        ,
+                        {
+                            "className" : "ImageUI",
+                            "imageFile" : "banana.png",
+                            "size"      : [ 60, 60 ]
+                        }
+                        ,
+                        {
+                            "className" : "Label",
+                            "size"      : [ 60, 60 ],
+                            "text"      : "5"
+                        }
+                    ]
+                }
+                ,
+
+                {
+                    "className" : "HorizontalSlider",
+                    "colSpan"   : 3
+                }
+            ]
+        }
+        ,
+        {
+            "className" : "Star",
+            "position"  : [ 50, 630 ]
+        }
+        ,
+        {
+            "className" : "Firework",
+            "numStars"  : 30,
+            "position"  : [ 300, 300 ]
+        }
+    ]
+    ,
+    "menus" : [
+        {
+            "className" : "PopupMenu",
+            "children"  : [
+                {
+                    "className" : "Button",
+                    "name"      : "Cut",
+                    "text"      : "Cut"
+                }
+                ,
+                {
+                    "className" : "Button",
+                    "name"      : "Copy",
+                    "text"      : "Copy"
+                }
+                ,
+                {
+                    "className" : "Button",
+                    "name"      : "Paste",
+                    "text"      : "Paste"
+                }
+            ]
+        }
+    ]
+    ,
+    "actions" : [
+        {
+            "className" : "SequentialAction",
+            "actions"   : [
+                {
+                    "className" : "NumAction",
+                    "count"     : 4
+                }
+                ,
+                {
+                    "className" : "Speech",
+                    "text"      : "こんにちは。"
+                }
+                ,
+                {
+                    "className" : "MoveAction",
+                    "target"     : "banana",
+                    "destination": [ 500, 400 ],
+                    "duration"   : 5
+                }
+                ,
+                {
+                    "className" : "NumAction",
+                    "count"     : 5
+                }
+
+            ]
+        }
+        ,
+        {
+            "className" : "ParallelAction",
+            "actions"   : [
+                {
+                    "className" : "NumAction",
+                    "count"     : 2
+                }
+                ,
+                {
+                    "className" : "NumAction",
+                    "count"     : 3
+                }
+
+            ]
+        }
+    ]
+}

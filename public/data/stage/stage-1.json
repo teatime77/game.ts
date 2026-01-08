@@ -1,0 +1,105 @@
+{
+    "imports":[
+        "system.keyboard"
+    ]
+    ,
+    "uis" : [
+        {
+            "className" : "Stage",
+            "name"      : "main-stage",
+            "children"  : [
+                {
+                    "className" : "ImageUI",
+                    "imageFile" : "tomato.png",
+                    "position"  : [ 100, 100 ],
+                    "size"      : [ 60, 60 ]
+                }
+                ,
+                {
+                    "className" : "ImageUI",
+                    "id"        : "banana",
+                    "imageFile" : "banana.png",
+                    "position"  : [ 200, 200 ],
+                    "size"      : [ 60, 60 ]
+                }
+                ,
+                {
+                    "className" : "ImageUI",
+                    "imageFile" : "orange.png",
+                    "position"  : [ 200, 300 ],
+                    "size"      : [ 60, 60 ]
+                }
+                ,
+                {
+                    "className" : "Label",
+                    "font"      : "15px Arial",
+                    "text"      : "こんにちは",
+                    "position"  : [ 100, 400 ]
+                }
+                ,
+
+
+                {
+                    "className" : "Grid",
+                    "position"  : [ 300, 50 ],
+                    "columns"   : "60px 60px",
+                    "rows"      : "60px 60px 60px",
+                    "children"  : [
+                        {
+                            "className" : "ImageUI",
+                            "imageFile" : "tomato.png",
+                            "size"      : [ 60, 60 ]
+                        }
+                        ,
+                        {
+                            "className" : "ImageUI",
+                            "imageFile" : "banana.png",
+                            "size"      : [ 60, 60 ]
+                        }
+                        ,
+                        {
+                            "className" : "ImageUI",
+                            "imageFile" : "orange.png",
+                            "size"      : [ 60, 60 ]
+                        }
+                        ,
+                        {
+                            "className" : "ImageUI",
+                            "imageFile" : "lettuce.png",
+                            "size"      : [ 60, 60 ]
+                        }
+                        ,
+                        {
+                            "className" : "ImageUI",
+                            "imageFile" : "potato.png",
+                            "size"      : [ 60, 60 ]
+                        }
+                        ,
+                        {
+                            "className" : "ImageUI",
+                            "imageFile" : "suika.png",
+                            "size"      : [ 60, 60 ]
+                        }
+                    ]
+                }
+                ,
+                {
+                    "className" : "SymbolRef",
+                    "path"  : "system.keyboard.numpad",
+                    "position"  : [ 900, 50 ]
+                }
+                ,
+                {
+                    "className" : "Graph",
+                    "position"  : [ 100, 400 ]
+                }
+            ]
+        }
+    ]
+    ,
+    "menus" : [
+    ]
+    ,
+    "actions" : [
+    ] 
+}

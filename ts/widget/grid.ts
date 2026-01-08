@@ -1,6 +1,13 @@
 ///<reference path="container.ts" />
 
 namespace game_ts {
+//
+export interface GridAttr extends UIAttr {
+    children : any[];
+    columns? : string;
+    rows?    : string;
+}
+
 export class Grid extends ContainerUI {
     columns : string[];
     rows    : string[];
@@ -9,7 +16,11 @@ export class Grid extends ContainerUI {
     columnsPix : number[] = [];
     rowsPix    : number[] = [];
 
-    constructor(data : UIAttr & { children : any[], columns?: string, rows? : string }) {
+    static autoSize(count : number) : string {
+        return (new Array(count).fill("*")).join(" ");
+    }
+
+    constructor(data : GridAttr) {
         super(data);
         if(data.columns !== undefined){
 
@@ -122,7 +133,7 @@ export class Grid extends ContainerUI {
 
     setMinSize() : void {
         assert(!isNaN(this.numCols) && !isNaN(this.numRows));
-        if(this instanceof PopupMenu){
+        if(this instanceof SingleDigitImage){
             msg("");
         }
 

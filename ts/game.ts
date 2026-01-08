@@ -45,7 +45,7 @@ async function asyncBodyOnLoad(){
 
     worldCanvas = new Canvas($("world") as HTMLCanvasElement);
 
-    worldData   = await fetchJson(`data/a.json?id=${Math.random()}`);
+    worldData   = await fetchJson(`data/dev.json?id=${Math.random()}`);
 
     if(worldData.target == undefined){
         throw new MyError();

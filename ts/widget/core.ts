@@ -427,6 +427,7 @@ export function makeUIFromObj(obj : any) : UI {
     case Graph.name   : return new Graph(obj  as (UIAttr & { children : any[] }));
     case PopupMenu.name: return new PopupMenu(obj  as (UIAttr & { children : any[] }));
     case SymbolRef.name: return SymbolRef.lookupRegistry(obj as (UIAttr & { className : string, path : string }));
+    case SingleDigitImage.name : return new SingleDigitImage(obj as (UIAttr & { value : number }));
     }
 
     throw new MyError();

@@ -1,0 +1,31 @@
+{
+    "imports":[
+        "system.keyboard"
+    ]
+    ,
+    "uis" : [
+        {
+            "className" : "Stage",
+            "name"      : "main-stage",
+            "children"  : [
+                {
+                    "className" : "SymbolRef",
+                    "path"  : "system.keyboard.numpad",
+                    "position"  : [ 900, 50 ]
+                }
+                ,
+                {
+                    "className" : "SingleDigitImage",
+                    "value"     : 6,
+                    "position"  : [ 100, 100 ]
+                }
+            ]
+        }
+    ]
+    ,
+    "menus" : [
+    ]
+    ,
+    "actions" : [
+    ] 
+}

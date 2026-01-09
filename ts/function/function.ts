@@ -11,18 +11,7 @@ export function makeTermFromObjs(... objs : any[]) : Term[] {
     throw objs.map(x => makeTermFromObj(x));
 }
 
-export class Term {
-    toFloat() : number {
-        throw new MyError();
-    }
 
-    toInt() : number {
-        const value = this.toFloat();
-        assert(Number.isInteger(value))
-
-        return value;;
-    }
-}
 
 export abstract class RuntimeFunction {
     // parameters : Term[];
@@ -49,8 +38,8 @@ export class randomInt extends RuntimeFunction {
     }
 
     eval() : ValueType {
-        const min = this.min.toInt();
-        const max = this.max.toInt();
+        const min = toInt(this.min);
+        const max = toInt(this.max);
 
         return Math.floor(Math.random() * (max - min + 1)) + min;
     }
@@ -66,8 +55,8 @@ export class Range extends RuntimeFunction {
     }
 
     eval() : ValueType {
-        const min = this.min.toInt();
-        const max = this.max.toInt();
+        const min = toInt(this.min);
+        const max = toInt(this.max);
 
         return range2(min, max + 1);
     }

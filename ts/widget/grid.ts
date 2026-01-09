@@ -3,7 +3,7 @@
 namespace game_ts {
 //
 export interface GridAttr extends UIAttr {
-    children : any[];
+    children?: any[];
     columns? : string;
     rows?    : string;
 }

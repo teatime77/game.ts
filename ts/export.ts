@@ -32,6 +32,13 @@ export const makeIdToTermMap = parser_ts.makeIdToTermMap;
 
 export type  Rational = parser_ts.Rational;
 export const Rational = parser_ts.Rational;
+export type  ConstNum = parser_ts.ConstNum;
+export const ConstNum = parser_ts.ConstNum;
+export type  Term = parser_ts.Term;
+export const Term = parser_ts.Term;
+
+export type  App = parser_ts.App;
+export const App = parser_ts.App;
 
 export type  Vec2 = plane_ts.Vec2;
 export const Vec2 = plane_ts.Vec2;

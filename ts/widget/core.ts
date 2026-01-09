@@ -400,34 +400,41 @@ export abstract class UI implements Movable {
         ctx.lineTo(x2, y1 + height - borderWidth / 2); // Bottom-left corner
         ctx.stroke();
     }
+}
 
+class Filler extends UI {
+    constructor(data : UIAttr){
+        super(data);
+    }
 }
 
 
-export function makeUIFromObj(obj : any) : UI {
-    if(obj instanceof UI){
-        return obj;
+export function makeUIFromObj(data : any) : UI {
+    if(data instanceof UI){
+        return data;
     }
     
-    const attr = obj as UIAttr;
+    const attr = data as UIAttr;
 
     switch(attr.className){
-    case Label.name  : return new Label(obj as TextUIAttr);
-    case Button.name : return new Button(obj as TextUIAttr);
-    case Link.name   : return new Link(obj as TextUIAttr);
-    case ImageUI.name: return new ImageUI(obj as UIAttr);
-    case Star.name   : return new Star(obj as UIAttr);
-    case Firework.name: return new Firework(obj as (UIAttr & { numStars: number}));
-    case HorizontalSlider.name: return new HorizontalSlider(obj as UIAttr);
-    case VerticalSlider.name  : return new VerticalSlider(obj as UIAttr);
-    case Stage.name   : return new Stage(obj as (UIAttr & { children : any[] }))
-    case Grid.name    : return new Grid(obj  as (UIAttr & { children : any[], columns?: string, rows? : string }));
-    case TreeNode.name: return new TreeNode(obj as (UIAttr & { icon?: string, label: string, childNodes : any[] }));
-    case ScrollView.name: return new ScrollView(obj as (UIAttr & { viewChildren : any[], viewSize:[number, number] }));
-    case Graph.name   : return new Graph(obj  as (UIAttr & { children : any[] }));
-    case PopupMenu.name: return new PopupMenu(obj  as (UIAttr & { children : any[] }));
-    case SymbolRef.name: return SymbolRef.lookupRegistry(obj as (UIAttr & { className : string, path : string }));
-    case SingleDigitImage.name : return new SingleDigitImage(obj as (UIAttr & { value : number }));
+    case Label.name  : return new Label(data as TextUIAttr);
+    case Button.name : return new Button(data as TextUIAttr);
+    case Link.name   : return new Link(data as TextUIAttr);
+    case ImageUI.name: return new ImageUI(data as UIAttr);
+    case Star.name   : return new Star(data as UIAttr);
+    case Firework.name: return new Firework(data as (UIAttr & { numStars: number}));
+    case HorizontalSlider.name: return new HorizontalSlider(data as UIAttr);
+    case VerticalSlider.name  : return new VerticalSlider(data as UIAttr);
+    case Stage.name   : return new Stage(data as (UIAttr & { children : any[] }))
+    case Grid.name    : return new Grid(data  as (UIAttr & { children : any[], columns?: string, rows? : string }));
+    case TreeNode.name: return new TreeNode(data as (UIAttr & { icon?: string, label: string, childNodes : any[] }));
+    case ScrollView.name: return new ScrollView(data as (UIAttr & { viewChildren : any[], viewSize:[number, number] }));
+    case Graph.name   : return new Graph(data  as (UIAttr & { children : any[] }));
+    case PopupMenu.name: return new PopupMenu(data  as (UIAttr & { children : any[] }));
+    case SymbolRef.name: return SymbolRef.lookupRegistry(data as (UIAttr & { className : string, path : string }));
+    case SingleDigitImage.name : return new SingleDigitImage(data as (UIAttr & { value : number }));
+    case ImageGrid10.name : return new ImageGrid10(data as UIAttr);
+    case ColumnArithmetic.name: return new ColumnArithmetic(data as (UIAttr & { expr: string }));
     }
 
     throw new MyError();
@@ -442,6 +449,10 @@ export function getNearUIinArray(children : UI[], position : Vec2){
     }
 
     return undefined;
+}
+
+export function filler() : Filler {
+    return new Filler({ borderWidth : 0 });
 }
 
 }

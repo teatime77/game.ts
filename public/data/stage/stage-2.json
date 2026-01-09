@@ -19,6 +19,24 @@
                     "value"     : 6,
                     "position"  : [ 100, 100 ]
                 }
+                ,
+                {
+                    "className" : "ImageGrid10",
+                    "imageFile" : "orange.png",
+                    "position"  : [ 500, 500 ]
+                }
+                ,
+                {
+                    "className" : "ColumnArithmetic",
+                    "expr"      : "12 + 34",
+                    "position"  : [ 100, 300 ]
+                }
+                ,
+                {
+                    "className" : "ColumnArithmetic",
+                    "expr"      : "12 * 34",
+                    "position"  : [ 400, 300 ]
+                }
             ]
         }
     ]

@@ -228,6 +228,15 @@ export abstract class UI implements Movable {
         this.size.copyFrom(this.minSize);
     }
 
+    setMinSizeFromContentSize(width : number, height : number){
+        const padding_border_size = this.getPaddingBorderSize();
+
+        this.minSize.x = width  + padding_border_size.x;
+        this.minSize.y = height + padding_border_size.y;
+
+        this.size.copyFrom(this.minSize);
+    }
+
     layout(position : Vec2, size : Vec2) : void {
         this.position.copyFrom(position);
         this.size.copyFrom(size);
@@ -433,8 +442,9 @@ export function makeUIFromObj(data : any) : UI {
     case PopupMenu.name: return new PopupMenu(data  as (UIAttr & { children : any[] }));
     case SymbolRef.name: return SymbolRef.lookupRegistry(data as (UIAttr & { className : string, path : string }));
     case SingleDigitImage.name : return new SingleDigitImage(data as (UIAttr & { value : number }));
-    case ImageGrid10.name : return new ImageGrid10(data as UIAttr);
+    case ImageGrid10.name : return new ImageGrid10(data as (UIAttr & { value? : number }));
     case ColumnArithmetic.name: return new ColumnArithmetic(data as (UIAttr & { expr: string }));
+    case TenBundleView.name   : return new TenBundleView(data as (UIAttr & { value : number }));
     }
 
     throw new MyError();

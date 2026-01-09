@@ -11,7 +11,7 @@
                 {
                     "className" : "SymbolRef",
                     "path"  : "system.keyboard.numpad",
-                    "position"  : [ 900, 50 ]
+                    "position"  : [ 1100, 50 ]
                 }
                 ,
                 {
@@ -35,7 +35,13 @@
                 {
                     "className" : "ColumnArithmetic",
                     "expr"      : "12 * 34",
-                    "position"  : [ 400, 300 ]
+                    "position"  : [ 350, 300 ]
+                }
+                ,
+                {
+                    "className" : "TenBundleView",
+                    "value"     : 34,
+                    "position"  : [ 600, 300 ]
                 }
             ]
         }

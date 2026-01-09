@@ -4,6 +4,7 @@
 namespace game_ts {
 //
 const digitSize = 60;
+const gap = 10;
 
 function getDigitCount(n: number): number {
     assert(0 <= n && Math.floor(n) == n);
@@ -72,25 +73,49 @@ export class SingleDigitImage extends Grid {
     }
 }
 
-export class ImageGrid10 extends Grid {
+export class ImageGrid10 extends ContainerUI {
+    cellSize : Vec2 = Vec2.fromXY(30, 30);
+    value : number = 10;
     images : ImageUI[];
 
-    constructor(data : UIAttr){
-        const grid_data : GridAttr = Object.assign(
-            {
-                columns  : "* * * * *",
-                rows     : "* *"
-            }
-            , 
-            data
-        );
+    constructor(data : UIAttr & { value? : number } ){
+        super(data);
 
-        super(grid_data);
+        if(data.value != undefined){
+            this.value = data.value;
+        }
         const imageFile = (data.imageFile != undefined ? data.imageFile : "banana.png");
-        this.images = range(10).map(x => new ImageUI({ imageFile, size : [ 20, 20 ], borderWidth:0, padding : 0}));
+        this.images = range(this.value).map(x => new ImageUI({ imageFile, size : [ this.cellSize.x, this.cellSize.y ], borderWidth:0, padding : 0}));
         this.addChildren(...this.images);
+    }
 
-        this.setRowColIdxOfChildren();
+    setMinSize() : void {
+        this.children.forEach(x => x.setMinSize());
+
+        const width  = 5 * this.cellSize.x;
+        const height = 2 * this.cellSize.y;
+
+        this.setMinSizeFromContentSize(width, height);
+    }
+
+    layout(position : Vec2, size : Vec2) : void {
+        super.layout(position, size);
+
+        let x : number;
+        let y : number;
+        for(const [idx, image] of this.images.entries()){
+            if(idx <= 4){
+                x = idx * this.cellSize.x;
+                y = 0;
+            }
+            else{
+
+                x = (idx - 5) * this.cellSize.x;
+                y = this.cellSize.y;
+            }
+
+            image.layoutXY(x, y);
+        }
     }
 }
 
@@ -240,6 +265,75 @@ export class ColumnArithmetic extends ContainerUI {
     }
 }
 
+export class TenBundleView extends ContainerUI {
+    value  : number;
+    tens : ImageGrid10[] = [];
+    unit : ImageGrid10 | undefined;
+
+    constructor(data : UIAttr & { value : number }){
+        super(data);
+
+        this.value = data.value;
+
+        const unit_count = this.value % 10;
+        const tens_count = (this.value - unit_count) / 10;
+
+        if(tens_count != 0){
+            this.tens = range(tens_count).map(x => new ImageGrid10({}));
+            this.addChildren(...this.tens);
+        }
+
+        if(unit_count != 0){
+            this.unit = new ImageGrid10({value : unit_count});
+            this.addChildren(this.unit);
+        }
+    }
+
+
+    setMinSize() : void {
+        this.children.forEach(x => x.setMinSize());
+
+        let width  : number = 0;
+        let height : number = 0;
+
+        if(this.children.length != 0){
+
+            if(this.tens.length != 0){
+                width = this.tens[0].size.x;
+                height = this.tens.length * this.tens[0].size.y;
+            }
+        }
+
+        if(this.unit != undefined){
+            if(this.tens.length != 0){
+                width += gap;
+            }
+
+            width += this.unit.size.x;
+            height = Math.max(height, this.unit.size.y);
+        }
+
+        this.setMinSizeFromContentSize(width, height);
+    }
+
+    layout(position : Vec2, size : Vec2) : void {
+        super.layout(position, size);
+
+        for(const [idx, ten] of this.tens.entries()){
+            ten.setPosition(Vec2.fromXY(0, idx * this.tens[0].size.y));
+        }
+
+        if(this.unit != undefined){
+
+            const content_size = this.getContentSize();
+            const x = (this.tens.length == 0 ? 0 : this.tens[0].size.x + gap);
+
+            this.unit.setPosition(Vec2.fromXY(x, content_size.y - this.unit.size.y));
+        }
+
+        this.children.forEach(x => x.updateLayout());
+    }
+}
 
 export abstract class BasicArithmetic extends Grid {
 

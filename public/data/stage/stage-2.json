@@ -23,7 +23,7 @@
                 {
                     "className" : "ImageGrid10",
                     "imageFile" : "orange.png",
-                    "position"  : [ 500, 500 ]
+                    "position"  : [ 500, 100 ]
                 }
                 ,
                 {

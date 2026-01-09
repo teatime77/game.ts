@@ -125,12 +125,23 @@ export class NumberUI extends Grid {
         this.addChildren(...this.digits);
         this.setRowColIdxOfChildren();        
     }
+
+    splitPlaceValues() : NumberUI[] {
+        const values = toExpandedForm(this.value);
+        const nums = values.map(n => new NumberUI(n));
+
+        return nums;
+    }
 }
 
 export class ColumnArithmetic extends ContainerUI {
     expr : App;
     nums : NumberUI[];
     operator : Label;
+
+    expandNumberIdx : number = NaN;
+    progress : number = NaN;
+    heightDiff : number = NaN;
 
     constructor(data : UIAttr & { expr : string }){
         super(data);
@@ -144,15 +155,22 @@ export class ColumnArithmetic extends ContainerUI {
         this.operator = new Label({text : arithmeticOperator(app.fncName), size : [digitSize, digitSize] });
 
         this.addChildren(...this.nums, this.operator);
+
+        setTimeout(()=>{
+            this.expandNumber(0);
+        }, 3000);
     }
 
     setMinSize() : void {
         this.children.forEach(x => x.setMinSize());
+        this.setMinSizeByChildren();
+    }
 
+    setMinSizeByChildren() : void {
         const padding_border_size = this.getPaddingBorderSize();
 
         const width  = this.operator.size.x + Math.max(...this.nums.map(x => x.size.x));
-        const height = sum(this.nums.map(x => x.size.y));
+        const height = Math.max(...this.nums.map(x => x.position.y + x.size.y));
 
         this.minSize.x = width  + padding_border_size.x;
         this.minSize.y = height + padding_border_size.y;
@@ -167,6 +185,7 @@ export class ColumnArithmetic extends ContainerUI {
         const content_size = this.getContentSize();
         for(const [row, num] of this.nums.entries()){
             const x = content_size.x - num.size.x;
+
             num.setPosition(Vec2.fromXY(x, y));
 
             if(row == this.nums.length - 1){
@@ -175,15 +194,49 @@ export class ColumnArithmetic extends ContainerUI {
                 break;
             }
 
-            y += num.size.y;
+            if(!isNaN(this.progress) && this.expandNumberIdx == row){
+                y += this.heightDiff * this.progress;
+                // msg(`diff y ${row} diff:${this.heightDiff} prog:${this.progress}`)
+            }
+            else{
+                y += num.size.y;
+            }
         }
 
         this.children.forEach(x => x.updateLayout());
+
+        this.setMinSizeByChildren();
     }
 
-    splitPlaceValues(idx : number){
-        const num = this.nums[idx];
+    expandNumber(idx : number){
+        msg("expand Number")
+        this.expandNumberIdx = idx;
 
+        const num = this.nums[idx];
+        const nums = num.splitPlaceValues();        
+
+        this.nums.splice(idx, 1, ...nums);
+
+        this.children = [];
+        this.addChildren(...this.nums, this.operator);
+
+        nums.forEach(x => x.setMinSize());
+        this.heightDiff = sum(nums.map(x => x.size.y)) - num.size.y;
+        this.progress = 0;
+        const id = setInterval(()=>{
+            this.progress += 0.05;
+            if(this.progress < 1){
+                this.setMinSize();
+                this.updateLayout();
+                Canvas.requestUpdateCanvas();
+            }
+            else{
+                this.progress = NaN;
+                clearInterval(id);
+            }
+        }, 50);
+
+        updateRoot(this);
     }
 }
 

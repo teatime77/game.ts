@@ -283,7 +283,7 @@ export class Canvas {
         }
         else{
             const name = this.targetUI.name;
-            msg(`click:${this.targetUI.constructor.name} ${name == undefined ? "" : name} ${this.targetUI.parent} pos:${this.targetUI.position} size:${this.targetUI.size}`);
+            msg(`click:${this.targetUI.idx} ${this.targetUI.constructor.name} ${name == undefined ? "" : name} ${this.targetUI.parent} pos:${this.targetUI.position} size:${this.targetUI.size}`);
 
             await this.targetUI.click();
         }

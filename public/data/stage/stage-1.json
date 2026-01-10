@@ -11,7 +11,7 @@
                 {
                     "className" : "ImageUI",
                     "imageFile" : "tomato.png",
-                    "position"  : [ 100, 100 ],
+                    "position"  : [ 10, 10 ],
                     "size"      : [ 60, 60 ]
                 }
                 ,
@@ -19,29 +19,32 @@
                     "className" : "ImageUI",
                     "id"        : "banana",
                     "imageFile" : "banana.png",
-                    "position"  : [ 200, 200 ],
+                    "position"  : [ 80, 10 ],
                     "size"      : [ 60, 60 ]
                 }
                 ,
                 {
                     "className" : "ImageUI",
                     "imageFile" : "orange.png",
-                    "position"  : [ 200, 300 ],
+                    "position"  : [ 150, 10 ],
                     "size"      : [ 60, 60 ]
+                }
+                ,
+                {
+                    "className" : "Star",
+                    "position"  : [ 220, 10 ]
                 }
                 ,
                 {
                     "className" : "Label",
                     "font"      : "15px Arial",
                     "text"      : "こんにちは",
-                    "position"  : [ 100, 400 ]
+                    "position"  : [ 300, 10 ]
                 }
                 ,
-
-
                 {
                     "className" : "Grid",
-                    "position"  : [ 300, 50 ],
+                    "position"  : [ 500, 10 ],
                     "columns"   : "60px 60px",
                     "rows"      : "60px 60px 60px",
                     "children"  : [
@@ -81,6 +84,12 @@
                             "size"      : [ 60, 60 ]
                         }
                     ]
+                }
+                ,
+                {
+                    "className" : "Firework",
+                    "numStars"  : 30,
+                    "position"  : [ 300, 300 ]
                 }
                 ,
                 {

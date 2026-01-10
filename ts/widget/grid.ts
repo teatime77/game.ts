@@ -97,6 +97,15 @@ export class Grid extends ContainerUI {
                 row_idx++;
             }
         }
+
+        if(this.rows != undefined && this.rows.length < row_idx){
+            while(this.rows.length < row_idx){
+                this.rows.push("*");
+            }
+
+            this.numRows = row_idx;
+            msg(`add rows to grid.`);
+        }
     }
 
     getColumnsPix(){

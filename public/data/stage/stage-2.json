@@ -17,31 +17,31 @@
                 {
                     "className" : "SingleDigitImage",
                     "value"     : 6,
-                    "position"  : [ 100, 100 ]
+                    "position"  : [ 10, 10 ]
                 }
                 ,
                 {
                     "className" : "ImageGrid10",
                     "imageFile" : "orange.png",
-                    "position"  : [ 500, 100 ]
+                    "position"  : [ 500, 10 ]
                 }
                 ,
                 {
                     "className" : "ColumnArithmetic",
                     "expr"      : "12 + 34",
-                    "position"  : [ 100, 300 ]
+                    "position"  : [ 10, 200 ]
                 }
                 ,
                 {
                     "className" : "ColumnArithmetic",
                     "expr"      : "12 * 34",
-                    "position"  : [ 350, 300 ]
+                    "position"  : [ 270, 200 ]
                 }
                 ,
                 {
-                    "className" : "TenBundleView",
+                    "className" : "BundleImage",
                     "value"     : 34,
-                    "position"  : [ 600, 300 ]
+                    "position"  : [ 510, 200 ]
                 }
             ]
         }

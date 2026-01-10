@@ -443,8 +443,13 @@ export function makeUIFromObj(data : any) : UI {
     case SymbolRef.name: return SymbolRef.lookupRegistry(data as (UIAttr & { className : string, path : string }));
     case SingleDigitImage.name : return new SingleDigitImage(data as (UIAttr & { value : number }));
     case ImageGrid10.name : return new ImageGrid10(data as (UIAttr & { value? : number }));
-    case ColumnArithmetic.name: return new ColumnArithmetic(data as (UIAttr & { expr: string }));
-    case TenBundleView.name   : return new TenBundleView(data as (UIAttr & { value : number }));
+    case ColumnArithmetic.name: {
+        const app = parseMath((data as (UIAttr & { expr: string })).expr, true ) as App;
+        assert(app instanceof App);
+        return new ColumnArithmetic(data as UIAttr, app);
+    }
+    case BundleImage.name   : return new BundleImage(data as (UIAttr & { value : number }));
+    case ArithmeticView.name: return new ArithmeticView(data as (GridAttr & {expr : string}));
     }
 
     throw new MyError();

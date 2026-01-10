@@ -17,7 +17,7 @@
                 ,
                 {
                     "className" : "Grid",
-                    "columns"   : "* *",
+                    "columns"   : "* * *",
                     "rows"      : "*",
                     "children"  : [
                         {
@@ -30,6 +30,12 @@
                             "className" : "Link",
                             "text"      : "stage-2",
                             "path"      : "stage.stage-2"
+                        }
+                        ,
+                        {
+                            "className" : "Link",
+                            "text"      : "stage-3",
+                            "path"      : "stage.stage-3"
                         }
                     ]
                 }
@@ -144,17 +150,6 @@
                     "colSpan"   : 3
                 }
             ]
-        }
-        ,
-        {
-            "className" : "Star",
-            "position"  : [ 50, 630 ]
-        }
-        ,
-        {
-            "className" : "Firework",
-            "numStars"  : 30,
-            "position"  : [ 300, 300 ]
         }
     ]
     ,

@@ -107,8 +107,73 @@
     ]
     ,
     "menus" : [
+        {
+            "className" : "PopupMenu",
+            "children"  : [
+                {
+                    "className" : "Button",
+                    "name"      : "Cut",
+                    "text"      : "Cut"
+                }
+                ,
+                {
+                    "className" : "Button",
+                    "name"      : "Copy",
+                    "text"      : "Copy"
+                }
+                ,
+                {
+                    "className" : "Button",
+                    "name"      : "Paste",
+                    "text"      : "Paste"
+                }
+            ]
+        }
     ]
     ,
     "actions" : [
+        {
+            "className" : "SequentialAction",
+            "actions"   : [
+                {
+                    "className" : "NumAction",
+                    "count"     : 4
+                }
+                ,
+                {
+                    "className" : "Speech",
+                    "text"      : "こんにちは。"
+                }
+                ,
+                {
+                    "className" : "MoveAction",
+                    "target"     : "banana",
+                    "destination": [ 500, 400 ],
+                    "duration"   : 5
+                }
+                ,
+                {
+                    "className" : "NumAction",
+                    "count"     : 5
+                }
+
+            ]
+        }
+        ,
+        {
+            "className" : "ParallelAction",
+            "actions"   : [
+                {
+                    "className" : "NumAction",
+                    "count"     : 2
+                }
+                ,
+                {
+                    "className" : "NumAction",
+                    "count"     : 3
+                }
+
+            ]
+        }
     ] 
 }

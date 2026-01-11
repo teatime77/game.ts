@@ -8,6 +8,12 @@ export interface JsonData {
     actions : any[];
 }
 
+export interface StageData {
+    uis: UI[];
+    menus : PopupMenu[];
+    actions : Action[];
+}
+
 const importedJsons = new Map<string, JsonData>();
 const nameMap = new Map<string, UI>();
 const pathMap = new Map<string, UI>();
@@ -28,7 +34,7 @@ export class SymbolRef {
         pathMap.clear();
     }
 
-    static async importLibrary(url : string) : Promise<UI[]> {
+    static async importLibrary(url : string) : Promise<StageData> {
         const path = url.replaceAll(".", "/");
 
         let data : JsonData | undefined = importedJsons.get(path);
@@ -65,7 +71,16 @@ export class SymbolRef {
             }
         }
 
-        return uis;
+        const menus = data.menus.map(x => makeUIFromObj(x)) as PopupMenu[];
+        const actions = data.actions.map(x => makeActionFromObj(x));
+
+        const stageData : StageData = {
+            uis,
+            menus,
+            actions
+        }
+
+        return stageData;
     }
 
     static lookupRegistry(data : UIAttr & { className : string, path : string }){

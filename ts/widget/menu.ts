@@ -9,6 +9,11 @@ export function initPopupMenus(popup_menus : PopupMenu[]){
 }
 
 export function showPopupMenu(canvas : Canvas, x : number, y : number){
+    if(popupMenus.length == 0){
+        msg("no popup menu");
+        return;
+    }
+    
     const menu = popupMenus[0];
 
     menu.canvas = canvas;

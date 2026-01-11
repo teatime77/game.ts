@@ -5,7 +5,7 @@ abstract class CompositeAction extends Action {
 
     constructor(data : ActionAttr & {actions : any[]}){
         super(data);
-        this.actions = data.actions.map(x => makeActionFromObj(x));
+        this.actions = data.actions.map(x => x instanceof Action ? x : makeActionFromObj(x));
     }
 }
 
@@ -50,14 +50,24 @@ export class ParallelAction extends CompositeAction {
 export class Sequencer  {
     static one : Sequencer;
 
-    static rootParallelAction : ParallelAction;
+    static rootParallelAction : ParallelAction | undefined;
     static generator : Generator<any> | undefined;
 
-    static init(actions : any[]){
-        Sequencer.rootParallelAction = new ParallelAction({ className:"ParallelAction", actions });
+    static init(actions : Action[]){
+        if(actions.length != 0){
+            Sequencer.rootParallelAction = new ParallelAction({ className:"ParallelAction", actions });
+        }
+        else{
+            Sequencer.rootParallelAction = undefined;
+        }
     }
 
     static start(){
+        if(Sequencer.rootParallelAction == undefined){
+            msg("no actions");
+            return;
+        }
+
         Sequencer.generator = Sequencer.rootParallelAction.exec();
 
         const ret = Sequencer.generator.next();
@@ -66,7 +76,7 @@ export class Sequencer  {
     }
 
     static nextAction(){
-        if(Sequencer.generator == undefined || Sequencer.rootParallelAction.finished){
+        if(Sequencer.generator == undefined || Sequencer.rootParallelAction == undefined || Sequencer.rootParallelAction.finished){
             return;
         }
 

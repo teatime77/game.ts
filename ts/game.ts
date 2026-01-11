@@ -63,7 +63,7 @@ export async function loadWorld(target : string){
     SymbolRef.clearSymbolMap();
     canvas.clearUIs();
 
-    await SymbolRef.importLibrary(target);
+    const stageData = await SymbolRef.importLibrary(target);
 
     if(data.imports != undefined){
         for(const path of data.imports){
@@ -85,10 +85,9 @@ export async function loadWorld(target : string){
 
     canvas.layoutCanvas();
 
-    const popup_menus = data.menus.map(x => makeUIFromObj(x)) as PopupMenu[];
-    initPopupMenus(popup_menus);
+    initPopupMenus(stageData.menus);
 
-    Sequencer.init(data.actions);
+    Sequencer.init(stageData.actions);
 
     Canvas.isReady = true;
 }

@@ -449,7 +449,7 @@ export function makeUIFromObj(data : any) : UI {
         return new ColumnArithmetic(data as UIAttr, app);
     }
     case BundleImage.name   : return new BundleImage(data as (UIAttr & { value : number }));
-    case ArithmeticView.name: return new ArithmeticView(data as (GridAttr & {expr : string}));
+    case ArithmeticView.name: return new ArithmeticView(data as (UIAttr & {expr : string}));
     }
 
     throw new MyError();

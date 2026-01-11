@@ -87,23 +87,30 @@ export class NumberUI extends Grid {
 }
 
 export class ArithmeticView extends Grid {
-    constructor(data : GridAttr & {expr : string}){
-        data.columns = "* *";
-        data.rows    = "*";
-        super(data);
+    imageView : Grid;
+    mathExpr  : UI;
+    columnArithmetic : ColumnArithmetic;
 
-        makeArithmeticView(this, data);
+    constructor(data : UIAttr & { expr : string }){
+        const grid_data : GridAttr = Object.assign(
+            data,
+            {
+                columns  : "* * *",
+                rows     : "*"
+            }
+        );
+        super(grid_data);
+
+        const app = parseMath(data.expr, true) as App;
+
+        this.imageView = makeImageViewFromApp(app);
+        this.mathExpr  = makeMathExprLayout(app);
+        this.columnArithmetic = new ColumnArithmetic(data, app);
+
+        this.addChildren(this.imageView, this.mathExpr, this.columnArithmetic);
+
         this.setRowColIdxOfChildren();
     }
-}
-
-export function makeArithmeticView(parent_grid : Grid, data : UIAttr & { expr : string }){
-    const app = parseMath(data.expr, true) as App;
-
-    const image_view = makeImageViewFromApp(app);
-    const column_arithmetic = new ColumnArithmetic(data, app);
-
-    parent_grid.addChildren(image_view, column_arithmetic);
 }
 
 

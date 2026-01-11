@@ -46,6 +46,19 @@ export class Grid extends ContainerUI {
         }
     }
 
+    static singleRow(data : UIAttr, ...children : UI[]){
+        const grid_data : GridAttr = Object.assign(
+            data,
+            {
+                columns  : Grid.autoSize(children.length),
+                rows     : "*",
+                children
+            }
+        );
+
+        return new Grid(grid_data);
+    }
+
     static pix(s : string) : number {
         assert(s.endsWith("px"));
         return parseFloat(s.slice(0, -2));

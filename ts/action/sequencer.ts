@@ -48,14 +48,12 @@ export class ParallelAction extends CompositeAction {
 }
 
 export class Sequencer  {
-    static one : Sequencer;
-
     static rootParallelAction : ParallelAction | undefined;
     static generator : Generator<any> | undefined;
 
     static init(actions : Action[]){
         if(actions.length != 0){
-            Sequencer.rootParallelAction = new ParallelAction({ className:"ParallelAction", actions });
+            Sequencer.rootParallelAction = new ParallelAction({ actions });
         }
         else{
             Sequencer.rootParallelAction = undefined;

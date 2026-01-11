@@ -1,7 +1,6 @@
 namespace game_ts {
 //
 export interface ActionAttr {
-    className : string;
 }
 
 export abstract class Action {
@@ -83,7 +82,7 @@ export class MoveAction extends Action {
 
 
 export function makeActionFromObj(obj : any) : Action {
-    const attr = obj as ActionAttr;
+    const attr = obj as { className : string };
 
     switch(attr.className){
     case NumAction.name        : return new NumAction(obj as (ActionAttr & {count : number}));
@@ -91,6 +90,7 @@ export function makeActionFromObj(obj : any) : Action {
     case ParallelAction.name   : return new ParallelAction(obj   as (ActionAttr & {actions : any[]}));
     case MoveAction.name       : return new MoveAction(obj as (ActionAttr & { target : string, destination : [number, number], duration : number }));
     case Speech.name           : return new Speech(obj as (ActionAttr & { text : string }));
+    case ArithmeticAction.name : return new ArithmeticAction(obj as ActionAttr);
     }
 
     throw new MyError();

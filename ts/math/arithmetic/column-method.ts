@@ -23,10 +23,6 @@ export class ColumnArithmetic extends ContainerUI {
         this.operator = makeOperatorLabel(this.expr.fncName);
 
         this.addChildren(...this.nums, this.operator);
-
-        setTimeout(()=>{
-            this.expandNumber(0);
-        }, 3000);
     }
 
     setMinSize() : void {
@@ -76,35 +72,34 @@ export class ColumnArithmetic extends ContainerUI {
         this.setMinSizeByChildren();
     }
 
-    expandNumber(idx : number){
-        msg("expand Number")
-        this.expandNumberIdx = idx;
+    expandNumber(idx : number, progress : number){
+        if(progress == 0){
 
-        const num = this.nums[idx];
-        const nums = num.splitPlaceValues();        
+            this.expandNumberIdx = idx;
 
-        this.nums.splice(idx, 1, ...nums);
+            const num = this.nums[idx];
+            const nums = num.splitPlaceValues();        
 
-        this.children = [];
-        this.addChildren(...this.nums, this.operator);
+            this.nums.splice(idx, 1, ...nums);
 
-        nums.forEach(x => x.setMinSize());
-        this.heightDiff = sum(nums.map(x => x.size.y)) - num.size.y;
-        this.progress = 0;
-        const id = setInterval(()=>{
-            this.progress += 0.05;
-            if(this.progress < 1){
-                this.setMinSize();
-                this.updateLayout();
-                Canvas.requestUpdateCanvas();
-            }
-            else{
-                this.progress = NaN;
-                clearInterval(id);
-            }
-        }, 50);
+            this.children = [];
+            this.addChildren(...this.nums, this.operator);
 
-        updateRoot(this);
+            nums.forEach(x => x.setMinSize());
+            this.heightDiff = sum(nums.map(x => x.size.y)) - num.size.y;
+        }
+        else if(1 < progress){
+
+            this.progress = NaN;
+            updateRoot(this);
+            return;
+        }
+
+        this.progress = progress;
+
+        this.setMinSize();
+        this.updateLayout();
+        Canvas.requestUpdateCanvas();
     }
 }
 

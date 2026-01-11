@@ -87,6 +87,8 @@ export class NumberUI extends Grid {
 }
 
 export class ArithmeticView extends Grid {
+    static arithmeticViews : ArithmeticView[] = [];
+
     imageView : Grid;
     mathExpr  : UI;
     columnArithmetic : ColumnArithmetic;
@@ -100,6 +102,7 @@ export class ArithmeticView extends Grid {
             }
         );
         super(grid_data);
+        ArithmeticView.arithmeticViews.push(this);
 
         const app = parseMath(data.expr, true) as App;
 
@@ -111,6 +114,37 @@ export class ArithmeticView extends Grid {
 
         this.setRowColIdxOfChildren();
     }
+}
+
+export class ArithmeticAction extends Action {
+    static one : ArithmeticAction;
+
+    constructor(data : ActionAttr){  
+        super(data);
+        ArithmeticAction.one = this;
+    }
+
+    *exec() : Generator<any> {
+        this.finished = false;
+
+        for(let progress : number = 0; ; progress += 0.01){
+            for(const arithmeticView of ArithmeticView.arithmeticViews){
+                arithmeticView.columnArithmetic.expandNumber(0, progress);
+            }
+
+            if(1 < progress){
+
+                break;
+            }
+
+            yield `expand number ${progress}`;
+        }
+
+        this.finished = true;
+        return `expand number end`;
+
+    }
+
 }
 
 

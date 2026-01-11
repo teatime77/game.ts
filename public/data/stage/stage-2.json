@@ -43,6 +43,13 @@
                     "value"     : 34,
                     "position"  : [ 510, 200 ]
                 }
+                ,
+                {
+                    "className" : "Button",
+                    "name"      : "expandNumber",
+                    "position"  : [ 1400, 10 ],
+                    "text"      : "Play"
+                }
             ]
         }
     ]

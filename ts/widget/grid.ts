@@ -46,7 +46,7 @@ export class Grid extends ContainerUI {
         }
     }
 
-    static singleRow(data : UIAttr, ...children : UI[]){
+    static singleRow(data : UIAttr, ...children : UI[]) : GridAttr {
         const grid_data : GridAttr = Object.assign(
             data,
             {
@@ -56,7 +56,7 @@ export class Grid extends ContainerUI {
             }
         );
 
-        return new Grid(grid_data);
+        return grid_data;
     }
 
     static pix(s : string) : number {

@@ -42,7 +42,7 @@ export class SymbolRef {
 
             data = await fetchJson(`data/${path}.json?id=${Math.random()}`) as JsonData;
             importedJsons.set(path, data);
-            msg(`lib:${url}\n ${JSON.stringify(data, null, 4)}`);
+            // msg(`lib:${url}\n ${JSON.stringify(data, null, 4)}`);
         }
 
         if(data.imports != undefined){

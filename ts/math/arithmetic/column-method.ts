@@ -19,7 +19,7 @@ export class ColumnArithmetic extends ContainerUI {
         this.expr = app;
         assert(this.expr.args.every(x => x instanceof ConstNum));
 
-        this.nums = this.expr.args.map(arg => new NumberUI(arg.value.int()));
+        this.nums = this.expr.args.map(arg => new NumberUI(arg as ConstNum));
         this.operator = makeOperatorLabel(this.expr.fncName);
 
         this.addChildren(...this.nums, this.operator);
@@ -72,21 +72,23 @@ export class ColumnArithmetic extends ContainerUI {
         this.setMinSizeByChildren();
     }
 
-    expandNumber(idx : number, progress : number){
+    expandNumber(child : UI, progress : number){
         if(progress == 0){
 
-            this.expandNumberIdx = idx;
+            const num = child as NumberUI;
 
-            const num = this.nums[idx];
-            const nums = num.splitPlaceValues();        
+            this.expandNumberIdx = this.nums.indexOf(num);
+            assert(this.expandNumberIdx != -1);
 
-            this.nums.splice(idx, 1, ...nums);
+            const child_nums = num.splitPlaceValues();        
+
+            this.nums.splice(this.expandNumberIdx, 1, ...child_nums);
 
             this.children = [];
             this.addChildren(...this.nums, this.operator);
 
-            nums.forEach(x => x.setMinSize());
-            this.heightDiff = sum(nums.map(x => x.size.y)) - num.size.y;
+            child_nums.forEach(x => x.setMinSize());
+            this.heightDiff = sum(child_nums.map(x => x.size.y)) - num.size.y;
         }
         else if(1 < progress){
 

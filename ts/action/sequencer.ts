@@ -80,7 +80,7 @@ export class Sequencer  {
 
         const ret = Sequencer.generator.next();
         if(ret.value != undefined){
-            msg(`next ${ret.value}`);
+            // msg(`next ${ret.value}`);
         }
 
         Canvas.requestUpdateCanvas();

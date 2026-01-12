@@ -181,4 +181,12 @@ export function makeImageViewFromApp(app : App) : Grid {
 
 }
 
+export function makeImageViewFromTerm(term : Term) : Grid {
+    if(term instanceof App){
+        return makeImageViewFromApp(term);
+    }
+
+    throw new MyError();
+}
+
 }

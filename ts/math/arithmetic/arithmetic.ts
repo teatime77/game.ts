@@ -5,6 +5,21 @@ namespace game_ts {
 //
 export const digitSize = 60;
 
+export const termToUIs : Map<Term, UI[]> = new Map<Term, UI[]>();
+
+export function addTermToUIs(term : Term, ui : UI){
+    let uis = termToUIs.get(term);
+    if(uis == undefined){
+        uis = [ui];
+        termToUIs.set(term, uis);
+    }
+    else{
+        assert(!uis.includes(ui));
+        uis.push(ui);
+    }
+    msg(`term:${term.str()} uis:[${uis.map(x => x.constructor.name)}]`);
+}
+
 function getDigitCount(n: number): number {
     assert(0 <= n && Math.floor(n) == n);
     return n.toString().length;
@@ -47,23 +62,32 @@ export function makeOperatorLabel(operator : string) : Label {
 }
 
 export class Digit extends Label {
-    constructor(value  : number){
+    value : ConstNum;
+
+    constructor(term  : ConstNum){
         const data : TextUIAttr = {
-            text : `${value}`,
+            text : `${term.int()}`,
             size : [digitSize, digitSize]
             // padding : 0,
             // borderWidth : 0
         };
         super(data);
+        this.value = term;
+
+        addTermToUIs(term, this);
+    }
+
+    str() : string {
+        return `${super.str()} ${typeof this.value == "number" ? this.value : this.value.str()}`;
     }
 }
 
 export class NumberUI extends Grid {
-    value  : number;
+    value  : ConstNum;
     digits : Digit[];
 
-    constructor(value  : number){
-        const nums = splitDigits(value);
+    constructor(value  : ConstNum){
+        const nums = splitDigits(value.int());
         
         const grid_data : GridAttr ={
             columns  : Grid.autoSize(nums.length),
@@ -73,14 +97,16 @@ export class NumberUI extends Grid {
         super(grid_data);
 
         this.value = value;
-        this.digits = nums.map(n => new Digit(n));
+        this.digits = nums.map(n => new Digit(new ConstNum(n)));
         this.addChildren(...this.digits);
         this.setRowColIdxOfChildren();        
+
+        addTermToUIs(value, this);
     }
 
     splitPlaceValues() : NumberUI[] {
-        const values = toExpandedForm(this.value);
-        const nums = values.map(n => new NumberUI(n));
+        const values = toExpandedForm(this.value.int());
+        const nums = values.map(n => new NumberUI(new ConstNum(n) ));
 
         return nums;
     }
@@ -89,6 +115,7 @@ export class NumberUI extends Grid {
 export class ArithmeticView extends Grid {
     static arithmeticViews : ArithmeticView[] = [];
 
+    term : Term;
     imageView : Grid;
     mathExpr  : UI;
     columnArithmetic : ColumnArithmetic;
@@ -104,11 +131,17 @@ export class ArithmeticView extends Grid {
         super(grid_data);
         ArithmeticView.arithmeticViews.push(this);
 
-        const app = parseMath(data.expr, true) as App;
+        this.term = parseMath(data.expr, true);
 
-        this.imageView = makeImageViewFromApp(app);
-        this.mathExpr  = makeMathExprLayout(app);
-        this.columnArithmetic = new ColumnArithmetic(data, app);
+        this.imageView = makeImageViewFromTerm(this.term);
+        this.mathExpr  = makeMathExprLayout(this.term);
+        if(this.term instanceof App){
+
+            this.columnArithmetic = new ColumnArithmetic(data, this.term);
+        }
+        else{
+            throw new MyError();
+        }
 
         this.addChildren(this.imageView, this.mathExpr, this.columnArithmetic);
 
@@ -118,18 +151,39 @@ export class ArithmeticView extends Grid {
 
 export class ArithmeticAction extends Action {
     static one : ArithmeticAction;
+    arithmeticView : ArithmeticView;
+    target : Term;
 
     constructor(data : ActionAttr){  
         super(data);
         ArithmeticAction.one = this;
+        msg(`arithmetic-Views:${ArithmeticView.arithmeticViews.length}`);
+        assert(ArithmeticView.arithmeticViews.length != 0);
+        this.arithmeticView = ArithmeticView.arithmeticViews[0];
+        this.target = this.arithmeticView.term;
     }
 
     *exec() : Generator<any> {
         this.finished = false;
 
+        if(this.target instanceof App && this.target.args[0] instanceof ConstNum){
+        }
+        else{
+            throw new MyError();
+        }
+        const num = this.target.args[0];
+        const targetArg0UIs = termToUIs.get(num);
+        if(targetArg0UIs == undefined){
+            throw new MyError();
+        }
+        msg(`exec [${targetArg0UIs.map(x => x.str() + ":" + x.parent!.str()).join(", ")}] column:${this.arithmeticView.columnArithmetic.str()}`);
+
         for(let progress : number = 0; ; progress += 0.01){
-            for(const arithmeticView of ArithmeticView.arithmeticViews){
-                arithmeticView.columnArithmetic.expandNumber(0, progress);
+
+            for(const ui of targetArg0UIs){
+                if(ui.parent instanceof ColumnArithmetic){
+                    ui.parent.expandNumber(ui, progress);
+                }
             }
 
             if(1 < progress){

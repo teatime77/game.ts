@@ -63,6 +63,7 @@ export async function loadWorld(target : string){
     SymbolRef.clearSymbolMap();
     canvas.clearUIs();
     ArithmeticView.arithmeticViews = [];
+    termToUIs.clear();
 
     const stageData = await SymbolRef.importLibrary(target);
 

@@ -77,6 +77,13 @@ export class Digit extends Label {
         addTermToUIs(term, this);
     }
 
+    splitDigitPlaceValues() : Digit[] {
+        const values = toExpandedForm(this.value.int());
+        const digits = values.map(n => new Digit(new ConstNum(n) ));
+
+        return digits;
+    }
+
     str() : string {
         return `${super.str()} ${typeof this.value == "number" ? this.value : this.value.str()}`;
     }
@@ -104,7 +111,7 @@ export class NumberUI extends Grid {
         addTermToUIs(value, this);
     }
 
-    splitPlaceValues() : NumberUI[] {
+    splitNumberPlaceValues() : NumberUI[] {
         const values = toExpandedForm(this.value.int());
         const nums = values.map(n => new NumberUI(new ConstNum(n) ));
 
@@ -153,13 +160,19 @@ export class ArithmeticAction extends Action {
     static one : ArithmeticAction;
     arithmeticView : ArithmeticView;
     target : Term;
+    argIdx : number;
 
     constructor(data : ActionAttr){  
         super(data);
         ArithmeticAction.one = this;
         msg(`arithmetic-Views:${ArithmeticView.arithmeticViews.length}`);
-        assert(ArithmeticView.arithmeticViews.length != 0);
-        this.arithmeticView = ArithmeticView.arithmeticViews[0];
+
+        const viewIdx = data.args.viewIdx;
+        this.argIdx   = data.args.argIdx;
+        assert(typeof viewIdx == "number" && viewIdx < ArithmeticView.arithmeticViews.length);
+
+
+        this.arithmeticView = ArithmeticView.arithmeticViews[viewIdx];
         this.target = this.arithmeticView.term;
     }
 
@@ -171,20 +184,29 @@ export class ArithmeticAction extends Action {
         else{
             throw new MyError();
         }
-        const num = this.target.args[0];
+
+        assert(typeof this.argIdx == "number" && this.argIdx < this.target.args.length);
+
+        const num = this.target.args[this.argIdx];
         const targetArg0UIs = termToUIs.get(num);
         if(targetArg0UIs == undefined){
             throw new MyError();
         }
         msg(`exec [${targetArg0UIs.map(x => x.str() + ":" + x.parent!.str()).join(", ")}] column:${this.arithmeticView.columnArithmetic.str()}`);
 
+        const roots = Array.from(new Set<UI>(targetArg0UIs.map(x => x.getStageRoot())));
         for(let progress : number = 0; ; progress += 0.01){
 
             for(const ui of targetArg0UIs){
-                if(ui.parent instanceof ColumnArithmetic){
+                if(ui instanceof NumberUI && ui.parent instanceof ColumnArithmetic){
                     ui.parent.expandNumber(ui, progress);
                 }
+                else if(ui instanceof Digit && ui.parent instanceof MathExprLayout){
+                    ui.parent.expandDigit(ui, progress);
+                }
             }
+
+            roots.forEach(x => x.setMinSizeUpdateLayout());
 
             if(1 < progress){
 

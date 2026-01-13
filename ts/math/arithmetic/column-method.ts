@@ -72,15 +72,13 @@ export class ColumnArithmetic extends ContainerUI {
         this.setMinSizeByChildren();
     }
 
-    expandNumber(child : UI, progress : number){
+    expandNumber(num : NumberUI, progress : number){
         if(progress == 0){
-
-            const num = child as NumberUI;
 
             this.expandNumberIdx = this.nums.indexOf(num);
             assert(this.expandNumberIdx != -1);
 
-            const child_nums = num.splitPlaceValues();        
+            const child_nums = num.splitNumberPlaceValues();        
 
             this.nums.splice(this.expandNumberIdx, 1, ...child_nums);
 

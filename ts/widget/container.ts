@@ -19,8 +19,28 @@ export abstract class ContainerUI extends UI {
         children.forEach(x => x.parent = this);
     }
 
+    spliceChildren(idx : number, ...children : UI[]){
+        this.children.splice(idx, 1, ...children);
+        children.forEach(x => x.parent = this);
+    }
+
     setMinSize() : void {
         this.children.forEach(x => x.setMinSize());
+    }
+
+    setMinSizeByChildren() : void {
+        const padding_border_size = this.getPaddingBorderSize();
+
+        const width  = Math.max(...this.children.map(x => x.right()));
+        const height = Math.max(...this.children.map(x => x.bottom()));
+
+        this.minSize.x = width  + padding_border_size.x;
+        this.minSize.y = height + padding_border_size.y;
+
+        this.size.copyFrom(this.minSize);
+        if(this instanceof MathExprLayout){
+            msg(`B:${this.idx} width:${width} size x:${this.size.x}`)
+        }
     }
 
     getNearUI(position : Vec2) : UI | undefined {

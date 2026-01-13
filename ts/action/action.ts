@@ -1,6 +1,7 @@
 namespace game_ts {
 //
 export interface ActionAttr {
+    args? : any;
 }
 
 export abstract class Action {

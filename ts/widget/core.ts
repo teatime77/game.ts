@@ -69,6 +69,14 @@ export abstract class UI implements Movable {
 
     clickHandler? : ()=>Promise<void>;
 
+    right() : number {
+        return this.position.x + this.size.x;
+    }
+
+    bottom() : number {
+        return this.position.y + this.size.y;
+    }
+
     setParent(parent : ContainerUI | TreeNode){
         this.parent = parent;
         // msg(`set parent:${this.constructor.name} ${this.parent.constructor.name}`)
@@ -78,6 +86,17 @@ export abstract class UI implements Movable {
         let ui : UI = this;
         for(; ui.parent != undefined; ui = ui.parent);
         return ui;
+    }
+
+    getStageRoot() : UI {
+        let ui : UI = this;
+        for(; ui.parent != undefined; ui = ui.parent){
+            if(ui.parent.name == "main-stage"){
+                return ui;
+            }
+        }
+
+        throw new MyError();
     }
 
     getPadding() : Padding {
@@ -244,6 +263,11 @@ export abstract class UI implements Movable {
 
     layoutXY(x : number, y : number) : void {
         this.layout(Vec2.fromXY(x, y), this.size);
+    }
+
+    setMinSizeUpdateLayout(){
+        this.setMinSize();
+        this.updateLayout();
     }
 
     updateLayout(){

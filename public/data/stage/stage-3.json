@@ -29,7 +29,25 @@
     ,
     "actions" : [
         {
-            "className" : "ArithmeticAction"
+            "className" : "SequentialAction",
+            "actions"   : [
+                {
+                    "className" : "ArithmeticAction",
+                    "args"      : {
+                        "viewIdx": 0,
+                        "argIdx" : 0
+                    }
+                }
+                ,
+                {
+                    "className" : "ArithmeticAction",
+                    "args"      : {
+                        "viewIdx": 0,
+                        "argIdx" : 1
+                    }
+                }
+
+            ]
         }
     ] 
 }

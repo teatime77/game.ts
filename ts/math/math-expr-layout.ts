@@ -24,7 +24,6 @@ export class MathExprLayout extends ContainerUI {
         for(const [idx, child] of this.children.entries()){
 
             child.setPosition(Vec2.fromXY(x, 0));
-            msg(`child right: ${child.right()}`);
 
             if(!isNaN(this.progress) && this.expandNumberIdx == idx){
                 x += this.widthDiff * this.progress;
@@ -34,7 +33,6 @@ export class MathExprLayout extends ContainerUI {
             }
         }
         const width  = Math.max(...this.children.map(x => x.right()));
-        msg(`A:${this.idx} width:${width} size x:${this.size.x}`)
 
         this.children.forEach(x => x.updateLayout());
     }
@@ -70,7 +68,7 @@ export class MathExprLayout extends ContainerUI {
     }
 }
 
-export function makeMathExprLayout(expr : Term) : Digit | VariableUI | MathExprLayout {
+export function makeMathExprLayout(expr : Term) : MathExprUI {
     if(expr instanceof ConstNum){
         return new Digit(expr);
     }

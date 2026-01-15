@@ -1,4 +1,4 @@
-///<reference path="widget/core.ts" />
+///<reference path="core.ts" />
 
 namespace game_ts {
 //
@@ -109,7 +109,6 @@ export class Canvas {
     static fontSize   : string = "30px";
 
     private uis: UI[] = [];
-    private chars : string[] = [];
 
     targetUI? : UI;
 
@@ -283,21 +282,7 @@ export class Canvas {
         }
         else{
             if(target instanceof Label && target.parent != undefined && target.parent.name == "numpad"){
-                if(target.text == "Enter"){
-                    const n = parseInt(this.chars.join(""));
-                    if(isNaN(n)){
-                        msg(`illegal number:${this.chars}`);
-                    }
-                    else{
-                        msg(`input number:${n}`)
-                    }
-
-                    this.chars = [];
-                }
-                else{
-                    msg(`num-pad:${target.text}`);
-                    this.chars.push(target.text);
-                }
+                inputByNumpad(target);
             }
             else{
 

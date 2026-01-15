@@ -1,18 +1,31 @@
 namespace game_ts {
 //
 export const shuffle = i18n_ts.shuffle;
+export type  MathExprUI = Digit | VariableUI | MathExprLayout;
 
 const additionWithin10s    : [number, number][] = [];
 const subtractionWithin10s : [number, number][] = [];
 const additionSum11To19    : [number, number][] = [];
 
-export class ArithmeticFormulaExercise extends Action {
-    static layout : Digit | VariableUI | MathExprLayout;
-    prevTime : number;
+let mathExLayout : MathExprUI;
 
+function getAnsLabel(ui : UI) : VariableUI | undefined {
+    if(ui instanceof VariableUI){
+        return ui.value.name == "ans" ? ui : undefined;
+    }
+    else if(ui instanceof ContainerUI){
+        const target = ui.children.map(x => getAnsLabel(x)).find(x => x != undefined);
+        if(target != undefined){
+            return target;
+        }
+    }
+
+    return undefined;
+}
+
+export class ArithmeticFormulaExercise extends Action {
     constructor(data : ActionAttr){
         super(data);
-        this.prevTime = Date.now();
     }
 
     *exec() : Generator<any> {        
@@ -25,22 +38,39 @@ export class ArithmeticFormulaExercise extends Action {
         const exs = generateAdditionWithin10(5);
         for(const ex of exs){
 
-            if(ArithmeticFormulaExercise.layout != undefined){
-                stage.removeChild(ArithmeticFormulaExercise.layout);
+            if(mathExLayout != undefined){
+                stage.removeChild(mathExLayout);
             }
 
-            ArithmeticFormulaExercise.layout = makeMathExprLayout(ex.expr);
-            stage.addChildren(ArithmeticFormulaExercise.layout);
-            ArithmeticFormulaExercise.layout.setPosition(Vec2.fromXY(10, 10));
-            ArithmeticFormulaExercise.layout.setMinSizeUpdateLayout();
+            mathExLayout = makeMathExprLayout(ex.expr);
+            stage.addChildren(mathExLayout);
+            mathExLayout.setPosition(Vec2.fromXY(10, 10));
+            mathExLayout.setMinSizeUpdateLayout();
+
+            const ansLabel = getAnsLabel(mathExLayout);
+            if(ansLabel == undefined){
+                throw new MyError();
+            }
+
+            let num : number = NaN;
+
+            setInputFocus(ansLabel, (n: number) => {
+                num = n;
+            });
+
             Canvas.requestUpdateCanvas();
 
 
-            while(Date.now() - this.prevTime < 1000){
+            while(isNaN(num)){
                 yield;
             }
 
-            this.prevTime = Date.now();
+            if(num == ex.ans){
+                msg(`OK:${ex.expr} ${ex.ans} = ${num}`);
+            }
+            else{
+                msg(`NG:${ex.expr} ${ex.ans} <> ${num}`);
+            }
         }
     }
 }

@@ -17,7 +17,7 @@ export function addTermToUIs(term : Term, ui : UI){
         assert(!uis.includes(ui));
         uis.push(ui);
     }
-    msg(`term:${term.str()} uis:[${uis.map(x => x.constructor.name)}]`);
+    // msg(`term:${term.str()} uis:[${uis.map(x => x.constructor.name)}]`);
 }
 
 function getDigitCount(n: number): number {
@@ -144,7 +144,7 @@ export class ArithmeticView extends Grid {
 
     term : Term;
     imageView : Grid;
-    mathExpr  : Digit | VariableUI | MathExprLayout;
+    mathExpr  : MathExprUI;
     columnArithmetic : ColumnArithmetic;
 
     constructor(data : UIAttr & { expr : string }){

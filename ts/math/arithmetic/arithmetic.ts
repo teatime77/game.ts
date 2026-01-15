@@ -119,12 +119,32 @@ export class NumberUI extends Grid {
     }
 }
 
+
+export class VariableUI extends Label {
+    value : RefVar;
+
+    constructor(term  : RefVar){
+        const data : TextUIAttr = {
+            text : `${term.name}`,
+            size : [digitSize, term.name.length * digitSize]
+        };
+        super(data);
+        this.value = term;
+
+        addTermToUIs(term, this);
+    }
+
+    str() : string {
+        return `${super.str()} ${this.value.name}`;
+    }
+}
+
 export class ArithmeticView extends Grid {
     static arithmeticViews : ArithmeticView[] = [];
 
     term : Term;
     imageView : Grid;
-    mathExpr  : UI;
+    mathExpr  : Digit | VariableUI | MathExprLayout;
     columnArithmetic : ColumnArithmetic;
 
     constructor(data : UIAttr & { expr : string }){

@@ -14,6 +14,10 @@ export abstract class ContainerUI extends UI {
         }
     }
 
+    removeChild(child : UI){
+        remove(this.children, child);
+    }
+
     addChildren(...children : UI[]){
         this.children.push(...children);
         children.forEach(x => x.parent = this);

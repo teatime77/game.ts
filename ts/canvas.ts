@@ -109,6 +109,7 @@ export class Canvas {
     static fontSize   : string = "30px";
 
     private uis: UI[] = [];
+    private chars : string[] = [];
 
     targetUI? : UI;
 
@@ -273,19 +274,40 @@ export class Canvas {
         if(this.targetUI == undefined){
             return;
         }
+        const target = this.targetUI;
         PopupMenu.close();
 
-        const pos = this.getPositionInCanvas(ev);
-        const target = this.getUIFromPosition(pos);
 
         if(this.moved){
             msg("dragged");
         }
         else{
-            const name = this.targetUI.name;
-            msg(`click:${this.targetUI.idx} ${this.targetUI.constructor.name} ${name == undefined ? "" : name} ${this.targetUI.parent} pos:${this.targetUI.position} size:${this.targetUI.size}`);
+            if(target instanceof Label && target.parent != undefined && target.parent.name == "numpad"){
+                if(target.text == "Enter"){
+                    const n = parseInt(this.chars.join(""));
+                    if(isNaN(n)){
+                        msg(`illegal number:${this.chars}`);
+                    }
+                    else{
+                        msg(`input number:${n}`)
+                    }
 
-            await this.targetUI.click();
+                    this.chars = [];
+                }
+                else{
+                    msg(`num-pad:${target.text}`);
+                    this.chars.push(target.text);
+                }
+            }
+            else{
+
+                const name = target.name;
+
+                msg(`click:${target.idx} ${target.constructor.name} ${name == undefined ? "" : name} ${target.parent} pos:${target.position} size:${target.size}`);
+
+
+                await target.click();
+            }
         }
 
         this.canvas.releasePointerCapture(this.pointerId);

@@ -52,6 +52,7 @@ async function asyncBodyOnLoad(){
     }
     await loadWorld(worldData.target);
     // dumpObj(canvas, 0, new Set<any>());
+    testEx();
 }
 
 export async function loadWorld(target : string){

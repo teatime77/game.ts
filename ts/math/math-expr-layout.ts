@@ -70,9 +70,12 @@ export class MathExprLayout extends ContainerUI {
     }
 }
 
-export function makeMathExprLayout(expr : Term) : UI {
+export function makeMathExprLayout(expr : Term) : Digit | VariableUI | MathExprLayout {
     if(expr instanceof ConstNum){
         return new Digit(expr);
+    }
+    else if(expr instanceof RefVar){
+        return new VariableUI(expr);
     }
     else if(expr instanceof App){
         assert(expr.args.length == 2);

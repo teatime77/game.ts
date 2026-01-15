@@ -1,0 +1,35 @@
+{
+    "imports":[
+        "system.keyboard"
+    ]
+    ,
+    "uis" : [
+        {
+            "className" : "Stage",
+            "name"      : "main-stage",
+            "children"  : [
+                {
+                    "className" : "SymbolRef",
+                    "path"  : "system.keyboard.numpad",
+                    "position"  : [ 1100, 50 ]
+                }
+                ,
+                {
+                    "className" : "Button",
+                    "name"      : "play",
+                    "position"  : [ 1400, 10 ],
+                    "text"      : "Play"
+                }
+            ]
+        }
+    ]
+    ,
+    "menus" : [
+    ]
+    ,
+    "actions" : [
+        {
+            "className" : "ArithmeticFormulaExercise"
+        }
+    ] 
+}

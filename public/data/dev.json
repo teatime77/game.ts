@@ -17,7 +17,7 @@
                 ,
                 {
                     "className" : "Grid",
-                    "columns"   : "* * *",
+                    "columns"   : "* * * *",
                     "rows"      : "*",
                     "children"  : [
                         {
@@ -36,6 +36,12 @@
                             "className" : "Link",
                             "text"      : "stage-3",
                             "path"      : "stage.stage-3"
+                        }
+                        ,
+                        {
+                            "className" : "Link",
+                            "text"      : "stage-4",
+                            "path"      : "stage.stage-4"
                         }
                     ]
                 }

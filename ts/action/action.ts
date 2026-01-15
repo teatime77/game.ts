@@ -92,6 +92,7 @@ export function makeActionFromObj(obj : any) : Action {
     case MoveAction.name       : return new MoveAction(obj as (ActionAttr & { target : string, destination : [number, number], duration : number }));
     case Speech.name           : return new Speech(obj as (ActionAttr & { text : string }));
     case ArithmeticAction.name : return new ArithmeticAction(obj as ActionAttr);
+    case ArithmeticFormulaExercise.name: return new ArithmeticFormulaExercise(obj as ActionAttr);
     }
 
     throw new MyError();

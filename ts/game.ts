@@ -2,7 +2,7 @@ namespace game_ts {
 //
 let urlOrigin : string;
 const objMap : Map<string, UI> = new Map<string, UI>();
-let worldCanvas : Canvas;
+export let worldCanvas : Canvas;
 let worldData : JsonData;
 
 export function addObject(id : string, obj : UI){

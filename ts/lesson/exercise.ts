@@ -67,6 +67,14 @@ export class ArithmeticFormulaExercise extends Action {
 
             if(num == ex.ans){
                 msg(`OK:${ex.expr} ${ex.ans} = ${num}`);
+                // const confetti = new ConfettiManager({});
+                // const confetti = new ParticleManager({});
+                const confetti = new HanamaruDrawer({ position:[500,500], radius : 50});
+                stage.addChildren(confetti);
+                while(confetti.isRunning){
+                    yield;
+                }
+                stage.removeChild(confetti);
             }
             else{
                 msg(`NG:${ex.expr} ${ex.ans} <> ${num}`);

@@ -36,7 +36,7 @@ export class ArithmeticFormulaExercise extends Action {
         }
 
         const exs = generateAdditionWithin10(5);
-        for(const ex of exs){
+        for(const [idx, ex] of exs.entries()){
 
             if(mathExLayout != undefined){
                 stage.removeChild(mathExLayout);
@@ -67,9 +67,24 @@ export class ArithmeticFormulaExercise extends Action {
 
             if(num == ex.ans){
                 msg(`OK:${ex.expr} ${ex.ans} = ${num}`);
-                // const confetti = new ConfettiManager({});
-                // const confetti = new ParticleManager({});
-                const confetti = new HanamaruDrawer({ position:[500,500], radius : 50});
+                let confetti : ConfettiManager | ParticleManager | HanamaruDrawer;
+                switch(idx % 3){
+                case 0:
+                    SoundGenerator.play("correct");
+                    confetti = new ConfettiManager({});
+                    break;
+                case 1:
+                    SoundGenerator.play("wrong");
+                    confetti = new ParticleManager({});
+                    break;
+                case 2:
+                    SoundGenerator.play("perfect");
+                    confetti = new HanamaruDrawer({ position:[500,500], radius : 50});
+                    break;
+                default:
+                    throw new MyError();
+                }
+
                 stage.addChildren(confetti);
                 while(confetti.isRunning){
                     yield;

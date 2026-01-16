@@ -35,8 +35,8 @@ export abstract class ContainerUI extends UI {
     setMinSizeByChildren() : void {
         const padding_border_size = this.getPaddingBorderSize();
 
-        const width  = Math.max(...this.children.map(x => x.right()));
-        const height = Math.max(...this.children.map(x => x.bottom()));
+        const width  = Math.max(...this.children.map(x => x.getRight()));
+        const height = Math.max(...this.children.map(x => x.getBottom()));
 
         this.minSize.x = width  + padding_border_size.x;
         this.minSize.y = height + padding_border_size.y;

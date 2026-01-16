@@ -25,6 +25,10 @@ export interface UIAttr {
     id?   : string;
     name? : string;
     position? : [number, number];
+    top?     : number;
+    left?    : number;
+    right?   : number;
+    bottom?  : number;
     size?     : [number, number];
     borderStyle? : string;
     borderWidth? : number;
@@ -53,6 +57,8 @@ export abstract class UI implements Movable {
     name? : string;
     parent?  : ContainerUI | TreeNode;
     position : Vec2 = Vec2.zero();
+    right?   : number;
+    bottom?  : number;
     fixedSize? : Vec2;
     size     : Vec2 = Vec2.zero();
     minSize  : Vec2 = Vec2.zero();
@@ -69,11 +75,11 @@ export abstract class UI implements Movable {
 
     clickHandler? : ()=>Promise<void>;
 
-    right() : number {
+    getRight() : number {
         return this.position.x + this.size.x;
     }
 
-    bottom() : number {
+    getBottom() : number {
         return this.position.y + this.size.y;
     }
 
@@ -166,19 +172,7 @@ export abstract class UI implements Movable {
         return `${this.idx} ${this.constructor.name}`;
     }
 
-    constructor(data : UIAttr){
-        this.className = this.constructor.name;
-        this.idx      = UI.count++;
-
-        if(data.id !== undefined){
-            this.id = data.id;
-            addObject(this.id, this);
-        }
-
-        if(data.name !== undefined){
-            this.name = data.name;
-        }
-
+    copyFromUIAttr(data : UIAttr){
         if(data.padding !== undefined){
             if(typeof data.padding == "number"){
                 this.padding = new Padding(data.padding, data.padding, data.padding, data.padding);
@@ -191,8 +185,17 @@ export abstract class UI implements Movable {
             }
         }
 
-        if(data.position !== undefined){
-            this.position = new Vec2(data.position[0], data.position[1]);
+        if(data.left != undefined){
+            this.position.x = data.left;
+        }
+        if(data.top != undefined){
+            this.position.y = data.top;
+        }
+        if(data.right != undefined){
+            this.right = data.right;
+        }
+        if(data.bottom != undefined){
+            this.bottom = data.bottom;
         }
 
         if(data.size !== undefined){
@@ -208,11 +211,33 @@ export abstract class UI implements Movable {
             this.rowSpan = data.rowSpan;
         }
 
-        this.backgroundColor = data.backgroundColor;
+        if(data.backgroundColor !== undefined){
+            this.backgroundColor = data.backgroundColor;
+        }
 
         if(data.borderWidth !== undefined){
             this.borderWidth = data.borderWidth;
         }
+    }
+
+    constructor(data : UIAttr){
+        this.className = this.constructor.name;
+        this.idx      = UI.count++;
+
+        if(data.id !== undefined){
+            this.id = data.id;
+            addObject(this.id, this);
+        }
+
+        if(data.name !== undefined){
+            this.name = data.name;
+        }
+
+        if(data.position !== undefined){
+            this.position = new Vec2(data.position[0], data.position[1]);
+        }
+
+        this.copyFromUIAttr(data);
     }
 
     absPosition() : Vec2 {
@@ -256,7 +281,23 @@ export abstract class UI implements Movable {
         this.size.copyFrom(this.minSize);
     }
 
+    layoutByRightBottom(){
+        if(this.right != undefined || this.bottom != undefined){
+            const content_size = this.parent!.getContentSize();
+
+            if(this.right != undefined){
+                this.position.x = content_size.x - this.size.x;
+                msg(`right:${this.name} ${this.right} ${this.position.x} = ${content_size.x} - ${this.size.x}`)
+            }
+            if(this.bottom != undefined){
+                this.position.y = content_size.y - this.size.y;
+                msg(`bottom:${this.name} ${this.position.y} = ${content_size.y} - ${this.size.y}`)
+            }
+        }
+    }
+
     layout(position : Vec2, size : Vec2) : void {
+        this.layoutByRightBottom();
         this.position.copyFrom(position);
         this.size.copyFrom(size);
     }

@@ -32,7 +32,7 @@ export class MathExprLayout extends ContainerUI {
                 x += child.size.x;
             }
         }
-        const width  = Math.max(...this.children.map(x => x.right()));
+        const width  = Math.max(...this.children.map(x => x.getRight()));
 
         this.children.forEach(x => x.updateLayout());
     }

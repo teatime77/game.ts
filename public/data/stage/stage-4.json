@@ -9,16 +9,18 @@
             "name"      : "main-stage",
             "children"  : [
                 {
-                    "className" : "SymbolRef",
-                    "path"  : "system.keyboard.numpad",
-                    "position"  : [ 1100, 50 ]
+                    "className" : "Button",
+                    "name"      : "play",
+                    "right"     : 10,
+                    "top"       : 10,
+                    "text"      : "Play"
                 }
                 ,
                 {
-                    "className" : "Button",
-                    "name"      : "play",
-                    "position"  : [ 1400, 10 ],
-                    "text"      : "Play"
+                    "className" : "SymbolRef",
+                    "path"  : "system.keyboard.numpad",
+                    "right" : 100,
+                    "bottom": 10
                 }
             ]
         }

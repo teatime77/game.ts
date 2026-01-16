@@ -98,6 +98,7 @@ export class SymbolRef {
         if(data.position != undefined){
             ui.setPosition(Vec2.fromXY(data.position[0], data.position[1]));
         }
+        ui.copyFromUIAttr(data);
 
         return ui;
     }

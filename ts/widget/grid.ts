@@ -202,7 +202,7 @@ export class Grid extends ContainerUI {
         const content_size = this.getContentSize();
         const columns_ratio_all = content_size.x - sum(this.columnsPix);
         const rows_ratio_all    = content_size.y - sum(this.rowsPix);
-        assert(0 <= columns_ratio_all && 0 <= rows_ratio_all);
+        assert(0 <= columns_ratio_all && 0 <= rows_ratio_all, `grid:layout: content:${content_size}\n  col:${this.columnsPix.map(x => Math.floor(x))}\n  row:${this.rowsPix.map(x => Math.floor(x))}\n  doc-size:${getDocumentSize()}`);
         const columns_pix = Array.from(this.columns.entries()).map(x => x[1].endsWith("%") ? Grid.ratio(x[1]) * columns_ratio_all : this.columnsPix[x[0]]);
         const rows_pix    = Array.from(this.rows.entries()).map(x => x[1].endsWith("%") ? Grid.ratio(x[1]) * rows_ratio_all : this.rowsPix[x[0]]);
 

@@ -42,6 +42,7 @@ class ConfettiPiece {
 export class ConfettiManager extends UI {
     private pieces: ConfettiPiece[] = [];
     isRunning: boolean = true;
+    startTime = Date.now();
 
     constructor(data : UIAttr) {
         super(data);
@@ -60,6 +61,7 @@ export class ConfettiManager extends UI {
         });
 
         this.isRunning = (this.pieces.length != 0);
+        this.isRunning = Date.now() - this.startTime < 1000;
     }
 }
 
@@ -104,6 +106,7 @@ class Particle {
 export class ParticleManager extends UI {
     private pieces: Particle[] = [];
     isRunning: boolean = true;
+    startTime = Date.now();
 
     constructor(data : UIAttr) {
         super(data);
@@ -124,6 +127,7 @@ export class ParticleManager extends UI {
         });
 
         this.isRunning = (this.pieces.length != 0);
+        this.isRunning = Date.now() - this.startTime < 1000;
     }
 }
 

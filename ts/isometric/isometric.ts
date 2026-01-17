@@ -6,6 +6,7 @@ const TILE_HEIGHT = 32;
 
 let offsetX : number;
 let offsetY : number;
+let worldGraph : Graph;
 
 class Vec3 {
     x: number;
@@ -88,7 +89,11 @@ const mapHeight = 8; // タイルの行数
 
 
 
-export function initIsometric(canvas : Canvas){
+export function initIsometric(canvas : Canvas, map : any){
+    worldGraph = makeGraph(map);
+    worldGraph.setPosition(Vec2.fromXY(200, 300));
+    worldGraph.updateLayout();
+
     renderer = new IsometricRenderer(canvas);
     addImage("grassland.png");
 }
@@ -100,6 +105,8 @@ export function drawIsometric(ctx : CanvasRenderingContext2D){
 
     renderer.drawGrid(ctx, new Vec3(-4, 0, 0), new Vec2(5, 5));
     renderer.drawGrid(ctx, new Vec3(4, 2, 1), new Vec2(3, 3));
+
+    worldGraph.drawTop(ctx);
 }
 
 }

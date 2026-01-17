@@ -3,14 +3,72 @@ declare const dagre: any;
 
 namespace game_ts {
 //
+// 1. ノードの基本定義
+interface GraphNodeAttr {
+    id: string;
+    label: string;
+    // クラスターの場合、このIDが他のノードのparentIdになる
+    isCluster?: boolean;
+    // 親ノードのID。undefinedならルート階層
+    parentId?: string;
+}
+
+class GraphNode {
+    id!: string;
+    label!: string;
+    width?: number;
+    height?: number;
+
+    // クラスターの場合、このIDが他のノードのparentIdになる
+    isCluster: boolean = false;
+    // 親ノードのID。undefinedならルート階層
+    parentId?: string;
+
+    constructor(data : GraphNodeAttr){
+        Object.assign(this, data);
+    }
+}
+
+// 2. エッジの定義
+interface GraphEdgeAttr {
+    source: string;
+    target: string;
+    label?: string;
+}
+
+// 2. エッジの定義
+class GraphEdge {
+    source!: string;
+    target!: string;
+    label?: string;
+
+    constructor(data : GraphEdgeAttr){
+        Object.assign(this, data);
+    }
+}
+
+export function makeGraph(obj : UIAttr) : Graph {
+    const data  = obj as UIAttr & { nodes:GraphNodeAttr[], edges:GraphEdgeAttr[] };
+    const nodes = data.nodes.map(x => new GraphNode(x));
+    const edges = data.edges.map(x => new GraphEdge(x));
+    const graph = new Graph(data, nodes, edges);
+
+    return graph;
+}
+
 export class Graph extends ContainerUI {
+    nodes: GraphNode[];
+    edges: GraphEdge[];
     g : any;
 
-    constructor(data : UIAttr & { children? : any[] }){
+    constructor(data : UIAttr, nodes: GraphNode[], edges: GraphEdge[]){
         super(data);
 
+        this.nodes = nodes;
+        this.edges = edges;
+
         // 1. グラフの初期化と設定
-        this.g = new dagre.graphlib.Graph();
+        this.g = new dagre.graphlib.Graph({ compound: true });
         // グラフ全体のレイアウト方向などを設定
         this.g.setGraph({ rankdir: 'TB', nodesep: 50, ranksep: 50 });
         this.g.setDefaultEdgeLabel(() => ({}));
@@ -19,21 +77,32 @@ export class Graph extends ContainerUI {
     }
 
     initGraph(){
+        for(const node of this.nodes){
+            if(node.isCluster){
 
-        // 2. ノードの追加 (ID, {ラベル, 幅, 高さ})
-        const nodeWidth = 100;
-        const nodeHeight = 40;
+                this.g.setNode(node.id, { label: node.label, clusterLabelPos: 'top' });
+            }
+            else{
+                if(node.width == undefined){
+                    const font = `${Canvas.fontSize} ${Canvas.fontFamily}`;
+                    const size = getTextBoxSize(worldCanvas.ctx, node.label, font);
 
-        this.g.setNode("n1", { label: "Start", width: nodeWidth, height: nodeHeight });
-        this.g.setNode("n2", { label: "Process A", width: nodeWidth, height: nodeHeight });
-        this.g.setNode("n3", { label: "Process B", width: nodeWidth, height: nodeHeight });
-        this.g.setNode("n4", { label: "End", width: nodeWidth, height: nodeHeight });
+                    node.width  = size.width;
+                    node.height = size.height;
+                }
 
-        // 3. エッジ（線）の追加
-        this.g.setEdge("n1", "n2");
-        this.g.setEdge("n1", "n3");
-        this.g.setEdge("n2", "n4");
-        this.g.setEdge("n3", "n4");
+                // this.g.setNode(node.id, { label: node.label, width: node.width, height: node.height });
+                this.g.setNode(node.id, { label: node.label, width: node.width, height: node.height });
+            }
+
+            if(node.parentId != undefined){
+                this.g.setParent(node.id, node.parentId);
+            }
+        }
+
+        for(const edge of this.edges){
+            this.g.setEdge(edge.source, edge.target);
+        }
     }
 
     layout(position : Vec2, size : Vec2) : void {
@@ -86,7 +155,7 @@ export class Graph extends ContainerUI {
             ctx.fillStyle = "#fff";
             ctx.strokeStyle = "#333";
             ctx.lineWidth = 2;
-            ctx.fillRect(x, y, node.width, node.height);
+            // ctx.fillRect(x, y, node.width, node.height);
             ctx.strokeRect(x, y, node.width, node.height);
 
             // テキストの描画

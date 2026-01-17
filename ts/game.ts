@@ -54,8 +54,9 @@ async function asyncBodyOnLoad(){
     // dumpObj(canvas, 0, new Set<any>());
     testEx();
 
+    const map = await fetchJson(`data/map.json?id=${Math.random()}`);
     worldCanvas.isIsometric = true;
-    initIsometric(worldCanvas);
+    initIsometric(worldCanvas, map);
 }
 
 export async function loadWorld(target : string){

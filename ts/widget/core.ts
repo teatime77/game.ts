@@ -503,7 +503,7 @@ export function makeUIFromObj(data : any) : UI {
     case Grid.name    : return new Grid(data  as (UIAttr & { children : any[], columns?: string, rows? : string }));
     case TreeNode.name: return new TreeNode(data as (UIAttr & { icon?: string, label: string, childNodes : any[] }));
     case ScrollView.name: return new ScrollView(data as (UIAttr & { viewChildren : any[], viewSize:[number, number] }));
-    case Graph.name   : return new Graph(data  as (UIAttr & { children : any[] }));
+    case Graph.name    : return makeGraph(attr);
     case PopupMenu.name: return new PopupMenu(data  as (UIAttr & { children : any[] }));
     case SymbolRef.name: return SymbolRef.lookupRegistry(data as (UIAttr & { className : string, path : string }));
     case SingleDigitImage.name : return new SingleDigitImage(data as (UIAttr & { value : number }));

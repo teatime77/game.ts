@@ -2,7 +2,7 @@
 
 namespace game_ts {
 //
-const imageMap = new Map<string, HTMLImageElement>();
+export const imageMap = new Map<string, HTMLImageElement>();
 
 export class ImageUI extends UI {
     imageFile : string;
@@ -52,7 +52,7 @@ export class ImageUI extends UI {
 
 const pendingImageFiles = new Set<string>();
 
-function addImage(image_file : string){
+export function addImage(image_file : string){
     if(pendingImageFiles.has(image_file)){
         return;
     }

@@ -110,6 +110,7 @@ export class Canvas {
 
     private uis: UI[] = [];
 
+    isIsometric : boolean = false;
     targetUI? : UI;
 
     pointerId : number = NaN;
@@ -367,8 +368,18 @@ export class Canvas {
     }
 
     repaint(){
-        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);        
-        this.getUIMenus().forEach(ui => ui.drawTop(this.ctx));
+        if(this.isIsometric){
+            this.ctx.save();
+            this.ctx.fillStyle = "darkslategray"; // "DarkBlue"; DarkSlateBlue Teal  // "";    // "DeepSkyBlue"; //skyblue
+            this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);        
+            this.ctx.restore();
+
+            drawIsometric(this.ctx);
+        }
+        else{
+            this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);        
+            this.getUIMenus().forEach(ui => ui.drawTop(this.ctx));
+        }
     }
 
     drawLine(start : Vec2, end : Vec2, color : string, lineWidth : number = 2){
@@ -380,6 +391,28 @@ export class Canvas {
         this.ctx.lineTo(end.x, end.y);
 
         this.ctx.stroke();
+    }
+
+    drawPolygon(points : Vec2[], color : string, lineWidth : number = 2){
+        this.ctx.save();
+
+        this.ctx.strokeStyle = color;
+        this.ctx.lineWidth   = lineWidth;
+
+        this.ctx.beginPath();
+
+        for(const [idx, pt] of points.entries()){
+            if(idx == 0){
+                this.ctx.moveTo(pt.x, pt.y);
+            }
+            else{
+                this.ctx.lineTo(pt.x, pt.y);
+            }
+        }
+
+        this.ctx.closePath();
+        this.ctx.stroke();
+        this.ctx.restore();
     }
 }
 

@@ -53,6 +53,9 @@ async function asyncBodyOnLoad(){
     await loadWorld(worldData.target);
     // dumpObj(canvas, 0, new Set<any>());
     testEx();
+
+    worldCanvas.isIsometric = true;
+    initIsometric(worldCanvas);
 }
 
 export async function loadWorld(target : string){

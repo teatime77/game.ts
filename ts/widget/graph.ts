@@ -3,19 +3,17 @@ declare const dagre: any;
 
 namespace game_ts {
 //
+const nodeMap = new Map<string, GraphNode>();
+
 // 1. ノードの基本定義
-interface GraphNodeAttr {
-    id: string;
-    label: string;
+interface GraphNodeAttr extends TextUIAttr {
     // クラスターの場合、このIDが他のノードのparentIdになる
     isCluster?: boolean;
     // 親ノードのID。undefinedならルート階層
     parentId?: string;
 }
 
-class GraphNode {
-    id!: string;
-    label!: string;
+class GraphNode extends Label {
     width?: number;
     height?: number;
 
@@ -25,7 +23,32 @@ class GraphNode {
     parentId?: string;
 
     constructor(data : GraphNodeAttr){
+        super(data);
         Object.assign(this, data);
+
+        nodeMap.set(this.id!, this);
+    }
+
+
+    draw(ctx : CanvasRenderingContext2D, offset : Vec2, visibleArea : VisibleArea | undefined) : void {
+        if(! this.isVisible(offset, visibleArea)){
+            return;
+        }
+
+        const leftTop = offset.add(this.position);
+
+        // ボックスの描画
+        ctx.fillStyle = "#fff";
+        ctx.strokeStyle = "white"; // "#333";
+        ctx.lineWidth = 2;
+        // ctx.fillRect(x, y, node.width, node.height);
+        ctx.strokeRect(leftTop.x, leftTop.y, this.size.x, this.size.y);
+
+        // テキストの描画
+        ctx.fillStyle = "white"; // "#333";
+        const x2 = leftTop.x + this.size.x / 2;
+        const y2 = leftTop.y + this.size.y / 2;
+        ctx.fillText(this.text, x2, y2);
     }
 }
 
@@ -44,6 +67,10 @@ class GraphEdge {
 
     constructor(data : GraphEdgeAttr){
         Object.assign(this, data);
+    }
+
+    draw(ctx : CanvasRenderingContext2D, offset : Vec2, visibleArea : VisibleArea | undefined) : void {
+
     }
 }
 
@@ -67,6 +94,8 @@ export class Graph extends ContainerUI {
         this.nodes = nodes;
         this.edges = edges;
 
+        this.addChildren(...nodes);
+
         // 1. グラフの初期化と設定
         this.g = new dagre.graphlib.Graph({ compound: true });
         // グラフ全体のレイアウト方向などを設定
@@ -80,19 +109,19 @@ export class Graph extends ContainerUI {
         for(const node of this.nodes){
             if(node.isCluster){
 
-                this.g.setNode(node.id, { label: node.label, clusterLabelPos: 'top' });
+                this.g.setNode(node.id, { label: node.text, clusterLabelPos: 'top' });
             }
             else{
                 if(node.width == undefined){
                     const font = `${Canvas.fontSize} ${Canvas.fontFamily}`;
-                    const size = getTextBoxSize(worldCanvas.ctx, node.label, font);
+                    const size = getTextBoxSize(worldCanvas.ctx, node.text, font);
 
                     node.width  = size.width;
                     node.height = size.height;
                 }
 
                 // this.g.setNode(node.id, { label: node.label, width: node.width, height: node.height });
-                this.g.setNode(node.id, { label: node.label, width: node.width, height: node.height });
+                this.g.setNode(node.id, { label: node.text, width: node.width, height: node.height });
             }
 
             if(node.parentId != undefined){
@@ -113,12 +142,17 @@ export class Graph extends ContainerUI {
     }
 
     draw(ctx : CanvasRenderingContext2D, offset : Vec2, visibleArea : VisibleArea | undefined) : void {
+        const content_position = this.getContentPosition();
+        const offset2 = offset.add(this.position).add(content_position);
+
         ctx.save();
 
         ctx.font = "14px Arial";
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
 
+        ctx.save();
+        ctx.translate(offset2.x, offset2.y);
         // エッジの描画
         this.g.edges().forEach((e:any) => {
             const edge = this.g.edge(e);
@@ -145,12 +179,15 @@ export class Graph extends ContainerUI {
             ctx.fill();
         });
 
+        ctx.restore();
+
         // ノードの描画
         this.g.nodes().forEach((v:any) => {
             const node = this.g.node(v);
             const x = node.x - node.width / 2;
             const y = node.y - node.height / 2;
 
+/*
             // ボックスの描画
             ctx.fillStyle = "#fff";
             ctx.strokeStyle = "#333";
@@ -161,7 +198,22 @@ export class Graph extends ContainerUI {
             // テキストの描画
             ctx.fillStyle = "#333";
             ctx.fillText(node.label as string, node.x, node.y);
+*/
+
+            const nd = nodeMap.get(v);
+            if(nd == undefined){
+                throw new MyError();
+            }
+            nd.setPosition(Vec2.fromXY(x, y));
+            nd.size.setXY(node.width, node.height);
+            // msg(`nd:${v} ${nd?.text}`);
         });
+
+        const maxX = Math.max(...this.nodes.map(nd => nd.getRight()));
+        const maxY = Math.max(...this.nodes.map(nd => nd.getBottom()));
+        this.size.setXY(maxX, maxY);
+
+        this.nodes.forEach(x => x.draw(ctx, offset2, undefined))
 
         ctx.restore();
     }

@@ -56,7 +56,7 @@ class IsometricRenderer {
             const x = screen.x + offsetX;
             const y = screen.y + offsetY;
             ctx.drawImage(image, x, y, TILE_WIDTH, TILE_HEIGHT);
-            msg(`${x.toFixed()} ${y.toFixed()}`);
+            // msg(`${x.toFixed()} ${y.toFixed()}`);
         }
     }
 
@@ -93,6 +93,7 @@ export function initIsometric(canvas : Canvas, map : any){
     worldGraph = makeGraph(map);
     worldGraph.setPosition(Vec2.fromXY(200, 300));
     worldGraph.updateLayout();
+    canvas.addUI(worldGraph);
 
     renderer = new IsometricRenderer(canvas);
     addImage("grassland.png");

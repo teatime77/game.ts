@@ -289,7 +289,7 @@ export class Canvas {
 
                 const name = target.name;
 
-                msg(`click:${target.idx} ${target.constructor.name} ${name == undefined ? "" : name} ${target.parent} pos:${target.position} size:${target.size}`);
+                msg(`click:${target.idx} ${target.constructor.name} ${name == undefined ? "" : name} ${target.parent} pos:${target.position} size:${target.size} ${target}`);
 
 
                 await target.click();

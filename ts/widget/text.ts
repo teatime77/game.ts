@@ -107,6 +107,10 @@ export abstract class TextUI extends UI {
         ctx.fillStyle = textColor;
         ctx.fillText(this.text, x, y);
     }
+
+    toString() : string {
+        return `${this.constructor.name} : ${this.text}`;
+    }
 }
 
 export class Label extends TextUI {

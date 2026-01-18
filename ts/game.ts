@@ -58,8 +58,6 @@ async function asyncBodyOnLoad(){
     const map = await fetchJson(`data/map.json?id=${Math.random()}`);
     initIsometric(worldCanvas, map);
     Canvas.isReady = true;
-
-    testPathGenerator();
 }
 
 export async function loadWorld(target : string){

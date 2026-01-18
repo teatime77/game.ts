@@ -46,9 +46,10 @@ class IsometricRenderer {
         else{
             const screen = project(pos);
             
-            const x = screen.x + offsetX;
-            const y = screen.y + offsetY;
+            const x = screen.x + offsetX - TILE_WIDTH / 2;
+            const y = screen.y + offsetY - TILE_HEIGHT;
             ctx.drawImage(image, x, y, TILE_WIDTH, TILE_HEIGHT);
+            ctx.strokeRect(x, y, TILE_WIDTH, TILE_HEIGHT);
             // msg(`${x.toFixed()} ${y.toFixed()}`);
         }
     }
@@ -58,7 +59,7 @@ class IsometricRenderer {
         for (let x = 0; x < size.x; x++) {
             for (let y = 0; y < size.y; y++) {
                 // 前回の project 関数を使って座標を計算
-                const pos2 = new Vec3(pos.x + x - 0.5, pos.y + y + 0.5, pos.z );
+                const pos2 = new Vec3(pos.x + x, pos.y + y, pos.z );
                 this.drawImage(ctx, "grassland.png", pos2);
             }
         }
@@ -99,8 +100,8 @@ export function initIsometric(canvas : Canvas, map : any){
 
 export function drawIsometric(ctx : CanvasRenderingContext2D){
     // 画面中央にオフセットを乗せる
-    offsetX = worldCanvas.canvas.width  / 2; 
-    offsetY = worldCanvas.canvas.height / 10; 
+    offsetX = worldCanvas.canvas.width  * 0.5; 
+    offsetY = worldCanvas.canvas.height * 0.9; 
 
     renderer.drawGrid(ctx, new Vec3(0, 0, 0), new Vec2(GX, GY));
     // renderer.drawGrid(ctx, new Vec3(4, 2, 1), new Vec2(3, 3));
@@ -111,10 +112,9 @@ export function drawIsometric(ctx : CanvasRenderingContext2D){
 
 // 3D座標から2D座標への変換
 export function project(pos: Vec3) : Vec2 {
-    const screenX = (pos.x - pos.y) * (TILE_WIDTH / 2);
-    const screenY = (pos.x + pos.y) * (TILE_HEIGHT / 2) - pos.z;
+    const screenX =  (pos.x - pos.y) * (TILE_WIDTH / 2);
+    const screenY = -(pos.x + pos.y) * (TILE_HEIGHT / 2) + pos.z;
     return Vec2.fromXY(screenX, screenY);
 }
-
 
 }

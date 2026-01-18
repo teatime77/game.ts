@@ -37,30 +37,13 @@ class IsometricRenderer {
         this.canvas = canvas;
     }
 
-    drawImage(ctx : CanvasRenderingContext2D, imageFile : string, pos: Vec3){
-        const image = imageMap.get(imageFile);
-        if(image == undefined){
-            // msg(`no img:${this.imageFile}`);
-            Canvas.requestUpdateCanvas();
-        } 
-        else{
-            const screen = project(pos);
-            
-            const x = screen.x + offsetX - TILE_WIDTH / 2;
-            const y = screen.y + offsetY - TILE_HEIGHT;
-            ctx.drawImage(image, x, y, TILE_WIDTH, TILE_HEIGHT);
-            ctx.strokeRect(x, y, TILE_WIDTH, TILE_HEIGHT);
-            // msg(`${x.toFixed()} ${y.toFixed()}`);
-        }
-    }
-
     drawGrid(ctx : CanvasRenderingContext2D, pos : Vec3, size : Vec2) {
         // 描画順序が重要：奥（x+yが小さい方）から手前へ
-        for (let x = 0; x < size.x; x++) {
-            for (let y = 0; y < size.y; y++) {
+        for (let x = 0; x < size.x + 1; x++) {
+            for (let y = 0; y < size.y + 1; y++) {
                 // 前回の project 関数を使って座標を計算
                 const pos2 = new Vec3(pos.x + x, pos.y + y, pos.z );
-                this.drawImage(ctx, "grassland.png", pos2);
+                drawQImage(ctx, "grassland.png", project(pos2), TILE_WIDTH, TILE_HEIGHT);
             }
         }
 
@@ -71,15 +54,30 @@ class IsometricRenderer {
             new Vec3(pos.x         , pos.y + size.y, pos.z)
         ];
 
-        const pt2 = pt1s.map(p => project(p).add(new Vec2(offsetX, offsetY)));
+        const offset = new Vec2(offsetX, offsetY);
+        const pt2 = pt1s.map(p => project(p).add(offset));
         worldCanvas.drawPolygon(pt2, "brown", 5);
+
+        for(const [idx, pt] of pt1s.entries()){
+
+            const imgFile = `house-${idx+1}.png`;
+            addImage(imgFile);
+            drawQImage(ctx, imgFile, project(pt), 128, 128);
+        }
+
+        for(const idx of range(10)){
+            const t = idx / 10;
+            const p = getPositionInPath(t);
+            const imgFile = `house-${idx+1}.png`;
+            addImage(imgFile);
+            const pos = project(new Vec3(p.x, p.y, 0));
+            msg(`img pt:${pos}`);
+            drawQImage(ctx, imgFile, pos, 128, 128);
+        }
     }
 
 
 }
-
-const mapWidth = 8;  // タイルの列数
-const mapHeight = 8; // タイルの行数
 
 export function clearIsometric(){
     worldCanvas.isIsometric = false;
@@ -108,6 +106,8 @@ export function drawIsometric(ctx : CanvasRenderingContext2D){
 
     // worldGraph.drawTop(ctx);
     drawPath(ctx, Vec2.fromXY(offsetX, offsetY));
+
+
 }
 
 // 3D座標から2D座標への変換
@@ -116,5 +116,22 @@ export function project(pos: Vec3) : Vec2 {
     const screenY = -(pos.x + pos.y) * (TILE_HEIGHT / 2) + pos.z;
     return Vec2.fromXY(screenX, screenY);
 }
+
+function drawQImage(ctx : CanvasRenderingContext2D, imageFile : string, screen: Vec2, width : number, height : number){
+        const image = imageMap.get(imageFile);
+        if(image == undefined){
+            // msg(`no img:${this.imageFile}`);
+            Canvas.requestUpdateCanvas();
+        } 
+        else{
+            
+            const x = screen.x + offsetX - width / 2;
+            const y = screen.y + offsetY - height / 2;
+            ctx.drawImage(image, x, y, width, height);
+            ctx.strokeRect(x, y, width, height);
+            // msg(`${x.toFixed()} ${y.toFixed()}`);
+        }
+    }
+
 
 }

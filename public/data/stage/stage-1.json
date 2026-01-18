@@ -97,11 +97,6 @@
                     "path"  : "system.keyboard.numpad",
                     "position"  : [ 900, 50 ]
                 }
-                ,
-                {
-                    "className" : "Graph",
-                    "position"  : [ 100, 400 ]
-                }
             ]
         }
     ]

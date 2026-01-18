@@ -5,8 +5,6 @@ type Point = { x: number; y: number };
 export const GX = 25;
 export const GY = 25;
 
-
-
 let roadMap : Point[] = [];
 
 export function drawPath(ctx : CanvasRenderingContext2D, offset:Vec2){
@@ -32,43 +30,16 @@ export function drawPath(ctx : CanvasRenderingContext2D, offset:Vec2){
     }
 }
 
+export function getPositionInPath(t : number) : Vec2 {
+    return calcPathPosition(GY, 12, 2, t);
+}
+
 
 function calcPathPosition(height: number, amplitude : number, cycle : number, t : number) : Vec2 {
     const baseDir = t * height;
     const offset = Math.sin(t * (2 * Math.PI * cycle)) * amplitude;
 
     return new Vec2(baseDir + offset,baseDir - offset);
-}
-
-function generateVerticalPath(height: number, cycle : number) {
-    const amplitude = 8;   // 蛇行の幅
-    const path = [];
-    const div = 2;
-    const steps = height * div;
-    // const frequency = 0.4; // 蛇行の周期
-    const frequency = (2 * Math.PI * cycle) / steps;
-
-    // 2PI * cycle = steps * frequency
-    for (let i = 0; i <= steps; i++) {
-        const t = i / steps;
-        // i = t * steps
-        // baseDir = (t * steps) / div = (t * height * div) / div = t * height
-        // i * frequency = (t * steps) * ((2 * Math.PI * cycle) / steps) = t * (2 * Math.PI * cycle)
-
-        // ベースとなる論理座標は x = i, y = i
-        // これにより、画面上では常に真上に進む軸ができる
-        const baseDir = i / div;
-
-        // sin波によるオフセット（xを増やすならyを減らす、またはその逆）
-        // x - y の結果を揺らすことで、スクリーン上のX座標を揺らす
-        const offset = Math.sin(i * frequency) * amplitude;
-
-        path.push({
-            x: baseDir + offset,
-            y: baseDir - offset
-        });
-    }
-    return path;
 }
 
 

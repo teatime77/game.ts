@@ -99,7 +99,7 @@ export class Graph extends ContainerUI {
         // 1. グラフの初期化と設定
         this.g = new dagre.graphlib.Graph({ compound: true });
         // グラフ全体のレイアウト方向などを設定
-        this.g.setGraph({ rankdir: 'TB', nodesep: 50, ranksep: 50 });
+        this.g.setGraph({ rankdir: 'BT', nodesep: 50, ranksep: 50 });
         this.g.setDefaultEdgeLabel(() => ({}));
 
         this.initGraph();

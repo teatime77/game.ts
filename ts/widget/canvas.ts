@@ -172,6 +172,10 @@ export class Canvas {
         this.uis.push(ui);
     }
 
+    removeUI(ui : UI){
+        remove(this.uis, ui);
+    }
+
     getPositionInCanvas(event : PointerEvent) : Vec2 {
         // Get the bounding rectangle of the canvas
         const rect = this.canvas.getBoundingClientRect();
@@ -382,6 +386,21 @@ export class Canvas {
         }
     }
 
+    drawCircle(pos : Vec2, radius : number, color : string){
+        // パスの開始
+        this.ctx.beginPath();
+
+        // 円の定義: arc(x, y, radius, startAngle, endAngle)
+        // Math.PI * 2 は 360度（一周）を意味します
+        this.ctx.arc(pos.x, pos.y, radius, 0, Math.PI * 2);
+
+        // 線の色と塗りつぶしの色の設定
+        this.ctx.fillStyle = color;
+        this.ctx.fill(); // 塗りつぶし
+        // this.ctx.strokeStyle = "blue";
+        // this.ctx.stroke(); // 輪郭線
+    }
+
     drawLine(start : Vec2, end : Vec2, color : string, lineWidth : number = 2){
         this.ctx.strokeStyle = color;
         this.ctx.lineWidth   = lineWidth;
@@ -393,7 +412,7 @@ export class Canvas {
         this.ctx.stroke();
     }
 
-    drawPolygon(points : Vec2[], color : string, lineWidth : number = 2){
+    drawPolyLines(points : Vec2[], color : string, lineWidth : number = 2, closePath : boolean = false){
         this.ctx.save();
 
         this.ctx.strokeStyle = color;
@@ -410,9 +429,16 @@ export class Canvas {
             }
         }
 
-        this.ctx.closePath();
+        if(closePath){
+            this.ctx.closePath();
+        }
+
         this.ctx.stroke();
         this.ctx.restore();
+    }
+
+    drawPolygon(points : Vec2[], color : string, lineWidth : number = 2){
+        this.drawPolyLines(points, color, lineWidth, true);
     }
 }
 

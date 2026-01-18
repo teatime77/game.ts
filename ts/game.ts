@@ -50,16 +50,21 @@ async function asyncBodyOnLoad(){
     if(worldData.target == undefined){
         throw new MyError();
     }
-    await loadWorld(worldData.target);
+
+    // await loadWorld(worldData.target);
     // dumpObj(canvas, 0, new Set<any>());
     testEx();
 
     const map = await fetchJson(`data/map.json?id=${Math.random()}`);
-    worldCanvas.isIsometric = true;
     initIsometric(worldCanvas, map);
+    Canvas.isReady = true;
+
+    testPathGenerator();
 }
 
 export async function loadWorld(target : string){
+    clearIsometric();
+
     const canvas : Canvas   = worldCanvas;
     const data   : JsonData = worldData;
 

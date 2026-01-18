@@ -342,7 +342,7 @@ export abstract class UI implements Movable {
         if(this.name == "play"){
             Sequencer.start();
         }
-        else if(this instanceof Link && this.path != undefined){
+        else if(this instanceof TextUI && this.path != undefined){
             
             await loadWorld(this.path);
         }

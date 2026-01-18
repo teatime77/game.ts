@@ -8,7 +8,7 @@ let offsetX : number;
 let offsetY : number;
 let worldGraph : Graph;
 
-class Vec3 {
+export class Vec3 {
     x: number;
     y: number;
     z: number;
@@ -37,13 +37,6 @@ class IsometricRenderer {
         this.canvas = canvas;
     }
 
-    // 3D座標から2D座標への変換
-    project(pos: Vec3) : Vec2 {
-        const screenX = (pos.x - pos.y) * (TILE_WIDTH / 2);
-        const screenY = (pos.x + pos.y) * (TILE_HEIGHT / 2) - pos.z;
-        return Vec2.fromXY(screenX, screenY);
-    }
-
     drawImage(ctx : CanvasRenderingContext2D, imageFile : string, pos: Vec3){
         const image = imageMap.get(imageFile);
         if(image == undefined){
@@ -51,7 +44,7 @@ class IsometricRenderer {
             Canvas.requestUpdateCanvas();
         } 
         else{
-            const screen = this.project(pos);
+            const screen = project(pos);
             
             const x = screen.x + offsetX;
             const y = screen.y + offsetY;
@@ -77,7 +70,7 @@ class IsometricRenderer {
             new Vec3(pos.x         , pos.y + size.y, pos.z)
         ];
 
-        const pt2 = pt1s.map(p => this.project(p).add(new Vec2(offsetX, offsetY)));
+        const pt2 = pt1s.map(p => project(p).add(new Vec2(offsetX, offsetY)));
         worldCanvas.drawPolygon(pt2, "brown", 5);
     }
 
@@ -87,11 +80,16 @@ class IsometricRenderer {
 const mapWidth = 8;  // タイルの列数
 const mapHeight = 8; // タイルの行数
 
-
+export function clearIsometric(){
+    worldCanvas.isIsometric = false;
+    worldCanvas.removeUI(worldGraph);
+}
 
 export function initIsometric(canvas : Canvas, map : any){
+    worldCanvas.isIsometric = true;
+
     worldGraph = makeGraph(map);
-    worldGraph.setPosition(Vec2.fromXY(200, 300));
+    worldGraph.setPosition(Vec2.fromXY(canvas.canvas.width / 2, 50));
     worldGraph.updateLayout();
     canvas.addUI(worldGraph);
 
@@ -102,12 +100,21 @@ export function initIsometric(canvas : Canvas, map : any){
 export function drawIsometric(ctx : CanvasRenderingContext2D){
     // 画面中央にオフセットを乗せる
     offsetX = worldCanvas.canvas.width  / 2; 
-    offsetY = worldCanvas.canvas.height / 4; 
+    offsetY = worldCanvas.canvas.height / 10; 
 
-    renderer.drawGrid(ctx, new Vec3(-4, 0, 0), new Vec2(5, 5));
-    renderer.drawGrid(ctx, new Vec3(4, 2, 1), new Vec2(3, 3));
+    renderer.drawGrid(ctx, new Vec3(0, 0, 0), new Vec2(GX, GY));
+    // renderer.drawGrid(ctx, new Vec3(4, 2, 1), new Vec2(3, 3));
 
-    worldGraph.drawTop(ctx);
+    // worldGraph.drawTop(ctx);
+    drawPath(ctx, Vec2.fromXY(offsetX, offsetY));
 }
+
+// 3D座標から2D座標への変換
+export function project(pos: Vec3) : Vec2 {
+    const screenX = (pos.x - pos.y) * (TILE_WIDTH / 2);
+    const screenY = (pos.x + pos.y) * (TILE_HEIGHT / 2) - pos.z;
+    return Vec2.fromXY(screenX, screenY);
+}
+
 
 }

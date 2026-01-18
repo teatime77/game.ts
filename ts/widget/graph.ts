@@ -13,7 +13,7 @@ interface GraphNodeAttr extends TextUIAttr {
     parentId?: string;
 }
 
-class GraphNode extends Label {
+export class GraphNode extends Label {
     width?: number;
     height?: number;
 

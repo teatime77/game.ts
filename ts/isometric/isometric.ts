@@ -3,14 +3,20 @@ namespace game_ts {
 // タイルの設定
 const TILE_WIDTH = 64;
 const TILE_HEIGHT = 32;
+const numHouseImages = 10;
 const houseSize = 128;
+const pageSize = 5;
+
 
 let offsetX : number;
 let offsetY : number;
 let offset  : Vec2;
 let worldGraph : Graph;
 
+let currentPage : number;
 let houseImages : ImageUI[] = [];
+let allLessons : GraphNode[];
+let lessonLabels : Label[] = [];
 
 export class Vec3 {
     x: number;
@@ -63,24 +69,47 @@ export function clearIsometric(){
 
 export function initIsometric(canvas : Canvas, map : any){
     worldCanvas.isIsometric = true;
+    currentPage = 0;
 
     worldGraph = makeGraph(map);
     worldGraph.setPosition(Vec2.fromXY(canvas.canvas.width / 2, 50));
     worldGraph.updateLayout();
     canvas.addUI(worldGraph);
 
+    allLessons = worldGraph.nodes.filter(x => !x.isCluster);
+
     addImage("grassland.png");
 
-    for(const i of range(10)){
+    for(const idx of range(numHouseImages)){
         const img = new ImageUI({ 
-            imageFile:`house-${i+1}.png`,
+            imageFile:`house-${idx+1}.png`,
             size : [houseSize, houseSize],
             borderWidth : 0,
             padding : 0
         });
         img.setMinSize();
-        canvas.addUI(img);
         houseImages.push(img);
+
+        if(idx < pageSize){
+            canvas.addUI(img);
+        }
+    }
+
+    loadStageMapPage(currentPage);
+}
+
+function loadStageMapPage(pageIdx : number){
+    const lessons = allLessons.slice(pageIdx, pageIdx + pageSize);
+    for(const [idx, lesson] of lessons.entries()){
+        const label = new Label({
+            text : lesson.text,
+            path : lesson.path
+        });
+
+        lessonLabels.push(label);
+        worldCanvas.addUI(label);
+
+        label.setMinSize();
     }
 }
 
@@ -99,12 +128,21 @@ export function drawIsometric(ctx : CanvasRenderingContext2D){
 }
 
 function drawHouses(ctx : CanvasRenderingContext2D){
-    for(const [idx, img] of houseImages.entries()){
-        const t = idx / 10;
+    for(const idx of range(pageSize)){
+        const t = (idx + 1) / (pageSize + 1);
         const p = getPositionInPath(t);
         const pos = project(new Vec3(p.x, p.y, 0)).add(offset);
         
+        const img = houseImages[idx];
         img.setCenterPosition(pos);
+
+        if(idx < lessonLabels.length){
+            const label = lessonLabels[idx];
+            const x = img.getRight() + 5;
+            const y = img.position.y;
+
+            label.setPosition(Vec2.fromXY(x, y));
+        }
     }
 }
 

@@ -382,8 +382,9 @@ export class Canvas {
         }
         else{
             this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);        
-            this.getUIMenus().forEach(ui => ui.drawTop(this.ctx));
         }
+
+        this.getUIMenus().forEach(ui => ui.drawTop(this.ctx));
     }
 
     drawCircle(pos : Vec2, radius : number, color : string){

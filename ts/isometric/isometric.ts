@@ -44,12 +44,32 @@ export class Vec3 {
 
 function drawGrid(ctx : CanvasRenderingContext2D, pos : Vec3, size : Vec2) : Vec2[] {
     // 描画順序が重要：奥（x+yが小さい方）から手前へ
+    /*
     for (let x = 0; x < size.x + 1; x++) {
         for (let y = 0; y < size.y + 1; y++) {
             // 前回の project 関数を使って座標を計算
             const pos2 = project(new Vec3(pos.x + x, pos.y + y, pos.z )).add(offset);
             drawQImage(ctx, "grassland.png", pos2, TILE_WIDTH, TILE_HEIGHT);
         }
+    }
+    */
+    const can = worldCanvas.canvas;
+    const cx  = Math.floor((can.width  * 0.8) / TILE_WIDTH);
+    const cy  = Math.floor((can.height * 0.8) / TILE_HEIGHT);
+
+    let base_y = -cy;
+    for(const _iy of range(cy)){
+        for(let base_x = 0; base_x < 2; base_x++){
+            let y = base_y;
+            let x = base_y + base_x + 1;
+            for(const _ix of range(cx)){
+                const pos2 = project(new Vec3(x, y, pos.z ));
+                drawQImage(ctx, "grassland.png", pos2, TILE_WIDTH, TILE_HEIGHT);
+                x++;
+                y--;
+            }
+        }
+        base_y++;
     }
 
     const pt1s : Vec3[] = [
@@ -60,7 +80,7 @@ function drawGrid(ctx : CanvasRenderingContext2D, pos : Vec3, size : Vec2) : Vec
     ];
 
     const pt2 = pt1s.map(p => project(p).add(offset));
-    worldCanvas.drawPolygon(pt2, "brown", 5);
+    worldCanvas.drawPolygon(pt2, "orange", 1);
 
     return pt2;
 }
@@ -75,7 +95,8 @@ export function initIsometric(canvas : Canvas, map : any){
     currentPage = 0;
 
     TILE_WIDTH  = (canvas.canvas.width  * 0.9) / GX;
-    TILE_HEIGHT = (canvas.canvas.height * 0.9) / GY;
+    // TILE_HEIGHT = (canvas.canvas.height * 0.9) / GY;
+    TILE_HEIGHT = TILE_WIDTH / 2;
 
     worldGraph = makeGraph(map);
     worldGraph.setPosition(Vec2.fromXY(canvas.canvas.width / 2, 50));
@@ -182,8 +203,8 @@ function drawHouses(ctx : CanvasRenderingContext2D){
                 
         img.setCenterPosition(pos);
 
-        const x = img.getRight() + 5;
-        const y = img.position.y;
+        const x = Math.min(worldCanvas.canvas.width - 5 - label.size.x, Math.max(5, pos.x - label.size.x / 2));
+        const y = img.getBottom();
         label.setPosition(Vec2.fromXY(x, y));
     }
 }
@@ -204,6 +225,11 @@ export function project(pos: Vec3) : Vec2 {
     const screenY = -(pos.x + pos.y) * (TILE_HEIGHT / 2) + pos.z;
     return Vec2.fromXY(screenX, screenY);
 }
+/*
+screenX + screenY = - pos.y(TILE_WIDTH + TILE_HEIGHT) / 2
+
+*/
+
 
 function drawQImage(ctx : CanvasRenderingContext2D, imageFile : string, screen: Vec2, width : number, height : number){
     const image = imageMap.get(imageFile);
@@ -215,7 +241,7 @@ function drawQImage(ctx : CanvasRenderingContext2D, imageFile : string, screen: 
         const x = screen.x - width / 2;
         const y = screen.y - height / 2;
         ctx.drawImage(image, x, y, width, height);
-        ctx.strokeRect(x, y, width, height);
+        // ctx.strokeRect(x, y, width, height);
     }
 }
 

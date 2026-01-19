@@ -1,0 +1,152 @@
+{
+    "nodes"     : [
+        {
+            "id"    : "group-1",
+            "isCluster" : true
+        }
+        ,
+        {
+            "id"    : "node-1",
+            "text" : "10までの数を数える。",
+            "parentId" : "group-1"
+        }
+        ,
+        {
+            "id"    : "node-2",
+            "text" : "数を別々に数える。",
+            "parentId" : "group-1"
+        }
+        ,
+        {
+            "id"    : "group-2",
+            "isCluster" : true
+        }
+        ,
+        {
+            "id"       : "node-3",
+            "text"     : "10までのたし算",
+            "parentId" : "group-2"
+        }
+        ,
+        {
+            "id"    : "node-4",
+            "text" : "10までの引き算",
+            "parentId" : "group-2"
+        }
+        ,
+        {
+            "id"    : "group-3",
+            "isCluster" : true
+        }
+        ,
+        {
+            "id"    : "node-5",
+            "text" : "足して１０になる数",
+            "parentId" : "group-3"
+        }
+        ,
+        {
+            "id"    : "node-6",
+            "text" : "10からの引き算",
+            "parentId" : "group-3"
+        }
+        ,
+        {
+            "id"    : "node-7",
+            "text" : "10より大きい数"
+        }
+        ,
+        {
+            "id"    : "node-8",
+            "text" : "足して10以上になる数"
+        }
+        ,
+        {
+            "id"    : "node-9",
+            "text" : "10以上の数の引き算"
+        }
+        ,
+        {
+            "id"    : "node-10",
+            "text" : "２桁の数と１桁の数の足し算"
+        }
+        ,
+        {
+            "id"    : "node-11",
+            "text" : "２桁の数と１桁の数の引き算"
+        }
+        ,
+        {
+            "id"    : "test-1",
+            "text" : "テスト１",
+            "path"      : "stage.stage-1"
+        }
+        ,
+        {
+            "id"    : "test-2",
+            "text"  : "テスト２",
+            "path"  : "stage.stage-2"
+        }
+        ,
+        {
+            "id"    : "test-3",
+            "text"  : "テスト３",
+            "path"  : "stage.stage-3"
+        }
+        ,
+        {
+            "id"    : "test-4",
+            "text"  : "テスト４",
+            "path"  : "stage.stage-4"
+        }
+    ],
+    "edges"     : [
+        {
+            "source": "node-1",
+            "target": "node-2",
+            "label" : "node 1=>2"
+        }
+        ,
+        {
+            "source": "node-1",
+            "target": "node-3",
+            "label" : "node 1=>3"
+        }
+        ,
+        {
+            "source": "node-2",
+            "target": "node-4",
+            "label" : "node 2=>outside"
+        }
+        ,
+        {
+            "source": "node-4",
+            "target": "node-5"
+        }
+        ,
+        {
+            "source": "node-6",
+            "target": "node-7"
+        }
+        ,
+        {
+            "source": "node-7",
+            "target": "node-8"
+        }
+        ,
+        {
+            "source": "node-8",
+            "target": "node-9"
+        }
+        ,
+        {
+            "source": "node-9",
+            "target": "node-10"
+        }
+        ,
+        {
+            "source": "node-10",
+            "target": "node-11"
+        }
+    ]
+}

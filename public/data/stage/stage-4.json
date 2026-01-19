@@ -10,9 +10,17 @@
             "children"  : [
                 {
                     "className" : "Button",
-                    "name"      : "play",
+                    "name"      : "back",
                     "right"     : 10,
                     "top"       : 10,
+                    "text"      : "Back"
+                }
+                ,
+                {
+                    "className" : "Button",
+                    "name"      : "play",
+                    "right"     : 10,
+                    "top"       : 100,
                     "text"      : "Play"
                 }
                 ,

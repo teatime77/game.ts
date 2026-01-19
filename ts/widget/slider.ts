@@ -7,7 +7,7 @@ export interface Draggable {
     pointerup(canvas : Canvas) : void;
 }
 
-class Thumb extends UI implements Draggable {
+export class Thumb extends UI implements Draggable {
     static radius = 10;
     slider : Slider;
     value  : number = 0;

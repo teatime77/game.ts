@@ -235,11 +235,12 @@ export class Canvas {
     }
 
     pointermove(ev:PointerEvent){
-        this.moved = true;
 
-        if(this.targetUI == undefined){
+        if(this.targetUI == undefined || !(this.targetUI instanceof Thumb)){
             return;
         }
+
+        this.moved = true;
 
         const pos = this.getPositionInCanvas(ev);
         const target = this.getUIFromPosition(pos);

@@ -2,6 +2,7 @@ namespace game_ts {
 //
 let urlOrigin : string;
 const objMap : Map<string, UI> = new Map<string, UI>();
+export let isDev : boolean = false;
 export let worldCanvas : Canvas;
 let worldData : JsonData;
 
@@ -39,13 +40,22 @@ async function asyncBodyOnLoad(){
 
     for (const [key, value] of params.entries()) {
         msg(`Key: ${key}, Value: ${value}`);
+        if(key == "dev" && value == "true"){
+            isDev = true;
+            msg("dev mode");
+        }
     }
 
     initSpeech();
 
     worldCanvas = new Canvas($("world") as HTMLCanvasElement);
 
-    worldData   = await fetchJson(`data/dev.json?id=${Math.random()}`);
+    if(isDev){
+        worldData   = await fetchJson(`data/dev.json?id=${Math.random()}`);
+    }
+    else{
+        worldData   = await fetchJson(`data/prod.json?id=${Math.random()}`);
+    }
 
     if(worldData.target == undefined){
         throw new MyError();
@@ -90,8 +100,10 @@ export async function loadWorld(target : string){
     // makeTreeNodeFromObject(root, "canvas", canvas, new Set<any>());
     makeTreeNodeFromObject(root, "json", data, new Set<any>());
 
-    const inspector = getUIFromId("inspector") as TreeNode;
-    inspector.addChild(root);
+    if(isDev){
+        const inspector = getUIFromId("inspector") as TreeNode;
+        inspector.addChild(root);
+    }
 
     canvas.layoutCanvas();
 

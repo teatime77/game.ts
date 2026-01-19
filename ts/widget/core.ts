@@ -342,6 +342,9 @@ export abstract class UI implements Movable {
         if(this.name == "play"){
             Sequencer.start();
         }
+        else if(this.name == "back"){
+            loadStageMapPage();
+        }
         else if(this instanceof TextUI && this.path != undefined){
             
             await loadWorld(this.path);

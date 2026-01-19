@@ -139,7 +139,7 @@ export class BundleImage extends ContainerUI {
         const base = Vec2.zero();
         if(this.minSize.x <= size.x && this.minSize.y <= size.y){
             base.setXY((size.x - this.minSize.x) / 2, (size.y - this.minSize.y) / 2);
-            msg(`bundle image:${this.minSize} ${size} ${base}`);
+            // msg(`bundle image:${this.minSize} ${size} ${base}`);
         }
         for(const [idx, ten] of this.tens.entries()){
             ten.setPosition(Vec2.fromXY(0, idx * this.tens[0].size.y).add(base));

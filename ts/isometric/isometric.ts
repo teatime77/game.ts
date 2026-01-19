@@ -1,9 +1,8 @@
 namespace game_ts {
 //
 // タイルの設定
-const TILE_WIDTH = 64;
-const TILE_HEIGHT = 32;
-const numHouseImages = 10;
+let TILE_WIDTH  : number;
+let TILE_HEIGHT : number;
 const houseSize = 128;
 const pageSize = 5;
 
@@ -68,12 +67,15 @@ function drawGrid(ctx : CanvasRenderingContext2D, pos : Vec3, size : Vec2) : Vec
 
 export function clearIsometric(){
     worldCanvas.isIsometric = false;
-    worldCanvas.removeUIs(worldGraph);
+    // worldCanvas.removeUIs(worldGraph);
 }
 
 export function initIsometric(canvas : Canvas, map : any){
     worldCanvas.isIsometric = true;
     currentPage = 0;
+
+    TILE_WIDTH  = (canvas.canvas.width  * 0.9) / GX;
+    TILE_HEIGHT = (canvas.canvas.height * 0.9) / GY;
 
     worldGraph = makeGraph(map);
     worldGraph.setPosition(Vec2.fromXY(canvas.canvas.width / 2, 50));
@@ -84,8 +86,26 @@ export function initIsometric(canvas : Canvas, map : any){
 
     addImage("grassland.png");
 
-    loadStageMapPage(currentPage);
+    loadStageMapPage();
+}
 
+async function pageUp(){
+    if((currentPage + 1) * pageSize < allLessons.length){
+        currentPage++;
+        loadStageMapPage();
+    }
+    msg("page up");
+}
+
+async function pageDown(){
+    if(0 < currentPage){
+        currentPage--;
+        loadStageMapPage();
+    }
+    msg("page down");
+}
+
+function makeUpDownButton(){
     upButton = new Button({
         text : "↑"
     });
@@ -98,7 +118,7 @@ export function initIsometric(canvas : Canvas, map : any){
     downButton.clickHandler = pageDown;
 
     for(const button of [upButton, downButton]){
-        canvas.addUI(button);
+        worldCanvas.addUI(button);
         button.setMinSize();
     }
 
@@ -106,28 +126,14 @@ export function initIsometric(canvas : Canvas, map : any){
     downButton.setPosition(Vec2.fromXY(20, upButton.getBottom() + 20));
 }
 
-async function pageUp(){
-    if((currentPage + 1) * pageSize < allLessons.length){
-        currentPage++;
-        loadStageMapPage(currentPage);
-    }
-    msg("page up");
-}
-
-async function pageDown(){
-    if(0 < currentPage){
-        currentPage--;
-        loadStageMapPage(currentPage);
-    }
-    msg("page down");
-}
-
-function loadStageMapPage(pageIdx : number){
-    worldCanvas.removeUIs(...houseImages, ...lessonLabels)
+export function loadStageMapPage(){
+    worldCanvas.isIsometric = true;
+    worldCanvas.clearUIs();
+    // worldCanvas.removeUIs(...houseImages, ...lessonLabels)
     houseImages = [];
     lessonLabels = [];
 
-    const lessons = allLessons.slice(pageIdx * pageSize, (pageIdx + 1) * pageSize);
+    const lessons = allLessons.slice(currentPage * pageSize, (currentPage + 1) * pageSize);
     for(const [idx, lesson] of lessons.entries()){
         const img = new ImageUI({ 
             imageFile:`house-${idx+1}.png`,
@@ -150,12 +156,14 @@ function loadStageMapPage(pageIdx : number){
 
         label.setMinSize();
     }
+
+    makeUpDownButton();
 }
 
 export function drawIsometric(ctx : CanvasRenderingContext2D){
     // 画面中央にオフセットを乗せる
     offsetX = worldCanvas.canvas.width  * 0.5; 
-    offsetY = worldCanvas.canvas.height * 0.9; 
+    offsetY = worldCanvas.canvas.height * 0.95; 
     offset = new Vec2(offsetX, offsetY);
 
     const vertices = drawGrid(ctx, new Vec3(0, 0, 0), new Vec2(GX, GY));
@@ -185,6 +193,9 @@ function drawVertices(ctx : CanvasRenderingContext2D, pt2 : Vec2[]){
     for(const [i,c] of pt2.entries()){
         worldCanvas.drawCircle(c, 10, colors[i]);
     }
+
+    const can = worldCanvas.canvas;
+    msg(`canvas:[${can.width}, ${can.height}] size:[${pt2[3].x - pt2[1].x}, ${pt2[2].y - pt2[0].y}] tile:[${GX * TILE_WIDTH}, ${GY * TILE_HEIGHT}]`);
 }
 
 // 3D座標から2D座標への変換

@@ -172,8 +172,8 @@ export class Canvas {
         this.uis.push(ui);
     }
 
-    removeUI(ui : UI){
-        remove(this.uis, ui);
+    removeUIs(...uis : UI[]){
+        uis.slice().forEach(x => remove(this.uis, x))
     }
 
     getPositionInCanvas(event : PointerEvent) : Vec2 {

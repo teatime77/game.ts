@@ -14,9 +14,13 @@ let offset  : Vec2;
 let worldGraph : Graph;
 
 let currentPage : number;
-let houseImages : ImageUI[] = [];
 let allLessons : GraphNode[];
+
+let houseImages : ImageUI[] = [];
 let lessonLabels : Label[] = [];
+
+let upButton : Button;
+let downButton : Button;
 
 export class Vec3 {
     x: number;
@@ -64,7 +68,7 @@ function drawGrid(ctx : CanvasRenderingContext2D, pos : Vec3, size : Vec2) : Vec
 
 export function clearIsometric(){
     worldCanvas.isIsometric = false;
-    worldCanvas.removeUI(worldGraph);
+    worldCanvas.removeUIs(worldGraph);
 }
 
 export function initIsometric(canvas : Canvas, map : any){
@@ -80,7 +84,51 @@ export function initIsometric(canvas : Canvas, map : any){
 
     addImage("grassland.png");
 
-    for(const idx of range(numHouseImages)){
+    loadStageMapPage(currentPage);
+
+    upButton = new Button({
+        text : "↑"
+    });
+
+    downButton = new Button({
+        text : "↓"
+    });
+
+    upButton.clickHandler = pageUp;
+    downButton.clickHandler = pageDown;
+
+    for(const button of [upButton, downButton]){
+        canvas.addUI(button);
+        button.setMinSize();
+    }
+
+    upButton.setPosition(Vec2.fromXY(20, 20));
+    downButton.setPosition(Vec2.fromXY(20, upButton.getBottom() + 20));
+}
+
+async function pageUp(){
+    if((currentPage + 1) * pageSize < allLessons.length){
+        currentPage++;
+        loadStageMapPage(currentPage);
+    }
+    msg("page up");
+}
+
+async function pageDown(){
+    if(0 < currentPage){
+        currentPage--;
+        loadStageMapPage(currentPage);
+    }
+    msg("page down");
+}
+
+function loadStageMapPage(pageIdx : number){
+    worldCanvas.removeUIs(...houseImages, ...lessonLabels)
+    houseImages = [];
+    lessonLabels = [];
+
+    const lessons = allLessons.slice(pageIdx * pageSize, (pageIdx + 1) * pageSize);
+    for(const [idx, lesson] of lessons.entries()){
         const img = new ImageUI({ 
             imageFile:`house-${idx+1}.png`,
             size : [houseSize, houseSize],
@@ -88,19 +136,10 @@ export function initIsometric(canvas : Canvas, map : any){
             padding : 0
         });
         img.setMinSize();
+
         houseImages.push(img);
+        worldCanvas.addUI(img);
 
-        if(idx < pageSize){
-            canvas.addUI(img);
-        }
-    }
-
-    loadStageMapPage(currentPage);
-}
-
-function loadStageMapPage(pageIdx : number){
-    const lessons = allLessons.slice(pageIdx, pageIdx + pageSize);
-    for(const [idx, lesson] of lessons.entries()){
         const label = new Label({
             text : lesson.text,
             path : lesson.path
@@ -128,21 +167,16 @@ export function drawIsometric(ctx : CanvasRenderingContext2D){
 }
 
 function drawHouses(ctx : CanvasRenderingContext2D){
-    for(const idx of range(pageSize)){
+    for(const [idx, img, label] of i18n_ts.zip(houseImages, lessonLabels)){
         const t = (idx + 1) / (pageSize + 1);
         const p = getPositionInPath(t);
         const pos = project(new Vec3(p.x, p.y, 0)).add(offset);
-        
-        const img = houseImages[idx];
+                
         img.setCenterPosition(pos);
 
-        if(idx < lessonLabels.length){
-            const label = lessonLabels[idx];
-            const x = img.getRight() + 5;
-            const y = img.position.y;
-
-            label.setPosition(Vec2.fromXY(x, y));
-        }
+        const x = img.getRight() + 5;
+        const y = img.position.y;
+        label.setPosition(Vec2.fromXY(x, y));
     }
 }
 

@@ -2,12 +2,15 @@ namespace game_ts {
 //
 export const shuffle = i18n_ts.shuffle;
 export type  MathExprUI = Digit | VariableUI | MathExprLayout;
+export let currentLesson : Label | undefined;
 
 const additionWithin10s    : [number, number][] = [];
 const subtractionWithin10s : [number, number][] = [];
 const additionSum11To19    : [number, number][] = [];
 
 let mathExLayout : MathExprUI;
+
+let lessonMap = new Map<string, (...arg:any)=>CalcEx[]>();
 
 function getAnsLabel(ui : UI) : VariableUI | undefined {
     if(ui instanceof VariableUI){
@@ -31,14 +34,19 @@ export class ArithmeticFormulaExercise extends Action {
     *exec() : Generator<any> {        
         msg("Arithmetic-Formula-Exercise");
         const stage = Stage.mainStage;
-        if(stage == undefined){
+        if(stage == undefined || currentLesson == undefined){
             throw new MyError();
         }
 
-        const exs = generateAdditionWithin10(5);
+        const fnc = lessonMap.get(currentLesson.lesson!);
+        if(fnc == undefined){
+            throw new MyError();
+        }
+
+        const exs = fnc(5, ...currentLesson.args);
         for(const [idx, ex] of exs.entries()){
 
-            if(mathExLayout != undefined){
+            if(mathExLayout != undefined && stage.children.includes(mathExLayout)){
                 stage.removeChild(mathExLayout);
             }
 
@@ -112,7 +120,7 @@ class CalcEx {
     }
 }
 
-export function generateAdditionWithin10(count : number) : CalcEx[] {
+lessonMap.set("AdditionWithin10", function(count : number) : CalcEx[] {
     if(additionWithin10s.length == 0){
         for(const i of range2(1, 10)){
             for(const j of range2(1, 11 - i)){
@@ -124,9 +132,9 @@ export function generateAdditionWithin10(count : number) : CalcEx[] {
 
     const nums = shuffle(additionWithin10s).slice(0, count);
     return nums.map(x => new CalcEx(`${x[0]} + ${x[1]} = ans`, x[0] + x[1]));
-}
+});
 
-export function generateSubtractionWithin10(count : number) : CalcEx[] {
+lessonMap.set("SubtractionWithin10", function(count : number) : CalcEx[] {
     if (subtractionWithin10s.length == 0) {
         for (const num1 of range2(2, 11)) {
             // num2（引く数）は 0 から num1 未満まで (答えが1以上になるように)
@@ -139,9 +147,9 @@ export function generateSubtractionWithin10(count : number) : CalcEx[] {
 
     const nums = shuffle(subtractionWithin10s).slice(0, count);
     return nums.map(x => new CalcEx(`${x[0]} - ${x[1]} = ans`, x[0] - x[1]));
-}
+});
 
-export function generateAdditionSum11To19(count : number) : CalcEx[] {
+lessonMap.set("AdditionSum11To19", function(count : number) : CalcEx[] {
     if(additionSum11To19.length == 0){
         // 1桁の足し算で和が11〜19になる組み合わせ
         // num1, num2 ともに 2〜9 の範囲（1+9などは最大10なので除外される）
@@ -157,17 +165,40 @@ export function generateAdditionSum11To19(count : number) : CalcEx[] {
 
     const nums = shuffle(additionSum11To19).slice(0, count);
     return nums.map(x => new CalcEx(`${x[0]} + ${x[1]} = ans`, x[0] + x[1]));
-}
+});
+
+lessonMap.set("SubtractionFrom11to19", function(count : number) : CalcEx[] {
+    const exs : CalcEx[] = [];
+
+    const num1s = shuffle(range2(11, 19)).slice(0, count);
+    for(const n1 of num1s){
+        const n2 = i18n_ts.getRandomInt(n1 - 10 + 1, 9);
+        exs.push(new CalcEx(`${n1} - ${n2} = ans`, n1 - n2));
+    }
+
+    return exs;
+});
+
+lessonMap.set("MultiplicationTable", function(count : number, num : number) : CalcEx[] {
+    const nums = shuffle(range2(2, 10)).slice(0, count);
+    return nums.map(x => new CalcEx(`${x} * ${num} = ans`, x * num));
+});
+
+lessonMap.set("FriendsOfTen", function(count : number) : CalcEx[] {
+    const nums = shuffle(range2(1, 10)).slice(0, count);
+    return nums.map(x => new CalcEx(Math.random() < 0.5 ? `${x} + ans = 10` : `ans + ${x} = 10`, 10 - x));
+});
+
+lessonMap.set("SubtractionFrom10", function(count : number) : CalcEx[] {
+    const nums = shuffle(range2(1, 10)).slice(0, count);
+    return nums.map(x => new CalcEx(`10 - ${x} = ans`, 10 - x));
+});
 
 export function testEx(){
-    let exs = generateAdditionWithin10(5);
-    exs.forEach(x => msg(`add 10: ${x}`));
-
-    exs = generateSubtractionWithin10(5);
-    exs.forEach(x => msg(`sub 10: ${x}`));
-
-    exs = generateAdditionSum11To19(5);
-    exs.forEach(x => msg(`sub 11-19: ${x}`));
+    for(const [name, fnc] of lessonMap.entries()){
+        const exs = fnc(5);
+        exs.forEach(x => msg(`${name}: ${x}`));        
+    }
 }
 
 interface MathProblem {

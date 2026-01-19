@@ -114,6 +114,13 @@ export abstract class TextUI extends UI {
 }
 
 export class Label extends TextUI {
+    args : number[] = [];
+    constructor(data : LabelAttr){
+        super(data);
+        if(data.args != undefined){
+            this.args = data.args;
+        }
+    }
 }
 
 export class Button extends TextUI {

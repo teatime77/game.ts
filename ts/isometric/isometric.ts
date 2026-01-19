@@ -1,6 +1,7 @@
 namespace game_ts {
 //
 // タイルの設定
+const TILE_COLS = 10;
 let TILE_WIDTH  : number;
 let TILE_HEIGHT : number;
 const houseSize = 128;
@@ -9,6 +10,8 @@ const pageSize = 5;
 
 let offsetX : number;
 let offsetY : number;
+let pathHeight : number;
+const pathCycle = 2;
 let offset  : Vec2;
 let worldGraph : Graph;
 
@@ -42,47 +45,21 @@ export class Vec3 {
 }
 
 
-function drawGrid(ctx : CanvasRenderingContext2D, pos : Vec3, size : Vec2) : Vec2[] {
-    // 描画順序が重要：奥（x+yが小さい方）から手前へ
-    /*
-    for (let x = 0; x < size.x + 1; x++) {
-        for (let y = 0; y < size.y + 1; y++) {
-            // 前回の project 関数を使って座標を計算
-            const pos2 = project(new Vec3(pos.x + x, pos.y + y, pos.z )).add(offset);
-            drawQImage(ctx, "grassland.png", pos2, TILE_WIDTH, TILE_HEIGHT);
-        }
-    }
-    */
+function drawGrid(ctx : CanvasRenderingContext2D){
     const can = worldCanvas.canvas;
-    const cx  = Math.floor((can.width  * 0.8) / TILE_WIDTH);
-    const cy  = Math.floor((can.height * 0.8) / TILE_HEIGHT);
-
-    let base_y = -cy;
-    for(const _iy of range(cy)){
-        for(let base_x = 0; base_x < 2; base_x++){
-            let y = base_y;
-            let x = base_y + base_x + 1;
-            for(const _ix of range(cx)){
-                const pos2 = project(new Vec3(x, y, pos.z ));
-                drawQImage(ctx, "grassland.png", pos2, TILE_WIDTH, TILE_HEIGHT);
-                x++;
-                y--;
+    const image = imageMap.get("grassland.png");
+    if(image == undefined){
+        Canvas.requestUpdateCanvas();
+    } 
+    else{
+        for(let y = -TILE_HEIGHT; y < can.height; y += TILE_HEIGHT){
+            for(const [offsetX, offsetY] of [[0, 0], [TILE_WIDTH / 2, TILE_HEIGHT / 2]]){
+                for(let x = -TILE_WIDTH; x < can.width; x += TILE_WIDTH){
+                    ctx.drawImage(image, offsetX + x, offsetY + y, TILE_WIDTH, TILE_HEIGHT);
+                }
             }
         }
-        base_y++;
     }
-
-    const pt1s : Vec3[] = [
-        new Vec3(pos.x         , pos.y, pos.z),
-        new Vec3(pos.x + size.x, pos.y, pos.z),
-        new Vec3(pos.x + size.x, pos.y + size.y, pos.z),
-        new Vec3(pos.x         , pos.y + size.y, pos.z)
-    ];
-
-    const pt2 = pt1s.map(p => project(p).add(offset));
-    worldCanvas.drawPolygon(pt2, "orange", 1);
-
-    return pt2;
 }
 
 export function clearIsometric(){
@@ -94,7 +71,7 @@ export function initIsometric(canvas : Canvas, map : any){
     worldCanvas.isIsometric = true;
     currentPage = 0;
 
-    TILE_WIDTH  = (canvas.canvas.width  * 0.9) / GX;
+    TILE_WIDTH  = (canvas.canvas.width  * 0.9) / TILE_COLS;
     // TILE_HEIGHT = (canvas.canvas.height * 0.9) / GY;
     TILE_HEIGHT = TILE_WIDTH / 2;
 
@@ -169,7 +146,9 @@ export function loadStageMapPage(){
 
         const label = new Label({
             text : lesson.text,
-            path : lesson.path
+            path : lesson.path,
+            lesson : lesson.lesson,
+            args : lesson.args
         });
 
         lessonLabels.push(label);
@@ -187,19 +166,19 @@ export function drawIsometric(ctx : CanvasRenderingContext2D){
     offsetY = worldCanvas.canvas.height * 0.95; 
     offset = new Vec2(offsetX, offsetY);
 
-    const vertices = drawGrid(ctx, new Vec3(0, 0, 0), new Vec2(GX, GY));
+    pathHeight = worldCanvas.canvas.height * 0.9; 
 
-    drawPath(ctx, Vec2.fromXY(offsetX, offsetY));
+    const vertices = drawGrid(ctx);
 
-    drawHouses(ctx);
-    drawVertices(ctx, vertices);
+    drawPath();
+
+    drawHouses();
 }
 
-function drawHouses(ctx : CanvasRenderingContext2D){
+function drawHouses(){
     for(const [idx, img, label] of i18n_ts.zip(houseImages, lessonLabels)){
         const t = (idx + 1) / (pageSize + 1);
-        const p = getPositionInPath(t);
-        const pos = project(new Vec3(p.x, p.y, 0)).add(offset);
+        const pos = getPositionInPath(t);
                 
         img.setCenterPosition(pos);
 
@@ -209,41 +188,29 @@ function drawHouses(ctx : CanvasRenderingContext2D){
     }
 }
 
-function drawVertices(ctx : CanvasRenderingContext2D, pt2 : Vec2[]){
-    const colors = [ "red", "green", "blue", "yellow" ]
-    for(const [i,c] of pt2.entries()){
-        worldCanvas.drawCircle(c, 10, colors[i]);
-    }
-
-    const can = worldCanvas.canvas;
-    msg(`canvas:[${can.width}, ${can.height}] size:[${pt2[3].x - pt2[1].x}, ${pt2[2].y - pt2[0].y}] tile:[${GX * TILE_WIDTH}, ${GY * TILE_HEIGHT}]`);
-}
-
 // 3D座標から2D座標への変換
-export function project(pos: Vec3) : Vec2 {
+function project(pos: Vec3) : Vec2 {
     const screenX =  (pos.x - pos.y) * (TILE_WIDTH / 2);
     const screenY = -(pos.x + pos.y) * (TILE_HEIGHT / 2) + pos.z;
     return Vec2.fromXY(screenX, screenY);
 }
-/*
-screenX + screenY = - pos.y(TILE_WIDTH + TILE_HEIGHT) / 2
-
-*/
 
 
-function drawQImage(ctx : CanvasRenderingContext2D, imageFile : string, screen: Vec2, width : number, height : number){
-    const image = imageMap.get(imageFile);
-    if(image == undefined){
-        Canvas.requestUpdateCanvas();
-    } 
-    else{
-        
-        const x = screen.x - width / 2;
-        const y = screen.y - height / 2;
-        ctx.drawImage(image, x, y, width, height);
-        // ctx.strokeRect(x, y, width, height);
-    }
+export function getPositionInPath(t : number) : Vec2 {
+    const amplitude = worldCanvas.canvas.width  * 0.4;
+    const x = offsetX + Math.sin(t * (2 * Math.PI * pathCycle)) * amplitude;
+    const y = offsetY - t * pathHeight
+
+    return new Vec2(x, y);
 }
+
+function drawPath(){
+    const pathPoints = range(100).map(i => getPositionInPath(i / (100 - 1) ));
+
+    worldCanvas.drawPolyLines(pathPoints, "brown", 30);
+}
+
+
 
 
 }

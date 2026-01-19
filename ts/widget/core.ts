@@ -35,6 +35,7 @@ export interface UIAttr {
     backgroundColor? : string;
     padding? : number | [number, number] | [number, number, number, number];
     imageFile? : string;
+    lesson?  : string;
 
     colSpan? : number;
     rowSpan? : number;
@@ -46,6 +47,9 @@ export interface TextUIAttr extends UIAttr {
     fontSize? : string;
     textAlign? : string;
     path? : string;
+}
+export interface LabelAttr extends TextUIAttr {
+    args? : number[];
 }
 
 export abstract class UI implements Movable {
@@ -66,6 +70,7 @@ export abstract class UI implements Movable {
     color?           : string;
     borderWidth? : number;
     padding? : Padding;
+    lesson?  : string;
 
     colIdx! : number;
     rowIdx! : number;
@@ -218,6 +223,10 @@ export abstract class UI implements Movable {
         if(data.borderWidth !== undefined){
             this.borderWidth = data.borderWidth;
         }
+
+        if(data.lesson != undefined){
+            this.lesson = data.lesson;
+        }
     }
 
     constructor(data : UIAttr){
@@ -345,8 +354,11 @@ export abstract class UI implements Movable {
         else if(this.name == "back"){
             loadStageMapPage();
         }
+        else if(this instanceof Label && this.lesson != undefined){
+            currentLesson = this;
+            await loadWorld("stage.stage-4");            
+        }
         else if(this instanceof TextUI && this.path != undefined){
-            
             await loadWorld(this.path);
         }
     }
@@ -494,7 +506,7 @@ export function makeUIFromObj(data : any) : UI {
     const attr = data as UIAttr;
 
     switch(attr.className){
-    case Label.name  : return new Label(data as TextUIAttr);
+    case Label.name  : return new Label(data as LabelAttr);
     case Button.name : return new Button(data as TextUIAttr);
     case Link.name   : return new Link(data as TextUIAttr);
     case ImageUI.name: return new ImageUI(data as UIAttr);

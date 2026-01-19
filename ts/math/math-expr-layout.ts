@@ -77,9 +77,18 @@ export function makeMathExprLayout(expr : Term) : MathExprUI {
     }
     else if(expr instanceof App){
         assert(expr.args.length == 2);
-        const argUis = expr.args.map(x => makeMathExprLayout(x));
-        const operator = makeOperatorLabel(expr.fncName);
-        return new MathExprLayout({ children : [argUis[0], operator, argUis[1]]}, expr);
+        const [arg1, arg2] = expr.args.map(x => makeMathExprLayout(x));
+        if(arg2 instanceof Digit && arg2.value.int() < 0 && expr.isAdd()){
+            arg2.value.value.changeSign();
+            arg2.text = `${arg2.value.value.int()}`;
+            const operator = makeOperatorLabel("-");
+            return new MathExprLayout({ children : [arg1, operator, arg2]}, expr);
+        }
+        else{
+
+            const operator = makeOperatorLabel(expr.fncName);
+            return new MathExprLayout({ children : [arg1, operator, arg2]}, expr);
+        }
     }
     else{
         throw new MyError();

@@ -7,12 +7,12 @@ let TILE_HEIGHT : number;
 const houseSize = 128;
 const pageSize = 5;
 
+const labelBG = "DarkGreen";
 
 let offsetX : number;
 let offsetY : number;
 let pathHeight : number;
 const pathCycle = 2;
-let offset  : Vec2;
 let worldGraph : Graph;
 
 let currentPage : number;
@@ -23,6 +23,9 @@ let lessonLabels : Label[] = [];
 
 let upButton : Button;
 let downButton : Button;
+
+let startLabel : Label;
+let goalLabel : Label;
 
 export class Vec3 {
     x: number;
@@ -105,23 +108,31 @@ async function pageDown(){
 
 function makeUpDownButton(){
     upButton = new Button({
-        text : "↑"
+        text : "↑",
+        backgroundColor:labelBG
     });
 
     downButton = new Button({
-        text : "↓"
+        text : "↓",
+        backgroundColor:labelBG
     });
 
     upButton.clickHandler = pageUp;
     downButton.clickHandler = pageDown;
 
-    for(const button of [upButton, downButton]){
-        worldCanvas.addUI(button);
-        button.setMinSize();
+    startLabel = new Label({text: "Start", backgroundColor:labelBG});
+    goalLabel  = new Label({text: "Goal", backgroundColor:labelBG});
+
+    for(const ui of [upButton, downButton, startLabel, goalLabel]){
+        worldCanvas.addUI(ui);
+        ui.setMinSize();
     }
 
     upButton.setPosition(Vec2.fromXY(20, 20));
     downButton.setPosition(Vec2.fromXY(20, upButton.getBottom() + 20));
+
+    startLabel.setCenterPosition( getPositionInPath(0) )
+    goalLabel.setCenterPosition( getPositionInPath(1) );
 }
 
 export function loadStageMapPage(){
@@ -130,6 +141,12 @@ export function loadStageMapPage(){
     // worldCanvas.removeUIs(...houseImages, ...lessonLabels)
     houseImages = [];
     lessonLabels = [];
+
+    // 画面中央にオフセットを乗せる
+    offsetX = worldCanvas.canvas.width  * 0.5; 
+    offsetY = worldCanvas.canvas.height * 0.95; 
+
+    pathHeight = worldCanvas.canvas.height * 0.9; 
 
     const lessons = allLessons.slice(currentPage * pageSize, (currentPage + 1) * pageSize);
     for(const [idx, lesson] of lessons.entries()){
@@ -146,6 +163,7 @@ export function loadStageMapPage(){
 
         const label = new Label({
             text : lesson.text,
+            backgroundColor:labelBG,
             path : lesson.path,
             lesson : lesson.lesson,
             args : lesson.args
@@ -161,14 +179,7 @@ export function loadStageMapPage(){
 }
 
 export function drawIsometric(ctx : CanvasRenderingContext2D){
-    // 画面中央にオフセットを乗せる
-    offsetX = worldCanvas.canvas.width  * 0.5; 
-    offsetY = worldCanvas.canvas.height * 0.95; 
-    offset = new Vec2(offsetX, offsetY);
-
-    pathHeight = worldCanvas.canvas.height * 0.9; 
-
-    const vertices = drawGrid(ctx);
+    drawGrid(ctx);
 
     drawPath();
 
@@ -207,7 +218,7 @@ export function getPositionInPath(t : number) : Vec2 {
 function drawPath(){
     const pathPoints = range(100).map(i => getPositionInPath(i / (100 - 1) ));
 
-    worldCanvas.drawPolyLines(pathPoints, "brown", 30);
+    worldCanvas.drawPolyLines(pathPoints, "brown", 30, false, true);
 }
 
 

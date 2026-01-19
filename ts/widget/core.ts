@@ -166,6 +166,13 @@ export abstract class UI implements Movable {
     }
 
     draw(ctx : CanvasRenderingContext2D, offset : Vec2, visibleArea : VisibleArea | undefined) : void {
+        if(this.backgroundColor != undefined){
+            ctx.fillStyle = this.backgroundColor;
+
+            const x = offset.x + this.position.x;
+            const y = offset.y + this.position.y;
+            ctx.fillRect(x, y, this.size.x, this.size.y);
+        }
         this.drawBorder(ctx, offset);
     }
 
@@ -266,6 +273,10 @@ export abstract class UI implements Movable {
 
     setPosition(position : Vec2) : void {
         this.position.copyFrom(position);
+    }
+
+    setCenterPosition(center: Vec2){
+        this.setPosition(center.sub(this.size.mul(0.5)));
     }
 
     setMinSize() : void {

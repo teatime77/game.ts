@@ -17,10 +17,6 @@ export class ImageUI extends UI {
         this.imageFile = imageFile;
     }
 
-    setCenterPosition(center: Vec2){
-        this.setPosition(center.sub(this.size.mul(0.5)));
-    }
-
     isNear(position : Vec2) : boolean {
         if(this.position.x <= position.x && position.x < this.position.x + this.size.x){
             if(this.position.y <= position.y && position.y < this.position.y + this.size.y){

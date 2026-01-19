@@ -414,11 +414,14 @@ export class Canvas {
         this.ctx.stroke();
     }
 
-    drawPolyLines(points : Vec2[], color : string, lineWidth : number = 2, closePath : boolean = false){
+    drawPolyLines(points : Vec2[], color : string, lineWidth : number = 2, closePath : boolean = false, lineCap? : boolean){
         this.ctx.save();
 
         this.ctx.strokeStyle = color;
         this.ctx.lineWidth   = lineWidth;
+        if(lineCap != undefined){
+            this.ctx.lineCap = "round";
+        }
 
         this.ctx.beginPath();
 

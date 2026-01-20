@@ -11,6 +11,12 @@
                 {
                     "className" : "Label",
                     "size"      : [ 60, 60 ],
+                    "text"      : "⌫"
+                }
+                ,
+                {
+                    "className" : "Label",
+                    "size"      : [ 60, 60 ],
                     "text"      : "("
                 }
                 ,
@@ -18,12 +24,6 @@
                     "className" : "Label",
                     "size"      : [ 60, 60 ],
                     "text"      : ")"
-                }
-                ,
-                {
-                    "className" : "Label",
-                    "size"      : [ 60, 60 ],
-                    "text"      : ""
                 }
                 ,
                 {

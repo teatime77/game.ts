@@ -125,8 +125,8 @@ export class VariableUI extends Label {
 
     constructor(term  : RefVar){
         const data : TextUIAttr = {
-            text : `${term.name}`,
-            size : [digitSize, term.name.length * digitSize]
+            text : `${term.name == "ans" ? "❓" : term.name}`,
+            size : [ term.name.length * digitSize, digitSize ]
         };
         super(data);
         this.value = term;

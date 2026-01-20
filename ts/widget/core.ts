@@ -166,8 +166,8 @@ export abstract class UI implements Movable {
     }
 
     draw(ctx : CanvasRenderingContext2D, offset : Vec2, visibleArea : VisibleArea | undefined) : void {
-        if(this.backgroundColor != undefined){
-            ctx.fillStyle = this.backgroundColor;
+        if(this.backgroundColor != undefined || worldCanvas.targetUI == this){
+            ctx.fillStyle = this.backgroundColor != undefined ? this.backgroundColor : "green";
 
             const x = offset.x + this.position.x;
             const y = offset.y + this.position.y;

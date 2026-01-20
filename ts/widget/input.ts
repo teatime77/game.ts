@@ -25,6 +25,11 @@ export function inputByNumpad(target : Label){
 
         chars = [];
     }
+    else if(target.text == "⌫"){
+        if(chars.length != 0){
+            chars.pop();
+        }
+    }
     else{
         msg(`num-pad:${target.text}`);
         chars.push(target.text);

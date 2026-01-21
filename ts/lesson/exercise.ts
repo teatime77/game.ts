@@ -4,6 +4,7 @@ export const shuffle = i18n_ts.shuffle;
 export type  MathExprUI = Digit | VariableUI | MathExprLayout;
 export let currentLesson : Label | undefined;
 
+const trialCount = 5;
 const additionWithin10s    : [number, number][] = [];
 const subtractionWithin10s : [number, number][] = [];
 const additionSum11To19    : [number, number][] = [];
@@ -27,8 +28,14 @@ function getAnsLabel(ui : UI) : VariableUI | undefined {
 }
 
 export class ArithmeticFormulaExercise extends Action {
-    constructor(data : ActionAttr){
+    positions : Vec2[];
+
+    constructor(data : ActionAttr & {positions : [number, number][]}){
         super(data);
+        if(data.positions == undefined || data.positions.length != 2){
+            throw new MyError();
+        }
+        this.positions = data.positions.map(x => Vec2.fromXY(x[0], x[1]));
     }
 
     *exec() : Generator<any> {        
@@ -43,7 +50,7 @@ export class ArithmeticFormulaExercise extends Action {
             throw new MyError();
         }
 
-        const exs = fnc(5, ...currentLesson.args);
+        const exs = fnc(trialCount, ...currentLesson.args);
         for(const [idx, ex] of exs.entries()){
 
             if(mathExLayout != undefined && stage.children.includes(mathExLayout)){
@@ -52,7 +59,7 @@ export class ArithmeticFormulaExercise extends Action {
 
             mathExLayout = makeMathExprLayout(ex.expr);
             stage.addChildren(mathExLayout);
-            mathExLayout.setPosition(Vec2.fromXY(10, 10));
+            mathExLayout.setPosition(this.positions[1]);
             mathExLayout.setMinSizeUpdateLayout();
 
             const ansLabel = getAnsLabel(mathExLayout);
@@ -73,8 +80,11 @@ export class ArithmeticFormulaExercise extends Action {
                 yield;
             }
 
+            let img : ImageUI;
+            const imgSize = 64;
             if(num == ex.ans){
                 msg(`OK:${ex.expr} ${ex.ans} = ${num}`);
+                img = new ImageUI({ imageFile:"good.png", size:[imgSize, imgSize], backgroundColor:"white"});
                 let confetti : ConfettiManager | ParticleManager | HanamaruDrawer;
                 switch(idx % 3){
                 case 0:
@@ -101,8 +111,20 @@ export class ArithmeticFormulaExercise extends Action {
             }
             else{
                 msg(`NG:${ex.expr} ${ex.ans} <> ${num}`);
+                img = new ImageUI({ imageFile:"ng.png", size:[imgSize,imgSize], backgroundColor:"white"});
             }
+
+            img.setPosition(this.positions[0].add(Vec2.fromXY(idx * (imgSize + 10), 0)));
+            stage.addChildren(img);
+            img.setMinSize();
         }
+
+        const label = new Label({ text:"よくできました。", fontSize:"60px"});
+        stage.addChildren(label);
+        label.setMinSize();
+        const x = stage.size.x / 2 - label.size.x / 2;
+        const y = stage.size.y / 2;
+        label.setPosition(Vec2.fromXY(x, y));
     }
 }
 
@@ -196,7 +218,7 @@ lessonMap.set("SubtractionFrom10", function(count : number) : CalcEx[] {
 
 export function testEx(){
     for(const [name, fnc] of lessonMap.entries()){
-        const exs = fnc(5);
+        const exs = fnc(trialCount);
         exs.forEach(x => msg(`${name}: ${x}`));        
     }
 }

@@ -39,7 +39,11 @@
     ,
     "actions" : [
         {
-            "className" : "ArithmeticFormulaExercise"
+            "className" : "ArithmeticFormulaExercise",
+            "positions"  : [
+                [50, 50],
+                [ 200, 200 ]
+            ]
         }
     ] 
 }

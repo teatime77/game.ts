@@ -16,8 +16,17 @@
                 ,
                 {
                     "className" : "Button",
+                    "name"      : "back",
+                    "right"     : 10,
+                    "top"       : 10,
+                    "text"      : "Back"
+                }
+                ,
+                {
+                    "className" : "Button",
                     "name"      : "play",
-                    "position"  : [ 1400, 10 ],
+                    "right"     : 10,
+                    "top"       : 100,
                     "text"      : "Play"
                 }
             ]

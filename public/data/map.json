@@ -154,12 +154,6 @@
             "text"  : "テスト３",
             "path"  : "stage.stage-3"
         }
-        ,
-        {
-            "id"    : "test-4",
-            "text"  : "テスト４",
-            "path"  : "stage.stage-4"
-        }
     ],
     "edges"     : [
         {

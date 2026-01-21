@@ -367,7 +367,9 @@ export abstract class UI implements Movable {
         }
         else if(this instanceof Label && this.lesson != undefined){
             currentLesson = this;
-            await loadWorld("stage.stage-4");            
+            await loadWorld("stage.stage-4"); 
+            await sleep(500);
+            Sequencer.start();
         }
         else if(this instanceof TextUI && this.path != undefined){
             await loadWorld(this.path);

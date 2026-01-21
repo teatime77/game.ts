@@ -151,8 +151,8 @@ export class ArithmeticView extends Grid {
         const grid_data : GridAttr = Object.assign(
             data,
             {
-                columns  : "* * *",
-                rows     : "*"
+                columns  : "*",
+                rows     : "* * *"
             }
         );
         super(grid_data);

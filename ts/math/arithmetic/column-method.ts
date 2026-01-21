@@ -27,6 +27,7 @@ export class ColumnArithmetic extends ContainerUI {
 
     setMinSize() : void {
         this.children.forEach(x => x.setMinSize());
+        this.layoutChildren();
         this.setMinSizeByChildren();
     }
 
@@ -43,12 +44,17 @@ export class ColumnArithmetic extends ContainerUI {
     }
 
     layout(position : Vec2, size : Vec2) : void {
-        super.layout(position, size);
+        this.layoutByRightBottom();
+        this.position.copyFrom(position);
+    }
 
+    layoutChildren() : void {
         let y = 0;
-        const content_size = this.getContentSize();
+
+        const maxNumWidth = Math.max(...this.nums.map(n => n.size.x));        
+        const contentWidth = this.operator.size.x + maxNumWidth;
         for(const [row, num] of this.nums.entries()){
-            const x = content_size.x - num.size.x;
+            const x = contentWidth - num.size.x;
 
             num.setPosition(Vec2.fromXY(x, y));
 
@@ -68,8 +74,6 @@ export class ColumnArithmetic extends ContainerUI {
         }
 
         this.children.forEach(x => x.updateLayout());
-
-        this.setMinSizeByChildren();
     }
 
     expandNumber(num : NumberUI, progress : number){

@@ -87,6 +87,22 @@
                 }
                 ,
                 {
+                    "className" : "Button",
+                    "name"      : "back",
+                    "right"     : 10,
+                    "top"       : 10,
+                    "text"      : "Back"
+                }
+                ,
+                {
+                    "className" : "Button",
+                    "name"      : "play",
+                    "right"     : 10,
+                    "top"       : 100,
+                    "text"      : "Play"
+                }
+                ,
+                {
                     "className" : "Firework",
                     "numStars"  : 30,
                     "position"  : [ 300, 300 ]
@@ -95,7 +111,8 @@
                 {
                     "className" : "SymbolRef",
                     "path"  : "system.keyboard.numpad",
-                    "position"  : [ 900, 50 ]
+                    "right" : 100,
+                    "bottom": 10
                 }
             ]
         }

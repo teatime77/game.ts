@@ -31,7 +31,7 @@ function splitDigits(n: number): number[] {
 
 export function toInt(term : Term) : number {
     if(term instanceof parser_ts.ConstNum){
-        return term.value.int();
+        return term.int();
     }
     throw new MyError();
 }
@@ -143,7 +143,7 @@ export class ArithmeticView extends Grid {
     static arithmeticViews : ArithmeticView[] = [];
 
     term : Term;
-    imageView : Grid;
+    imageView : ImageExpr;
     mathExpr  : MathExprUI;
     columnArithmetic : ColumnArithmetic;
 
@@ -160,7 +160,7 @@ export class ArithmeticView extends Grid {
 
         this.term = parseMath(data.expr, true);
 
-        this.imageView = makeImageViewFromTerm(this.term);
+        this.imageView = makeImageExprFromTerm(this.term);
         this.mathExpr  = makeMathExprLayout(this.term);
         if(this.term instanceof App){
 

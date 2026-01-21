@@ -80,7 +80,7 @@ export function makeMathExprLayout(expr : Term) : MathExprUI {
         const [arg1, arg2] = expr.args.map(x => makeMathExprLayout(x));
         if(arg2 instanceof Digit && arg2.value.int() < 0 && expr.isAdd()){
             arg2.value.value.changeSign();
-            arg2.text = `${arg2.value.value.int()}`;
+            arg2.text = `${arg2.value.int()}`;
             const operator = makeOperatorLabel("-");
             return new MathExprLayout({ children : [arg1, operator, arg2]}, expr);
         }

@@ -9,40 +9,55 @@
             "name"      : "main-stage",
             "children"  : [
                 {
+                    "className" : "Grid",
+                    "columns"   : "* * *",
+                    "rows"      : "* * *",
+                    "children"  : [
+                        {
+                            "className" : "SingleDigitImage",
+                            "value"     : 6
+                        }
+                        ,
+                        {
+                            "className" : "ImageGrid10",
+                            "imageFile" : "orange.png"
+                        }
+                        ,
+                        {
+                            "className" : "ImageGrid10",
+                            "imageFile" : "orange.png",
+                            "value"     : 6
+                        }
+
+                        ,
+                        {
+                            "className" : "ColumnArithmetic",
+                            "expr"      : "12 + 34"
+                        }
+                        ,
+                        {
+                            "className" : "ColumnArithmetic",
+                            "expr"      : "12 * 34"
+                        }
+                        ,
+                        {
+                            "className" : "BundleImage",
+                            "value"     : 34
+                        }
+
+                        ,
+                        {
+                            "className" : "ImageExpr",
+                            "expr"      : "12 + ans = 46"
+                        }
+                    ]
+                }
+                ,
+                {
                     "className" : "SymbolRef",
                     "path"  : "system.keyboard.numpad",
                     "right" : 100,
                     "bottom": 10
-                }
-                ,
-                {
-                    "className" : "SingleDigitImage",
-                    "value"     : 6,
-                    "position"  : [ 10, 10 ]
-                }
-                ,
-                {
-                    "className" : "ImageGrid10",
-                    "imageFile" : "orange.png",
-                    "position"  : [ 500, 10 ]
-                }
-                ,
-                {
-                    "className" : "ColumnArithmetic",
-                    "expr"      : "12 + 34",
-                    "position"  : [ 10, 200 ]
-                }
-                ,
-                {
-                    "className" : "ColumnArithmetic",
-                    "expr"      : "12 * 34",
-                    "position"  : [ 270, 200 ]
-                }
-                ,
-                {
-                    "className" : "BundleImage",
-                    "value"     : 34,
-                    "position"  : [ 510, 200 ]
                 }
                 ,
                 {

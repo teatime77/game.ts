@@ -5,6 +5,8 @@ namespace game_ts {
 //
 const gap = 10;
 
+export type ImageExpr = Grid | BundleImage | Label;
+
 export class SingleDigitImage extends Grid {
     value : number;
     images : ImageUI[];
@@ -157,36 +159,43 @@ export class BundleImage extends ContainerUI {
     }
 }
 
-export function makeImageViewFromApp(app : App) : Grid {
-    assert(app.args.length == 2 && app.args.every(x => x instanceof ConstNum));
+export function makeImageExprFromApp(app : App) : Grid {
+    assert(app.args.length == 2);
 
-    const n1 = app.args[0].value.int();
-    const n2 = app.args[1].value.int();
-
-    const bundle_image1  = new BundleImage({ value : n1 });
-    const operator_label = makeOperatorLabel(app.fncName);
-    const bundle_image2  = new BundleImage({ value : n2 });
+    const argImages = app.args.map(x => makeImageExprFromTerm(x));
 
     const grid = new Grid({
         columns  : "* * *",
         rows     : "*",
         children : [
-            bundle_image1,
-            operator_label,
-            bundle_image2
+            argImages[0],
+            makeOperatorLabel(app.fncName),
+            argImages[1]
         ]
     });
 
     return grid;
-
 }
 
-export function makeImageViewFromTerm(term : Term) : Grid {
+export function makeImageExprFromTerm(term : Term) : ImageExpr {
     if(term instanceof App){
-        return makeImageViewFromApp(term);
+        return makeImageExprFromApp(term);
+    }
+    else if(term instanceof ConstNum){
+        assert(term.isInt());
+        const n = term.int();
+        return new BundleImage({ value : n })
+    }
+    else if(term instanceof RefVar){
+        return new Label({ text : term.name == "ans" ? "❓" : term.name })
     }
 
     throw new MyError();
+}
+
+export function makeImageExprFromJson(data : UIAttr & { expr: string }) : ImageExpr {
+    const term = parseMath(data.expr, true);
+    return makeImageExprFromTerm(term);
 }
 
 }

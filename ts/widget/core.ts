@@ -543,6 +543,7 @@ export function makeUIFromObj(data : any) : UI {
     }
     case BundleImage.name   : return new BundleImage(data as (UIAttr & { value : number }));
     case ArithmeticView.name: return new ArithmeticView(data as (UIAttr & {expr : string}));
+    case "ImageExpr"        : return makeImageExprFromJson(data as (UIAttr & { expr: string }));
     }
 
     throw new MyError();

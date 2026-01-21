@@ -12,6 +12,15 @@ export function getAllUISub(all_uis : UI[], ui : UI){
     }
 }
 
+export function getAllUIs() : UI[] {
+    const all_uis : UI[] = [];
+    for(const canvas of Canvas.canvases){
+        canvas.getUIs().forEach(ui => getAllUISub(all_uis, ui));
+    }
+
+    return all_uis;
+}
+
 function getUIFromIdSub(id : string, ui : UI) : UI | undefined {
     if(ui.id == id){
         return ui;

@@ -520,6 +520,7 @@ export function makeUIFromObj(data : any) : UI {
 
     switch(attr.className){
     case Label.name  : return new Label(data as LabelAttr);
+    case PlaceHolder.name  : return new PlaceHolder(data as LabelAttr);
     case Button.name : return new Button(data as TextUIAttr);
     case Link.name   : return new Link(data as TextUIAttr);
     case ImageUI.name: return new ImageUI(data as UIAttr);

@@ -36,6 +36,9 @@ export class ArithmeticFormulaExercise extends Action {
             throw new MyError();
         }
         this.positions = data.positions.map(x => Vec2.fromXY(x[0], x[1]));
+
+
+
     }
 
     *exec() : Generator<any> {        
@@ -47,6 +50,15 @@ export class ArithmeticFormulaExercise extends Action {
 
         const fnc = lessonMap.get(currentLesson.lesson!);
         if(fnc == undefined){
+            throw new MyError();
+        }
+
+        const results = getUIFromId("results") as Grid;
+        const question = getUIFromId("question") as Label;
+        const imageExprPlaceHolder = getUIFromId("imageExpr") as PlaceHolder;
+        const mathExprPlaceHolder  = getUIFromId("mathExpr") as PlaceHolder;
+
+        if([results, question, imageExprPlaceHolder, mathExprPlaceHolder].some(x => x == undefined)){
             throw new MyError();
         }
 

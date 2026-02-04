@@ -123,6 +123,9 @@ export class Label extends TextUI {
     }
 }
 
+export class PlaceHolder extends Label {    
+}
+
 export class Button extends TextUI {
 }
 

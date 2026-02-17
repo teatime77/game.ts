@@ -1,8 +1,11 @@
 ///<reference path="core.ts" />
 
-namespace game_ts {
-//
-
+import { sum, msg, MyError, Vec2 } from "@i18n";
+import { VisibleArea, UIAttr, UI, registerUI, makeUIFromJSON } from "./core";
+import { updateRoot } from "../game_util";
+import { ContainerUI } from "./container";
+import { ImageUI } from "./image";
+import { Label } from "./text";
 
 export class TreeNode extends ContainerUI {
     static indent = 20;
@@ -34,7 +37,7 @@ export class TreeNode extends ContainerUI {
         }
         else{
 
-            this.childNodes = data.childNodes.map(x => makeUIFromObj(x)) as TreeNode[];
+            this.childNodes = data.childNodes.map(x => makeUIFromJSON(x)) as TreeNode[];
         }
 
         this.children = [this.openClose, this.icon, this.label, ...this.childNodes];
@@ -138,6 +141,49 @@ export class TreeNode extends ContainerUI {
     }
 }
 
+registerUI(TreeNode.name, (obj) => new TreeNode(obj));
+
 const all_children = new Set<UI>();
 
+
+export function makeTreeNodeFromObject(parent : TreeNode, name : string, data : any, done : Set<any>) {
+    const node = new TreeNode({ label:name, childNodes:[] });
+    parent.addChild(node);
+
+    for (const [key, value] of Object.entries(data)) {
+        let child : TreeNode;
+        
+        if(Array.isArray(value)){
+            child = new TreeNode({ label:`${key}:array` });
+            for(const [i, element] of value.entries()){
+                makeTreeNodeFromObject(child, key,  element, done);
+            }
+        }
+        else if(value == undefined){
+
+            // msg(`${tab}${key} : undefined`);
+            continue;
+        }
+        else if(value == null){
+
+            child = new TreeNode({ label:`${key}:null` });
+        }
+        else if (typeof value == "object"){
+            if(done.has(value)){
+
+                child = new TreeNode({ label:`${key} : ${value.constructor.name} *` });
+            }
+            else{
+                done.add(value);
+
+                child = new TreeNode({ label:`${key} : ${value.constructor.name}` });
+                makeTreeNodeFromObject(child, key,  value, done);
+            }
+        }
+        else{
+            child = new TreeNode({ label:`${key} : ${typeof value} = ${value}` });
+        }
+
+        node.addChild(child);
+    }    
 }

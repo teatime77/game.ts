@@ -1,5 +1,6 @@
-namespace game_ts {
-//
+import { msg } from "@i18n";
+import { Label } from "./text";
+
 let chars : string[] = [];
 let inputFocus : Label | undefined;
 let onEnter : undefined | ((n: number) => void);
@@ -38,8 +39,5 @@ export function inputByNumpad(target : Label){
     if(inputFocus != undefined){
         inputFocus.text = chars.join("");
     }
-
-}
-
 
 }

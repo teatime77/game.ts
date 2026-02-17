@@ -1,7 +1,5 @@
 ///<reference path="../widget/core.ts" />
 
-namespace game_ts {
-//
 type SoundEffect = "correct" | "wrong" | "perfect";
 
 export class SoundGenerator {
@@ -88,5 +86,4 @@ export class SoundGenerator {
         osc.start(ctx.currentTime + startTime);
         osc.stop(ctx.currentTime + startTime + duration);
     }
-}
 }

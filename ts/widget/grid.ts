@@ -1,7 +1,10 @@
 ///<reference path="container.ts" />
 
-namespace game_ts {
-//
+import { assert, msg, sum, last, Vec2 } from "@i18n";
+import { UIAttr, UI, registerUI } from "./core";
+import { getDocumentSize } from "../game_util";
+import { ContainerUI } from "./container";
+
 export interface GridAttr extends UIAttr {
     children?: any[];
     columns? : string;
@@ -71,12 +74,12 @@ export class Grid extends ContainerUI {
 
     static pixSum(pixes : string[]) : number {
         const pix_nums = pixes.map(x => Grid.pix(x));
-        return i18n_ts.sum(pix_nums);
+        return sum(pix_nums);
     }
 
     static ratioSum(ratioes : string[]) : number {
         const pix_nums = ratioes.map(x => Grid.ratio(x));
-        return i18n_ts.sum(pix_nums);
+        return sum(pix_nums);
     }
 
     static minTotalSize(columns : string[], pix_sum : number, min_size : number) : number {
@@ -155,10 +158,6 @@ export class Grid extends ContainerUI {
 
     setMinSize() : void {
         assert(!isNaN(this.numCols) && !isNaN(this.numRows));
-        if(this instanceof SingleDigitImage){
-            msg("");
-        }
-
 
         this.children.forEach(x => x.setMinSize());
 
@@ -223,4 +222,5 @@ export class Grid extends ContainerUI {
         }
     }
 }
-}
+
+registerUI(Grid.name, (obj) => new Grid(obj));

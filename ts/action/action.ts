@@ -1,5 +1,6 @@
-namespace game_ts {
-//
+import { range, Vec2 } from "@i18n";
+import { getObjectById, registerAction, type Movable } from "../widget/core";
+
 export interface ActionAttr {
     args? : any;
 }
@@ -34,6 +35,8 @@ export class NumAction extends Action {
         return `num end ${this.count}`;
     }
 }
+
+registerAction(NumAction.name, (obj) => new NumAction(obj));
 
 
 export class MoveAction extends Action {
@@ -82,20 +85,4 @@ export class MoveAction extends Action {
 }
 
 
-export function makeActionFromObj(obj : any) : Action {
-    const attr = obj as { className : string };
-
-    switch(attr.className){
-    case NumAction.name        : return new NumAction(obj as (ActionAttr & {count : number}));
-    case SequentialAction.name : return new SequentialAction(obj as (ActionAttr & {actions : any[]}));
-    case ParallelAction.name   : return new ParallelAction(obj   as (ActionAttr & {actions : any[]}));
-    case MoveAction.name       : return new MoveAction(obj as (ActionAttr & { target : string, destination : [number, number], duration : number }));
-    case Speech.name           : return new Speech(obj as (ActionAttr & { text : string }));
-    case ArithmeticAction.name : return new ArithmeticAction(obj as ActionAttr);
-    case ArithmeticFormulaExercise.name: return new ArithmeticFormulaExercise(obj as (ActionAttr & {positions : [number, number][]}));
-    }
-
-    throw new MyError();
-}
-
-}
+registerAction(MoveAction.name, (obj) => new MoveAction(obj));

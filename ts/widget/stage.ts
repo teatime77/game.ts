@@ -1,7 +1,9 @@
 ///<reference path="container.ts" />
 
-namespace game_ts {
-//
+import { Vec2 } from "@i18n";
+import { registerUI, UIAttr } from "./core";
+import { ContainerUI } from "./container";
+
 export class Stage extends ContainerUI {
     static mainStage : Stage;
 
@@ -17,4 +19,5 @@ export class Stage extends ContainerUI {
         this.children.forEach(x => x.layout(x.position, x.size));
     }    
 }
-}
+
+registerUI(Stage.name, (obj) => new Stage(obj));

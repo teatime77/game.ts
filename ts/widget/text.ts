@@ -1,5 +1,14 @@
-namespace game_ts {
-//
+///<reference path="core.ts" />
+
+import { sleep, Vec2 } from "@i18n";
+import { VisibleArea, LabelAttr, TextUIAttr, UI, registerUI, worldCanvas } from "./core";
+import { Sequencer } from "../action/sequencer";
+import { loadWorld } from "../game";
+import { loadStageMapPage } from "../isometric/isometric";
+
+
+export let currentLesson : Label | undefined;
+
 const textColor = "white";
 
 interface TextDimensions {
@@ -62,9 +71,29 @@ export abstract class TextUI extends UI {
         this.text = (data.text != undefined ? data.text : "");
     }
 
+    async click(){
+        await super.click();
+
+        if(this.name == "play"){
+            Sequencer.start();
+        }
+        else if(this.name == "back"){
+            loadStageMapPage();
+        }
+        else if(this instanceof Label && this.lesson != undefined){
+            currentLesson = this;
+            await loadWorld("stage.stage-4"); 
+            await sleep(500);
+            Sequencer.start();
+        }
+        else if(this instanceof TextUI && this.path != undefined){
+            await loadWorld(this.path);
+        }
+    }
+
     getFont() : string {
-        const fontFamily = (this.fontFamily != undefined ? this.fontFamily : Canvas.fontFamily);
-        const fontSize   = (this.fontSize   != undefined ? this.fontSize   : Canvas.fontSize);
+        const fontFamily = (this.fontFamily != undefined ? this.fontFamily : UI.fontFamily);
+        const fontSize   = (this.fontSize   != undefined ? this.fontSize   : UI.fontSize);
         
         return `${fontSize} ${fontFamily}`;
     }
@@ -78,8 +107,7 @@ export abstract class TextUI extends UI {
 
             const padding_border_size = this.getPaddingBorderSize();
 
-            const canvas = getCanvasFromUI(this);
-            const size = getTextBoxSize(canvas.ctx, this.text, this.getFont());
+            const size = getTextBoxSize(worldCanvas.ctx, this.text, this.getFont());
 
             this.minSize.x = size.width  + padding_border_size.x;
             this.minSize.y = size.height + padding_border_size.y;
@@ -123,15 +151,27 @@ export class Label extends TextUI {
     }
 }
 
+registerUI(Label.name, (obj) => new Label(obj));
+
+
 export class PlaceHolder extends Label {    
 }
 
+
+registerUI(PlaceHolder.name, (obj) => new PlaceHolder(obj));
+
+
 export class Button extends TextUI {
 }
+
+registerUI(Button.name, (obj) => new Button(obj));
+
 
 export class Link extends TextUI {
     constructor(data : TextUIAttr){
         super(data);
     }
 }
-}
+
+
+registerUI(Link.name, (obj) => new Link(obj));

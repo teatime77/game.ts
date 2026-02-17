@@ -1,87 +1,18 @@
 ///<reference path="core.ts" />
 
-namespace game_ts {
-//
+import { MyError, msg, remove, Vec2 } from "@i18n";
+import { Sequencer } from "../action/sequencer";
+import { getDocumentSize } from "../game_util";
+import { drawIsometric } from "../isometric/isometric";
+import { UI, targetUI, setTargetUI, worldCanvas } from "./core";
+import { ImageUI } from "./image";
+import { inputByNumpad } from "./input";
+import { PopupMenu, showPopupMenu } from "./menu";
+import { Thumb } from "./slider";
+import { Label } from "./text";
+
 let animationFrameId : number | null = null;
-const uiToCanvas = new Map<UI,Canvas>();
 
-export function getAllUISub(all_uis : UI[], ui : UI){
-    all_uis.push(ui);
-    if(ui instanceof ContainerUI){
-        ui.children.forEach(x => getAllUISub(all_uis, x));
-    }
-}
-
-export function getAllUIs() : UI[] {
-    const all_uis : UI[] = [];
-    for(const canvas of Canvas.canvases){
-        canvas.getUIs().forEach(ui => getAllUISub(all_uis, ui));
-    }
-
-    return all_uis;
-}
-
-function getUIFromIdSub(id : string, ui : UI) : UI | undefined {
-    if(ui.id == id){
-        return ui;
-    }
-
-    if(ui instanceof ContainerUI){
-
-        for(const child of ui.children){
-
-            const ui2 = getUIFromIdSub(id, child);
-            if(ui2 != undefined){
-                return ui2;
-            }
-        }
-    }
-
-    return undefined;
-}
-
-export function getUIFromId(id : string) : UI {
-    for(const canvas of Canvas.canvases){
-        for(const ui of canvas.getUIMenus()){
-            const ui2 = getUIFromIdSub(id, ui);
-            if(ui2 != undefined){
-                return ui2;
-            }
-        }
-
-    }
-
-    throw new MyError();
-}
-
-export function getCanvasFromUI(ui : UI) : Canvas {
-    let canvas = uiToCanvas.get(ui);
-    if(canvas != undefined){
-        return canvas;
-    }
-
-    let root : UI;
-    for(let ui2 : UI | undefined = ui; ui2 != undefined; ui2 = ui2.parent){
-        if(ui2 instanceof PopupMenu){
-            if(ui2.canvas == undefined){
-                throw new MyError();
-            }
-
-            return ui2.canvas;
-        }
-
-        root = ui2;
-    }
-
-    for(const canvas of Canvas.canvases){
-        if(canvas.getUIMenus().some(x => x == root)){
-            uiToCanvas.set(ui, canvas);
-            return canvas;
-        }
-    }
-
-    throw new MyError();
-}
 function isTransparent(ctx : CanvasRenderingContext2D, position : Vec2) {
     try {
         // 1x1ピクセルの領域のImageDataを取得
@@ -98,29 +29,15 @@ function isTransparent(ctx : CanvasRenderingContext2D, position : Vec2) {
     }
 }
 
-export function updateRoot(ui : UI){
-    const root = ui.getRootUI();
-    root.setMinSize();
-    root.layout(root.position, getDocumentSize());
-
-    Canvas.requestUpdateCanvas();
-}
-
 export class Canvas {
     canvas : HTMLCanvasElement;
     ctx : CanvasRenderingContext2D;
 
-    static isReady : boolean = false;
-    static canvases: Canvas[] = [];
-    static borderWidth : number = 5;
-    static padding : Padding = new Padding(5, 5, 5, 5);
-    static fontFamily : string = "Arial";
-    static fontSize   : string = "30px";
+    isReady : boolean = false;
 
     private uis: UI[] = [];
 
     isIsometric : boolean = false;
-    targetUI? : UI;
 
     pointerId : number = NaN;
 
@@ -131,7 +48,6 @@ export class Canvas {
     moved : boolean = false;
 
     constructor(canvas_html : HTMLCanvasElement){
-        Canvas.canvases.push(this);
         this.canvas = canvas_html;
 
         const rect = this.canvas.getBoundingClientRect();
@@ -233,7 +149,7 @@ export class Canvas {
             // msg(`down:${target.constructor.name}`);
             this.downPos   = pos;
             this.movePos   = pos;
-            this.targetUI = target;
+            setTargetUI(target);
 
             this.uiOrgPos  = target.position.copy();
             this.pointerId = ev.pointerId;
@@ -245,7 +161,7 @@ export class Canvas {
 
     pointermove(ev:PointerEvent){
 
-        if(this.targetUI == undefined || !(this.targetUI instanceof Thumb)){
+        if(targetUI == undefined || !(targetUI instanceof Thumb)){
             return;
         }
 
@@ -257,9 +173,9 @@ export class Canvas {
 
         this.movePos = pos;
 
-        this.dragTarget(this.targetUI);
+        this.dragTarget(targetUI);
 
-        Canvas.requestUpdateCanvas();
+        this.requestUpdateCanvas();
     }
 
     layoutCanvas(){
@@ -268,15 +184,15 @@ export class Canvas {
             root.layout(root.position, getDocumentSize());
         }
 
-        Canvas.requestUpdateCanvas();
+        this.requestUpdateCanvas();
     }
 
-    static requestUpdateCanvas(){
-        if (Canvas.isReady && animationFrameId == null) {
+    requestUpdateCanvas(){
+        if (this.isReady && animationFrameId == null) {
 
             animationFrameId = requestAnimationFrame(()=>{
                 animationFrameId = null;
-                Canvas.canvases.forEach(x => x.repaint());
+                this.repaint();
 
                 Sequencer.nextAction();
             });
@@ -285,10 +201,10 @@ export class Canvas {
     }
 
     async pointerup(ev:PointerEvent){
-        if(this.targetUI == undefined){
+        if(targetUI == undefined){
             return;
         }
-        const target = this.targetUI;
+        const target = targetUI;
         PopupMenu.close();
 
 
@@ -313,10 +229,10 @@ export class Canvas {
         this.canvas.releasePointerCapture(this.pointerId);
         this.canvas.classList.remove('dragging');
 
-        this.targetUI = undefined;
+        setTargetUI(undefined);
         this.pointerId = NaN;
 
-        Canvas.requestUpdateCanvas();
+        this.requestUpdateCanvas();
 
         this.moved = false;
     }
@@ -340,7 +256,7 @@ export class Canvas {
         case 'Escape':
             msg('Escキーが押されました');
             PopupMenu.close();
-            Canvas.requestUpdateCanvas();
+            this.requestUpdateCanvas();
             break;
 
         case 'Enter':
@@ -373,12 +289,12 @@ export class Canvas {
             // Example drawing
             this.ctx.fillStyle = 'blue';
             this.ctx.fillRect(50, 50, 100, 100);
-            this.ctx.font = `${Canvas.fontSize} ${Canvas.fontFamily}`;
+            this.ctx.font = `${UI.fontSize} ${UI.fontFamily}`;
             this.ctx.fillStyle = 'white';
             this.ctx.fillText('Hello Canvas!', this.canvas.width / 2 - 100, this.canvas.height / 2);
         }
 
-        Canvas.requestUpdateCanvas();
+        this.requestUpdateCanvas();
     }
 
     repaint(){
@@ -454,7 +370,4 @@ export class Canvas {
     drawPolygon(points : Vec2[], color : string, lineWidth : number = 2){
         this.drawPolyLines(points, color, lineWidth, true);
     }
-}
-
-
 }

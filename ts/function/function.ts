@@ -1,24 +1,20 @@
-namespace game_ts {
-//
+import { MyError, range2 } from "@i18n";
+import { Term } from "@parser";
+import { UI, UIAttr } from "../widget/core";
+import { Label } from "../widget/text";
+
 type PrimitiveValueType = Term | boolean | number | UI | RuntimeFunction;
 type ValueType = PrimitiveValueType | ValueType[];
 
-export function makeTermFromObj(obj : any) : Term {
+function makeTermFromObj(obj : any) : Term {
     throw new MyError();
 }
 
-export function makeTermFromObjs(... objs : any[]) : Term[] {
+function makeTermFromObjs(... objs : any[]) : Term[] {
     throw objs.map(x => makeTermFromObj(x));
 }
 
-
-
-export abstract class RuntimeFunction {
-    // parameters : Term[];
-
-    // constructor(data : { parameters : any[]}){
-    //     this.parameters = data.parameters.map(x => makeTermFromObj(x));
-    // }
+abstract class RuntimeFunction {
     constructor(data : any){        
     }
 
@@ -28,7 +24,7 @@ export abstract class RuntimeFunction {
     }
 }
 
-export class randomInt extends RuntimeFunction {
+class randomInt extends RuntimeFunction {
     min : Term;
     max : Term;
 
@@ -38,14 +34,14 @@ export class randomInt extends RuntimeFunction {
     }
 
     eval() : ValueType {
-        const min = toInt(this.min);
-        const max = toInt(this.max);
+        const min = this.min.int();
+        const max = this.max.int();
 
         return Math.floor(Math.random() * (max - min + 1)) + min;
     }
 }
 
-export class Range extends RuntimeFunction {
+class Range extends RuntimeFunction {
     min : Term;
     max : Term;
 
@@ -55,19 +51,19 @@ export class Range extends RuntimeFunction {
     }
 
     eval() : ValueType {
-        const min = toInt(this.min);
-        const max = toInt(this.max);
+        const min = this.min.int();
+        const max = this.max.int();
 
         return range2(min, max + 1);
     }
 }
 
-export class ViewFactory {
+class ViewFactory {
     constructor(data : any){        
     }
 }
 
-export class LabelFactory extends ViewFactory {
+class LabelFactory extends ViewFactory {
     text : string;
 
     constructor(data : { text : number | string}){
@@ -85,7 +81,7 @@ export class LabelFactory extends ViewFactory {
     }
 }
 
-export class MapFunction extends RuntimeFunction {
+class MapFunction extends RuntimeFunction {
     list     : ValueType[];
     function : RuntimeFunction;
 
@@ -101,7 +97,7 @@ export class MapFunction extends RuntimeFunction {
     }
 }
 
-export class FilterFunction extends RuntimeFunction {
+class FilterFunction extends RuntimeFunction {
     list     : ValueType[];
     function : LogicalExpression;
 
@@ -117,7 +113,7 @@ export class FilterFunction extends RuntimeFunction {
     }
 }
 
-export abstract class LogicalExpression extends RuntimeFunction {
+abstract class LogicalExpression extends RuntimeFunction {
     apply(... args:ValueType[]) : boolean {
         throw new MyError();
     }
@@ -125,6 +121,4 @@ export abstract class LogicalExpression extends RuntimeFunction {
     eval(): boolean {
         throw new MyError();
     }
-}
-
 }

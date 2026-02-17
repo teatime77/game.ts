@@ -1,8 +1,15 @@
 ///<reference path="../../widget/grid.ts" />
 ///<reference path="../../widget/text.ts" />
 
-namespace game_ts {
-//
+import { range, assert, MyError, Vec2 } from "@i18n";
+import { App, Term, ConstNum, RefVar, parseMath } from "@parser";
+import { registerUI, UIAttr } from "../../widget/core";
+import { ContainerUI } from "../../widget/container";
+import { Grid, GridAttr } from "../../widget/grid";
+import { ImageUI } from "../../widget/image";
+import { Label } from "../../widget/text";
+import { makeOperatorLabel } from "./arithmetic";
+
 const gap = 10;
 
 export type ImageExpr = Grid | BundleImage | Label;
@@ -36,6 +43,8 @@ export class SingleDigitImage extends Grid {
         this.value = data.value;
     }
 }
+
+registerUI(SingleDigitImage.name, (obj) => new SingleDigitImage(obj));
 
 export class ImageGrid10 extends ContainerUI {
     cellSize : Vec2 = Vec2.fromXY(30, 30);
@@ -82,6 +91,8 @@ export class ImageGrid10 extends ContainerUI {
         }
     }
 }
+
+registerUI(ImageGrid10.name, (obj) => new ImageGrid10(obj));
 
 
 export class BundleImage extends ContainerUI {
@@ -159,6 +170,8 @@ export class BundleImage extends ContainerUI {
     }
 }
 
+registerUI(BundleImage.name, (obj) => new BundleImage(obj));
+
 export function makeImageExprFromApp(app : App) : Grid {
     assert(app.args.length == 2);
 
@@ -198,4 +211,4 @@ export function makeImageExprFromJson(data : UIAttr & { expr: string }) : ImageE
     return makeImageExprFromTerm(term);
 }
 
-}
+registerUI("ImageExpr", makeImageExprFromJson);

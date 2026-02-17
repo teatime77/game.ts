@@ -1,5 +1,5 @@
-namespace game_ts {
-//
+import { range, Vec2 } from "@i18n";
+import { VisibleArea, UI, UIAttr, registerUI, worldCanvas } from "./core";
 
 export class Star extends UI {
     velocity : Vec2 = Vec2.zero();
@@ -36,6 +36,8 @@ export class Star extends UI {
         ctx.fill();
     }
 }
+
+registerUI(Star.name, (obj) => new Star(obj));
 
 export class Firework extends UI {
     stars: Star[];
@@ -76,11 +78,12 @@ export class Firework extends UI {
 
         if(Date.now() - this.startTime < 1000){
 
-            Canvas.requestUpdateCanvas();
+            worldCanvas.requestUpdateCanvas();
         }
         else{
             // msg("stop firework");
         }
     }
 }
-}
+
+registerUI(Firework.name, (obj) => new Firework(obj));

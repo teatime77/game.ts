@@ -1,19 +1,9 @@
-namespace game_ts {
-//
-export class VisibleArea {
-    x1 : number;
-    y1 : number;
+///<reference path="container.ts" />
 
-    x2 : number;
-    y2 : number;
-
-    constructor(x1 : number, y1 : number, width : number, height : number){
-        this.x1 = x1;
-        this.y1 = y1;
-        this.x2 = x1 + width;
-        this.y2 = y1 + height;
-    }
-}
+import { Vec2 } from "@i18n";
+import { VisibleArea, UI, UIAttr, getNearUIinArray, registerUI, makeUIFromJSON } from "./core";
+import { ContainerUI } from "./container";
+import { HorizontalSlider, VerticalSlider, Track } from "./slider";
 
 export class ScrollView extends ContainerUI {
     horizontalSlider = new HorizontalSlider({ padding:0, borderWidth:0 });
@@ -25,7 +15,7 @@ export class ScrollView extends ContainerUI {
     constructor(data : UIAttr & { viewChildren : any[], viewSize:[number, number] }){
         super(data);
 
-        this.viewChildren = data.viewChildren.map(x => makeUIFromObj(x));
+        this.viewChildren = data.viewChildren.map(x => makeUIFromJSON(x));
 
         this.addChildren(this.horizontalSlider, this.verticalSlider, ...this.viewChildren);
 
@@ -113,6 +103,11 @@ export class ScrollView extends ContainerUI {
         ctx.restore();
     }
 
+    draw(ctx : CanvasRenderingContext2D, offset : Vec2, visibleArea : VisibleArea | undefined) : void {
+        const offset2 = this.drawSub(ctx, offset, visibleArea);
+        
+        this.drawScrollView(ctx, offset2, visibleArea);
+    }
 
     getNearUI(position : Vec2) : UI | undefined {
         if(this.isNear(position)){
@@ -139,4 +134,5 @@ export class ScrollView extends ContainerUI {
     }
 
 }
-}
+
+registerUI(ScrollView.name, (obj) => new ScrollView(obj));

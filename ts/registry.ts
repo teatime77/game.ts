@@ -1,5 +1,10 @@
-namespace game_ts {
-//
+import { MyError, Vec2 } from "@i18n";
+import { registerUI, UI, UIAttr, makeUIFromJSON, makeActionFromJSON } from "./widget/core";
+import { fetchJson } from "./game_util";
+
+import type { PopupMenu } from "./widget/menu";
+import type { Action } from "./action/action";
+
 export interface JsonData {
     target?  : string;
     imports? : string[];
@@ -51,10 +56,10 @@ export class SymbolRef {
             }
         }
 
-        const uis = data.uis.map(x => makeUIFromObj(x));
+        const uis = data.uis.map(x => makeUIFromJSON(x));
 
         const all_uis : UI[] = [];
-        uis.forEach(x => getAllUISub(all_uis, x));
+        uis.forEach(x => x.getAllUI(all_uis));
         for(const ui of all_uis){
             if(ui.name != undefined){
                 const key = `${url}.${ui.name}`;
@@ -71,8 +76,8 @@ export class SymbolRef {
             }
         }
 
-        const menus = data.menus.map(x => makeUIFromObj(x)) as PopupMenu[];
-        const actions = data.actions.map(x => makeActionFromObj(x));
+        const menus = data.menus.map(x => makeUIFromJSON(x)) as PopupMenu[];
+        const actions = data.actions.map(x => makeActionFromJSON(x));
 
         const stageData : StageData = {
             uis,
@@ -104,5 +109,4 @@ export class SymbolRef {
     }
 }
 
-
-}
+registerUI(SymbolRef.name, SymbolRef.lookupRegistry);

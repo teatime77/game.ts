@@ -1,8 +1,17 @@
 ///<reference path="../../widget/grid.ts" />
 ///<reference path="../../widget/text.ts" />
 
-namespace game_ts {
-//
+import { assert, MyError, msg } from "@i18n";
+import { Term, ConstNum, RefVar, parseMath, App } from "@parser";
+import { Action, ActionAttr } from "../../action/action";
+import { MathExprUI } from "../../lesson/exercise";
+import { UI, TextUIAttr, UIAttr, registerAction, registerUI } from "../../widget/core";
+import { Grid, GridAttr } from "../../widget/grid";
+import { Label } from "../../widget/text";
+import { makeMathExprLayout, MathExprLayout } from "../math-expr-layout";
+import { ColumnArithmetic } from "./column-method";
+import { ImageExpr, makeImageExprFromTerm } from "./image";
+
 export const digitSize = 60;
 
 export const termToUIs : Map<Term, UI[]> = new Map<Term, UI[]>();
@@ -27,13 +36,6 @@ function getDigitCount(n: number): number {
 
 function splitDigits(n: number): number[] {
      return n.toString().split('').map(Number);
-}
-
-export function toInt(term : Term) : number {
-    if(term instanceof parser_ts.ConstNum){
-        return term.int();
-    }
-    throw new MyError();
 }
 
 function toExpandedForm(n: number): number[] {
@@ -176,6 +178,8 @@ export class ArithmeticView extends Grid {
     }
 }
 
+registerUI(ArithmeticView.name, (obj) => new ArithmeticView(obj));
+
 export class ArithmeticAction extends Action {
     static one : ArithmeticAction;
     arithmeticView : ArithmeticView;
@@ -244,6 +248,10 @@ export class ArithmeticAction extends Action {
 }
 
 
+registerAction(ArithmeticAction.name, (obj) => new ArithmeticAction(obj));
+
+
+
 export abstract class BasicArithmetic extends Grid {
 
 }
@@ -275,5 +283,3 @@ class DivisionExpression extends ArithmeticExpression {
     readonly symbol = '÷';
 }
 */
-
-}

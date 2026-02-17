@@ -1,5 +1,11 @@
-namespace game_ts {
-//
+import { msg, range, zip, Vec2, Vec3 } from "@i18n";
+import { makeUIFromJSON, worldCanvas } from "../widget/core";
+import { Graph, GraphNode, makeGraph } from "../widget/graph";
+import { addImage, imageMap, ImageUI } from "../widget/image";
+
+import type { Button, Label } from "../widget/text";
+import type { Canvas } from "../widget/canvas";
+
 // タイルの設定
 const TILE_COLS = 10;
 let TILE_WIDTH  : number;
@@ -27,32 +33,12 @@ let downButton : Button;
 let startLabel : Label;
 let goalLabel : Label;
 
-export class Vec3 {
-    x: number;
-    y: number;
-    z: number;
-
-    static fromXYZ(x : number, y : number, z : number){
-        return new Vec3(x, y, z);
-    }
-
-    constructor(x : number, y : number, z : number){
-        this.x = x;
-        this.y = y;
-        this.z = z;
-    }
-
-    toString() : string {
-        return `(${Math.round(this.x)}, ${Math.round(this.y)}, ${Math.round(this.z)})`
-    }
-}
-
 
 function drawGrid(ctx : CanvasRenderingContext2D){
     const can = worldCanvas.canvas;
     const image = imageMap.get("grassland.png");
     if(image == undefined){
-        Canvas.requestUpdateCanvas();
+        worldCanvas.requestUpdateCanvas();
     } 
     else{
         for(let y = -TILE_HEIGHT; y < can.height; y += TILE_HEIGHT){
@@ -107,12 +93,14 @@ async function pageDown(){
 }
 
 function makeUpDownButton(){
-    upButton = new Button({
+    upButton = makeUIFromJSON({
+        className: "Button",
         text : "↑",
         backgroundColor:labelBG
     });
 
-    downButton = new Button({
+    downButton = makeUIFromJSON({
+        className: "Button",
         text : "↓",
         backgroundColor:labelBG
     });
@@ -120,8 +108,8 @@ function makeUpDownButton(){
     upButton.clickHandler = pageUp;
     downButton.clickHandler = pageDown;
 
-    startLabel = new Label({text: "Start", backgroundColor:labelBG});
-    goalLabel  = new Label({text: "Goal", backgroundColor:labelBG});
+    startLabel = makeUIFromJSON({className: "Label", text: "Start", backgroundColor:labelBG});
+    goalLabel  = makeUIFromJSON({className: "Label", text: "Goal", backgroundColor:labelBG});
 
     for(const ui of [upButton, downButton, startLabel, goalLabel]){
         worldCanvas.addUI(ui);
@@ -161,7 +149,8 @@ export function loadStageMapPage(){
         houseImages.push(img);
         worldCanvas.addUI(img);
 
-        const label = new Label({
+        const label = makeUIFromJSON({
+            className: "Label",
             text : lesson.text,
             backgroundColor:labelBG,
             path : lesson.path,
@@ -187,7 +176,7 @@ export function drawIsometric(ctx : CanvasRenderingContext2D){
 }
 
 function drawHouses(){
-    for(const [idx, img, label] of i18n_ts.zip(houseImages, lessonLabels)){
+    for(const [idx, img, label] of zip(houseImages, lessonLabels)){
         const t = (idx + 1) / (pageSize + 1);
         const pos = getPositionInPath(t);
                 
@@ -219,9 +208,4 @@ function drawPath(){
     const pathPoints = range(100).map(i => getPositionInPath(i / (100 - 1) ));
 
     worldCanvas.drawPolyLines(pathPoints, "brown", 30, false, true);
-}
-
-
-
-
 }

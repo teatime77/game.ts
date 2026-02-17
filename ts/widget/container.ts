@@ -1,7 +1,8 @@
 ///<reference path="core.ts" />
 
-namespace game_ts {
-//
+import { remove, MyError, Vec2 } from "@i18n";
+import { VisibleArea, UI, UIAttr, getNearUIinArray, makeUIFromJSON } from "./core";
+
 export abstract class ContainerUI extends UI {
     children : UI[] = [];
 
@@ -9,9 +10,14 @@ export abstract class ContainerUI extends UI {
         super(data);
 
         if(data.children != undefined){
-            this.children = (data.children as any[]).map(x => makeUIFromObj(x));
+            this.children = (data.children as any[]).map(x => makeUIFromJSON(x));
             this.children.forEach(x => x.parent = this);
         }
+    }
+
+    getAllUI(all_uis : UI[]){
+        super.getAllUI(all_uis);
+        this.children.forEach(x => x.getAllUI(all_uis));
     }
 
     removeChild(child : UI){
@@ -60,7 +66,7 @@ export abstract class ContainerUI extends UI {
         return undefined;
     }
 
-    draw(ctx : CanvasRenderingContext2D, offset : Vec2, visibleArea : VisibleArea | undefined) : void {
+    drawSub(ctx : CanvasRenderingContext2D, offset : Vec2, visibleArea : VisibleArea | undefined) : Vec2 {
         super.draw(ctx, offset, visibleArea);
 
         const content_position = this.getContentPosition();
@@ -69,13 +75,11 @@ export abstract class ContainerUI extends UI {
             throw new MyError();
         }
 
-        if(this instanceof ScrollView){
-            this.drawScrollView(ctx, offset2, visibleArea);
-        }
-        else{
-            this.children.forEach(x => x.draw(ctx, offset2, visibleArea));
-        }
+        return offset2;
     }
-}
 
+    draw(ctx : CanvasRenderingContext2D, offset : Vec2, visibleArea : VisibleArea | undefined) : void {
+        const offset2 = this.drawSub(ctx, offset, visibleArea);
+        this.children.forEach(x => x.draw(ctx, offset2, visibleArea));
+    }
 }

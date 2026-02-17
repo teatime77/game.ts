@@ -5,10 +5,7 @@
   <title>Game</title>
   <script src="https://cdn.jsdelivr.net/npm/graphlib@2.1.8/dist/graphlib.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/dagre@0.8.5/dist/dagre.min.js"></script>
-  <script type="text/javascript" src="lib/i18n/i18n.js?ver=1"></script>
-  <script type="text/javascript" src="lib/parser/parser.js?ver=1"></script>
-  <script type="text/javascript" src="lib/layout/layout.js?ver=1"></script>
-  <script type="text/javascript" src="lib/plane/plane.js?ver=1"></script>
+  <script type="module" src="lib/game/index.mjs"></script>
 
 <style>
 html, body {
@@ -32,7 +29,5 @@ html, body {
 <body>
 
 <canvas id="world" tabindex="0" ></canvas>
-
-<script type="text/javascript" src="lib/game/game.js"></script>
 </body>
 </html>

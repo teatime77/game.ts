@@ -1,7 +1,8 @@
 ///<reference path="../widget/core.ts" />
 
-namespace game_ts {
-//
+import { Vec2 } from "@i18n";
+import { VisibleArea, UI, UIAttr, worldCanvas } from "../widget/core";
+
 class ConfettiPiece {
     x: number;
     y: number;
@@ -228,12 +229,4 @@ export class HanamaruDrawer extends UI {
 
         ctx.stroke();
     }
-}
-
-
-
-
-
-
-
 }

@@ -1,5 +1,55 @@
-namespace game_ts {
-//
+import { MyError, msg, Vec2 } from "@i18n";
+import type { ContainerUI } from "./container";
+import type { TreeNode } from "./tree";
+import type { Canvas } from "./canvas";
+
+const objMap : Map<string, UI> = new Map<string, UI>();
+
+export let targetUI : UI | undefined;
+
+export let worldCanvas : Canvas;
+
+export function setCanvas(canvas : Canvas){
+    worldCanvas = canvas;
+}
+
+
+export function setTargetUI(target : UI | undefined){
+    targetUI = target;
+}
+
+export function addObject(id : string, obj : UI){
+    if(objMap.has(id)){
+        // throw new MyError();        
+        msg(`dup obj:${id}`);
+    }
+
+    objMap.set(id, obj);
+}
+
+export function getObjectById(id : string) : UI {
+    const obj = objMap.get(id);
+    if(obj == undefined){
+        throw new MyError();
+    }
+
+    return obj;
+}
+
+export class VisibleArea {
+    x1 : number;
+    y1 : number;
+
+    x2 : number;
+    y2 : number;
+
+    constructor(x1 : number, y1 : number, width : number, height : number){
+        this.x1 = x1;
+        this.y1 = y1;
+        this.x2 = x1 + width;
+        this.y2 = y1 + height;
+    }
+}
 
 export interface Movable {
     getPosition() : Vec2;
@@ -19,6 +69,9 @@ export class Padding {
         this.bottom = bottom;
     }
 }
+
+const UI_padding : Padding = new Padding(5, 5, 5, 5);
+const UI_borderWidth : number = 5;
 
 export interface UIAttr {
     className? : string;
@@ -54,6 +107,8 @@ export interface LabelAttr extends TextUIAttr {
 
 export abstract class UI implements Movable {
     static count : number = 0;
+    static fontFamily : string = "Arial";
+    static fontSize   : string = "30px";
 
     className : string;
     idx      : number;
@@ -110,12 +165,16 @@ export abstract class UI implements Movable {
         throw new MyError();
     }
 
+    getAllUI(all_uis : UI[]){
+        all_uis.push(this);
+    }
+
     getPadding() : Padding {
-        return (this.padding !== undefined ? this.padding : Canvas.padding);
+        return (this.padding !== undefined ? this.padding : UI_padding);
     }
 
     getBorderWidth() : number {
-        return this.borderWidth !== undefined ? this.borderWidth : Canvas.borderWidth;
+        return this.borderWidth !== undefined ? this.borderWidth : UI_borderWidth;
     }
 
     getPaddingBorderSize() : Vec2 {
@@ -166,7 +225,7 @@ export abstract class UI implements Movable {
     }
 
     draw(ctx : CanvasRenderingContext2D, offset : Vec2, visibleArea : VisibleArea | undefined) : void {
-        if(this.backgroundColor != undefined || worldCanvas.targetUI == this){
+        if(this.backgroundColor != undefined || targetUI == this){
             ctx.fillStyle = this.backgroundColor != undefined ? this.backgroundColor : "green";
 
             const x = offset.x + this.position.x;
@@ -358,22 +417,6 @@ export abstract class UI implements Movable {
         if(this.clickHandler !== undefined){
             await this.clickHandler();
         }
-
-        if(this.name == "play"){
-            Sequencer.start();
-        }
-        else if(this.name == "back"){
-            loadStageMapPage();
-        }
-        else if(this instanceof Label && this.lesson != undefined){
-            currentLesson = this;
-            await loadWorld("stage.stage-4"); 
-            await sleep(500);
-            Sequencer.start();
-        }
-        else if(this instanceof TextUI && this.path != undefined){
-            await loadWorld(this.path);
-        }
     }
 
     drawBorder(ctx : CanvasRenderingContext2D, offset : Vec2) {
@@ -511,45 +554,6 @@ class Filler extends UI {
 }
 
 
-export function makeUIFromObj(data : any) : UI {
-    if(data instanceof UI){
-        return data;
-    }
-    
-    const attr = data as UIAttr;
-
-    switch(attr.className){
-    case Label.name  : return new Label(data as LabelAttr);
-    case PlaceHolder.name  : return new PlaceHolder(data as LabelAttr);
-    case Button.name : return new Button(data as TextUIAttr);
-    case Link.name   : return new Link(data as TextUIAttr);
-    case ImageUI.name: return new ImageUI(data as UIAttr);
-    case Star.name   : return new Star(data as UIAttr);
-    case Firework.name: return new Firework(data as (UIAttr & { numStars: number}));
-    case HorizontalSlider.name: return new HorizontalSlider(data as UIAttr);
-    case VerticalSlider.name  : return new VerticalSlider(data as UIAttr);
-    case Stage.name   : return new Stage(data as (UIAttr & { children : any[] }))
-    case Grid.name    : return new Grid(data  as (UIAttr & { children : any[], columns?: string, rows? : string }));
-    case TreeNode.name: return new TreeNode(data as (UIAttr & { icon?: string, label: string, childNodes : any[] }));
-    case ScrollView.name: return new ScrollView(data as (UIAttr & { viewChildren : any[], viewSize:[number, number] }));
-    case Graph.name    : return makeGraph(attr);
-    case PopupMenu.name: return new PopupMenu(data  as (UIAttr & { children : any[] }));
-    case SymbolRef.name: return SymbolRef.lookupRegistry(data as (UIAttr & { className : string, path : string }));
-    case SingleDigitImage.name : return new SingleDigitImage(data as (UIAttr & { value : number }));
-    case ImageGrid10.name : return new ImageGrid10(data as (UIAttr & { value? : number }));
-    case ColumnArithmetic.name: {
-        const app = parseMath((data as (UIAttr & { expr: string })).expr, true ) as App;
-        assert(app instanceof App);
-        return new ColumnArithmetic(data as UIAttr, app);
-    }
-    case BundleImage.name   : return new BundleImage(data as (UIAttr & { value : number }));
-    case ArithmeticView.name: return new ArithmeticView(data as (UIAttr & {expr : string}));
-    case "ImageExpr"        : return makeImageExprFromJson(data as (UIAttr & { expr: string }));
-    }
-
-    throw new MyError();
-}
-
 export function getNearUIinArray(children : UI[], position : Vec2){
     for(const child of children){
         const ui = child.getNearUI(position);
@@ -565,4 +569,43 @@ export function filler() : Filler {
     return new Filler({ borderWidth : 0 });
 }
 
+// Actionを生成する関数の型定義
+type ActionCreator = (obj: any) => any;
+
+const actionRegistry: Record<string, ActionCreator> = {};
+
+export function registerAction(name: string, creator: ActionCreator) {
+    actionRegistry[name] = creator;
+}
+
+export function makeActionFromJSON(obj: any) {
+    const className = obj.className;
+    const creator = actionRegistry[className];
+    if (!creator){
+        throw new MyError(`Unknown class: ${className}`);
+    }
+
+    return creator(obj);
+}
+
+// UIを生成する関数の型定義
+type UICreator = (obj: any) => any;
+
+const UIRegistry: Record<string, UICreator> = {};
+
+export function registerUI(name: string, creator: UICreator) {
+    UIRegistry[name] = creator;
+}
+
+export function makeUIFromJSON(obj: any) {
+    if(obj instanceof UI){
+        return obj;
+    }
+
+    const className = obj.className;
+    const creator = UIRegistry[className];
+    if (!creator){
+        throw new MyError(`Unknown class: ${className}`);
+    }
+    return creator(obj);
 }

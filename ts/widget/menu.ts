@@ -1,7 +1,10 @@
 ///<reference path="core.ts" />
 
-namespace game_ts {
-//
+import { msg, Vec2 } from "@i18n";
+import { registerUI, UIAttr } from "./core";
+import { Grid } from "./grid";
+import type { Canvas } from "./canvas";
+
 let popupMenus : PopupMenu[];
 
 export function initPopupMenus(popup_menus : PopupMenu[]){
@@ -37,4 +40,5 @@ export class PopupMenu extends Grid {
     }
 }
 
-}
+registerUI(PopupMenu.name, (obj) => new PopupMenu(obj));
+

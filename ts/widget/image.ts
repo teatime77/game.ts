@@ -1,7 +1,8 @@
 ///<reference path="core.ts" />
 
-namespace game_ts {
-//
+import { msg, Vec2 } from "@i18n";
+import { VisibleArea, UI, UIAttr, registerUI, worldCanvas } from "./core";
+
 export const imageMap = new Map<string, HTMLImageElement>();
 
 export class ImageUI extends UI {
@@ -50,6 +51,8 @@ export class ImageUI extends UI {
     }
 }
 
+registerUI(ImageUI.name, (obj) => new ImageUI(obj));
+
 const pendingImageFiles = new Set<string>();
 
 export function addImage(image_file : string){
@@ -64,9 +67,7 @@ export function addImage(image_file : string){
     image.src = `img/${image_file}`;    
     image.onload = ()=>{
         imageMap.set(image_file, image);
-        Canvas.requestUpdateCanvas();
+        worldCanvas.requestUpdateCanvas();
         msg(`image loaded:${image_file}`);
     }
-}
-
 }

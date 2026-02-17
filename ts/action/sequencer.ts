@@ -1,11 +1,13 @@
-namespace game_ts {
-//
+import { remove, msg } from "@i18n";
+import { makeActionFromJSON, registerAction, worldCanvas } from "../widget/core";
+import { Action, ActionAttr } from "./action";
+
 abstract class CompositeAction extends Action {
     actions : Action[] = [];
 
     constructor(data : ActionAttr & {actions : any[]}){
         super(data);
-        this.actions = data.actions.map(x => x instanceof Action ? x : makeActionFromObj(x));
+        this.actions = data.actions.map(x => x instanceof Action ? x : makeActionFromJSON(x));
     }
 }
 
@@ -23,6 +25,9 @@ export class SequentialAction extends CompositeAction {
         return "seq end";
     }
 }
+
+registerAction(SequentialAction.name, (obj) => new SequentialAction(obj));
+
 
 export class ParallelAction extends CompositeAction {
     *exec() : Generator<any> {
@@ -47,6 +52,9 @@ export class ParallelAction extends CompositeAction {
     }
 }
 
+registerAction(ParallelAction.name, (obj) => new ParallelAction(obj));
+
+
 export class Sequencer  {
     static rootParallelAction : ParallelAction | undefined;
     static generator : Generator<any> | undefined;
@@ -70,7 +78,7 @@ export class Sequencer  {
 
         const ret = Sequencer.generator.next();
         msg(`start ${ret.value}`);
-        Canvas.requestUpdateCanvas();
+        worldCanvas.requestUpdateCanvas();
     }
 
     static nextAction(){
@@ -83,9 +91,6 @@ export class Sequencer  {
             // msg(`next ${ret.value}`);
         }
 
-        Canvas.requestUpdateCanvas();
+        worldCanvas.requestUpdateCanvas();
     }
-}
-
-
 }

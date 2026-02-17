@@ -1,30 +1,25 @@
-namespace game_ts {
-//
+import { msg, MyError, $, parseURL } from "@i18n";
+import './widget/container';
+import './widget/slider';
+import './widget/scroll_view';
+import './widget/misc';
+import './action/speech';
+
+import { initSpeech } from "./action/speech";
+import { Sequencer } from "./action/sequencer";
+import { fetchJson, getUIFromId } from "./game_util";
+import { initIsometric, clearIsometric } from "./isometric/isometric";
+import { testEx } from "./lesson/exercise";
+import { ArithmeticView, termToUIs } from "./math/arithmetic/arithmetic";
+import { JsonData, SymbolRef } from "./registry";
+import { Canvas } from "./widget/canvas";
+import { makeUIFromJSON, setCanvas, worldCanvas } from "./widget/core";
+import { initPopupMenus } from "./widget/menu";
+import { TreeNode, makeTreeNodeFromObject } from "./widget/tree";
+
 let urlOrigin : string;
-const objMap : Map<string, UI> = new Map<string, UI>();
 export let isDev : boolean = false;
-export let worldCanvas : Canvas;
 let worldData : JsonData;
-
-export function addObject(id : string, obj : UI){
-    if(objMap.has(id)){
-        // throw new MyError();        
-        msg(`dup obj:${id}`);
-    }
-
-    objMap.set(id, obj);
-}
-
-export function getObjectById(id : string) : UI {
-    const obj = objMap.get(id);
-    if(obj == undefined){
-        throw new MyError();
-    }
-
-    return obj;
-}
-
-
 
 document.addEventListener('DOMContentLoaded', async () => {
     await asyncBodyOnLoad();
@@ -35,7 +30,7 @@ async function asyncBodyOnLoad(){
     let pathname  : string;
     let params = new Map<string, string>();
 
-    [ urlOrigin, pathname, params ] = i18n_ts.parseURL();
+    [ urlOrigin, pathname, params, ] = parseURL();
     msg(`origin:[${urlOrigin}] path:[${pathname}]`);
 
     for (const [key, value] of params.entries()) {
@@ -48,7 +43,7 @@ async function asyncBodyOnLoad(){
 
     initSpeech();
 
-    worldCanvas = new Canvas($("world") as HTMLCanvasElement);
+    setCanvas(new Canvas($("world") as HTMLCanvasElement))
 
     if(isDev){
         worldData   = await fetchJson(`data/dev.json?id=${Math.random()}`);
@@ -67,7 +62,7 @@ async function asyncBodyOnLoad(){
 
     const map = await fetchJson(`data/map.json?id=${Math.random()}`);
     initIsometric(worldCanvas, map);
-    Canvas.isReady = true;
+    worldCanvas.isReady = true;
 }
 
 export async function loadWorld(target : string){
@@ -76,7 +71,7 @@ export async function loadWorld(target : string){
     const canvas : Canvas   = worldCanvas;
     const data   : JsonData = worldData;
 
-    Canvas.isReady = false;
+    worldCanvas.isReady = false;
 
     SymbolRef.clearSymbolMap();
     canvas.clearUIs();
@@ -92,7 +87,7 @@ export async function loadWorld(target : string){
     }
 
     for(const obj of data.uis){
-        const ui = makeUIFromObj(obj);
+        const ui = makeUIFromJSON(obj);
         canvas.addUI(ui);
     }
 
@@ -111,9 +106,7 @@ export async function loadWorld(target : string){
 
     Sequencer.init(stageData.actions);
 
-    Canvas.isReady = true;
+    worldCanvas.isReady = true;
 }
+export { worldCanvas };
 
-
-
-}

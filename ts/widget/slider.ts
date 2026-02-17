@@ -1,5 +1,10 @@
-namespace game_ts {
-//
+///<reference path="container.ts" />
+
+import { Vec2 } from "@i18n";
+import { VisibleArea, UI, UIAttr, registerUI } from "./core";
+import { ContainerUI } from "./container";
+
+import type { Canvas } from "./canvas";
 
 export interface Draggable {
     pointerdown(canvas : Canvas) : void;
@@ -180,6 +185,8 @@ export class HorizontalSlider extends Slider {
     }
 }
 
+registerUI(HorizontalSlider.name, (obj) => new HorizontalSlider(obj));
+
 export class VerticalSlider extends Slider {
     thumbStart() : Vec2 {
         const start_x = this.size.x / 2;
@@ -195,4 +202,5 @@ export class VerticalSlider extends Slider {
         return new Vec2(end_x, end_y);
     }
 }
-}
+
+registerUI(VerticalSlider.name, (obj) => new VerticalSlider(obj));

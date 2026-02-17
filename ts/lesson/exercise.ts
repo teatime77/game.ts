@@ -1,8 +1,20 @@
-namespace game_ts {
-//
-export const shuffle = i18n_ts.shuffle;
+import { MyError, getRandomInt, msg, range2, shuffle, Vec2 } from "@i18n";
+import { App, parseMath } from "@parser";
+import { Action, ActionAttr } from "../action/action";
+import { Digit, VariableUI } from "../math/arithmetic/arithmetic";
+import { MathExprLayout, makeMathExprLayout } from "../math/math-expr-layout";
+import { ContainerUI } from "../widget/container";
+import { registerAction, UI, worldCanvas } from "../widget/core";
+import { Grid } from "../widget/grid";
+import { ImageUI } from "../widget/image";
+import { setInputFocus } from "../widget/input";
+import { Stage } from "../widget/stage";
+import { currentLesson, Label, PlaceHolder } from "../widget/text";
+import { ConfettiManager, ParticleManager, HanamaruDrawer } from "./confetti";
+import { SoundGenerator } from "./sound";
+import { getUIFromId } from "../game_util";
+
 export type  MathExprUI = Digit | VariableUI | MathExprLayout;
-export let currentLesson : Label | undefined;
 
 const trialCount = 5;
 const additionWithin10s    : [number, number][] = [];
@@ -85,7 +97,7 @@ export class ArithmeticFormulaExercise extends Action {
                 num = n;
             });
 
-            Canvas.requestUpdateCanvas();
+            worldCanvas.requestUpdateCanvas();
 
 
             while(isNaN(num)){
@@ -140,12 +152,15 @@ export class ArithmeticFormulaExercise extends Action {
     }
 }
 
+registerAction(ArithmeticFormulaExercise.name, (obj) => new ArithmeticFormulaExercise(obj));
+
+
 class CalcEx {
     expr: App;
     ans : number;
 
     constructor(expr: string, ans: number) {
-        this.expr = parser_ts.parseMath(expr, true) as App;
+        this.expr = parseMath(expr, true) as App;
         this.ans  = ans;
     }
 
@@ -206,7 +221,7 @@ lessonMap.set("SubtractionFrom11to19", function(count : number) : CalcEx[] {
 
     const num1s = shuffle(range2(11, 19)).slice(0, count);
     for(const n1 of num1s){
-        const n2 = i18n_ts.getRandomInt(n1 - 10 + 1, 9);
+        const n2 = getRandomInt(n1 - 10 + 1, 9);
         exs.push(new CalcEx(`${n1} - ${n2} = ans`, n1 - n2));
     }
 
@@ -274,5 +289,3 @@ class AdditionGenerator {
 // export class Exercise extends Lesson {
 
 // }
-
-}

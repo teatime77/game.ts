@@ -1,7 +1,13 @@
 ///<reference path="../widget/grid.ts" />
 
-namespace game_ts {
-//
+import { assert, MyError, Vec2 } from "@i18n";
+import { App, Term, ConstNum, RefVar } from "@parser";
+import { UIAttr, UI, worldCanvas } from "../widget/core";
+import { updateRoot } from "../game_util";
+import { MathExprUI } from "../lesson/exercise";
+import { ContainerUI } from "../widget/container";
+import { Digit, makeOperatorLabel, VariableUI } from "./arithmetic/arithmetic";
+
 export class MathExprLayout extends ContainerUI {
     app : App;
     expandNumberIdx : number = NaN;
@@ -64,7 +70,7 @@ export class MathExprLayout extends ContainerUI {
 
         this.setMinSize();
         this.updateLayout();
-        Canvas.requestUpdateCanvas();
+        worldCanvas.requestUpdateCanvas();
     }
 }
 
@@ -93,6 +99,4 @@ export function makeMathExprLayout(expr : Term) : MathExprUI {
     else{
         throw new MyError();
     }
-}
-
 }

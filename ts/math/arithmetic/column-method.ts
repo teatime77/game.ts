@@ -1,8 +1,13 @@
 ///<reference path="../../widget/grid.ts" />
 ///<reference path="../../widget/text.ts" />
 
-namespace game_ts {
-//
+import { assert, sum, Vec2 } from "@i18n";
+import { App, ConstNum, parseMath } from "@parser";
+import { registerUI, UIAttr, worldCanvas } from "../../widget/core";
+import { updateRoot } from "../../game_util";
+import { ContainerUI } from "../../widget/container";
+import { Label } from "../../widget/text";
+import { NumberUI, makeOperatorLabel } from "./arithmetic";
 
 export class ColumnArithmetic extends ContainerUI {
     expr : App;
@@ -103,8 +108,16 @@ export class ColumnArithmetic extends ContainerUI {
 
         this.setMinSize();
         this.updateLayout();
-        Canvas.requestUpdateCanvas();
+        worldCanvas.requestUpdateCanvas();
     }
 }
 
-}
+registerUI(ColumnArithmetic.name, (data) => {
+    const app = parseMath((data as (UIAttr & { expr: string })).expr, true ) as App;
+    assert(app instanceof App);
+    return new ColumnArithmetic(data as UIAttr, app);
+});
+
+
+
+

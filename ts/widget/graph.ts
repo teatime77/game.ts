@@ -1,8 +1,12 @@
 ///<reference path="core.ts" />
+
+import { MyError, Vec2 } from "@i18n";
+import { ContainerUI } from "./container";
+import { VisibleArea, TextUIAttr, UIAttr, registerUI, UI, worldCanvas } from "./core";
+import { Label, getTextBoxSize } from "./text";
+
 declare const dagre: any;
 
-namespace game_ts {
-//
 const nodeMap = new Map<string, GraphNode>();
 
 // 1. ノードの基本定義
@@ -113,7 +117,7 @@ export class Graph extends ContainerUI {
             }
             else{
                 if(node.width == undefined){
-                    const font = `${Canvas.fontSize} ${Canvas.fontFamily}`;
+                    const font = `${UI.fontSize} ${UI.fontFamily}`;
                     const size = getTextBoxSize(worldCanvas.ctx, node.text, font);
 
                     node.width  = size.width;
@@ -219,4 +223,4 @@ export class Graph extends ContainerUI {
     }
 }
 
-}
+registerUI(Graph.name, makeGraph);

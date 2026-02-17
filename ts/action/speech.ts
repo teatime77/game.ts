@@ -1,5 +1,7 @@
-namespace game_ts {
-//
+import { msg, MyError, assert } from "@i18n";
+import { registerAction } from "../widget/core";
+import { Action, ActionAttr } from "./action";
+
 let voiceLanguageCode : string = "jpn";// "eng";
 let languageRegion : string;
 let cancelSpeechFlag : boolean = false;
@@ -236,6 +238,9 @@ export class Speech extends AbstractSpeech {
     }
 }
 
+registerAction(Speech.name, (obj) => new Speech(obj));
+
+
 export class EmulationSpeech extends AbstractSpeech {
     speak(text : string) : void{
         let charIndex = 0;
@@ -267,6 +272,4 @@ export class EmulationSpeech extends AbstractSpeech {
             }
         }, 1);
     }
-}
-
 }

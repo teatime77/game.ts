@@ -1,0 +1,6 @@
+{
+  "name": "@stem/game",
+  "scripts": {
+    "build": "tsc -b && vite build"
+  }
+}

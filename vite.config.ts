@@ -13,7 +13,7 @@ export default defineConfig(
         fileName: 'game',
         formats: ['es']
       },
-      outDir: '../dist'
+      outDir: '../dist/game/assets'
     }
   })
 );

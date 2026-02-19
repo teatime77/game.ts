@@ -64,7 +64,7 @@ export function addImage(image_file : string){
 
     const image = new Image();
     // Set the path to your image file
-    image.src = `img/${image_file}`;    
+    image.src = `../plane/images/${image_file}`;    
     image.onload = ()=>{
         imageMap.set(image_file, image);
         worldCanvas.requestUpdateCanvas();
